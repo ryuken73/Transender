@@ -230,6 +230,7 @@
     "react-redux": "^7.2.6",
     "react-router-dom": "^6.2.2",
     "react-split-pane": "^0.1.92",
+    "react-spring": "^9.4.5",
     "redux-logger": "^3.0.6",
     "socket.io-client": "^4.4.1",
     "styled-components": "^5.3.3",
