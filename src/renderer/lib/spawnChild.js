@@ -8,7 +8,7 @@ class CP {
     let binary;
     let args;
     if (typeof props === 'string') {
-      [binary, args] = props.split(' ');
+      [binary, ...args] = props.split(' ');
     } else {
       binary = props.binary;
       args = props.args;
@@ -29,6 +29,7 @@ class CP {
   }
 
   start = () => {
+    console.log(this._binary, this._args)
     this.process = child_process.spawn(this._binary, this._args, this._options);
     this.process.stdout.on('data', (data) => this.handleStdout(data));
     this.process.stderr.on('data', (data) => this.handleStderr(data));

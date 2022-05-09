@@ -1,61 +1,47 @@
-const { EventEmitter } = require('events');
-const { getAbsolutePath } = require('./electronUtil');
-const { spawnChild } = require('./spawnChild');
+const { exec } = require('child_process');
 
-// const mediainfoBinary = getAbsolutePath('bin/mediainfo.exe', true);
-const mediainfoBinary = '../../bin/Mediainfo.exe';
+const mediaInfo = (binaryPath = `${process.cwd()}/../../bin/mediainfo.exe`) => {
+  let result = {};
+  const run = (inFile) => {
+    return new Promise((resolve, reject) => {
+      exec(
+        `${binaryPath} "${inFile}" --Output=JSON --Full`,
+        (error, stdout, stderr) => {
+          if (error) {
+            reject(error)
+          }
+          result = JSON.parse(stdout);
+          resolve(true);
+        }
+      );
+    })
+  };
+  const getResult = () => result;
+  const getNumTracks = () => result.media.track.length;
+  const getGeneral = (key) => {
+    const general = result.media.track.find(
+      (info) => info['@type'] === 'General'
+    );
+    if (key === undefined) return general;
+    return general[key];
+  };
+  const getStreams = (type='Video') => {
+    return (key) => {
+      const streams = result.media.track.filter(
+        (info) => info['@type'] === type
+      );
+      if (key === undefined) return streams;
+      return streams.map((stream) => stream[key]);
+    };
+  };
 
-
-const mkSpawnArgs = (inFile, args) => {
-  const stringArgs = typeof args === 'string' ? args : args.join(' ');
-  return `${inFile} ${stringArgs}`;
+  return {
+    run,
+    getResult,
+    getNumTracks,
+    getGeneral,
+    getStreams,
+  };
 };
 
-class MEDIAINFO extends EventEmitter {
-  constructor(opts) {
-    super();
-    const { inFile = 'sample_in.mp4' } = opts;
-    const { args = '' } = opts;
-    const spawnArgs = mkSpawnArgs(inFile, args);
-    console.log(spawnArgs)
-    this.proc = spawnChild({
-      binary: mediainfoBinary,
-      args: spawnArgs,
-      options: {},
-    });
-    return this;
-  }
-
-  start = () => {
-    this.proc.start();
-  };
-
-  set stdoutHandler(handler) {
-    this.proc.stdoutHandler = handler;
-  }
-
-  set spawnHandler(handler) {
-    this.proc.spawnHandler = handler;
-  }
-
-  set exitHandler(handler) {
-    this.proc.exitHandler = handler;
-  }
-}
-
-const mediainfo = (options) => {
-  const worker = new MEDIAINFO(options);
-  worker.stdoutHandler = (line) => {
-    console.log('ouput line:', line.toString());
-    worker.emit('frames', line.toString());
-  };
-  worker.spawnHandler = () => {
-    console.log('mediainfo ready');
-  };
-  worker.exitHandler = (code) => {
-    console.log('mediainfo stopped with code: ', code);
-  };
-  return worker;
-};
-
-module.exports = mediainfo;
+module.exports = mediaInfo;
