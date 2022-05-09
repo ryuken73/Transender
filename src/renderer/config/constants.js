@@ -7,6 +7,7 @@ const dev =  {
   },
   SOCKET_SERVER_URL: 'http://localhost:9009',
   EVENT_NEW_MESSAGES: 'post:newMessages',
+  MEDIAINFO_BIN: '',
 }
 
 const prd = {
