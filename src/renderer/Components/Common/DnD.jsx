@@ -21,11 +21,11 @@ const getColor = (props) => {
 const Container = styled.div`
   display: flex;
   flex-direction: column;
-  /* justify-content: center; */
+  justify-content: ${(props) => props.showPlaceholder && 'center'};
   align-items: center;
   border-radius: 5px;
   border: grey 1px ${(props) => (props.isDragAccept ? 'dashed' : 'solid')};
-  font-size: 12px;
+  font-size: calc(1px + 1.3vmin);
   color: white;
   width: 100%;
   border-color: ${(props) => getColor(props)};
@@ -38,7 +38,7 @@ const Container = styled.div`
 `;
 
 const DnD = (props) => {
-  const { onDrop, message = 'Drop Files or Folder' } = props;
+  const { onDrop, showPlaceholder = true, message = 'Drop Files or Folder' } = props;
   const dropZoneOptions = {
     noClick: true,
     noKeyboard: true,
@@ -57,9 +57,9 @@ const DnD = (props) => {
   } = useDropzone(dropZoneOptions);
 
   return (
-    <Container {...getRootProps({ isFocused, isDragAccept, isDragReject })}>
+    <Container showPlaceholder={showPlaceholder} {...getRootProps({ isFocused, isDragAccept, isDragReject })}>
       <input {...getInputProps()} />
-      <Box sx={{ padding: '0px' }}>{message}</Box>
+      {props.showPlaceholder && <Box sx={{ padding: '0px' }}>{message}</Box>}
       {props.children}
     </Container>
   );
