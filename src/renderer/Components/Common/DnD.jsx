@@ -21,21 +21,20 @@ const getColor = (props) => {
 const Container = styled.div`
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  /* justify-content: center; */
   align-items: center;
   border-radius: 5px;
-  /* border: 1px white dashed; */
   border: grey 1px ${(props) => (props.isDragAccept ? 'dashed' : 'solid')};
   font-size: 12px;
   color: white;
   width: 100%;
-  flex: 1;
   border-color: ${(props) => getColor(props)};
   background: ${(props) => (props.isDragAccept ? '#343858' : 'transparent')};
   color: #bdbdbd;
   outline: none;
   transition: all 0.24s ease-in-out;
   overflow-y: auto;
+  height: 100%;
 `;
 
 const DnD = (props) => {

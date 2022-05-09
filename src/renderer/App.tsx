@@ -25,7 +25,6 @@ const BasicBox = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 100%;
   width: 100%;
   border: grey 1px solid;
   box-sizing: border-box;
@@ -39,31 +38,34 @@ const AppContainer = styled(BasicBox)`
   flex-direction: column;
   justify-content: flex-start;
   color: white;
+  height: 100%;
 `;
 const HeaderContainer = styled(BasicBox)`
-  height: 50%;
   margin-bottom: -1px;
+  height: 30%;
 `;
-const BodyContainer = styled(BasicBox)`
-  flex-direction: row;
-  justify-content: flex-start;
+const BodyContainer = styled.div`
   margin-left: -1px;
   margin-right: -1px;
-  max-height: 70%
-`;
-const FooterContainer = styled(BasicBox)`
-  height: 70px;
-  margin-top: -1px;
-  font-size: calc(1px + 1.5vmin);
+  border: grey 1px solid;
+  box-sizing: border-box;
+  border-collapse: collapse;
+  width: 100%;
+  height: 70%;
 `;
 const CenterPane = styled(BasicBox)`
-  flex: 9;
   flex-direction: column;
   font-size: calc(1px + 2vmin);
   padding: 8px;
   margin-right: -1px;
   margin-left: -1px;
-  max-height: 100%;
+  height: 100%;
+`;
+const FooterContainer = styled(BasicBox)`
+  height: 40px;
+  margin-top: -1px;
+  font-size: calc(1px + 1.5vmin);
+  flex-shrink: 0;
 `;
 const Index = () => {
   return <div>index</div>;
