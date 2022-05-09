@@ -6,6 +6,7 @@ const CONSTANTS = {
     SEND_FILE: 'sendFile',
   },
   JOB_STATUS: {
+    STANDBY: 'standby',
     READY: 'ready',
     WAITING: 'waiting',
     ACTIVE: 'active',

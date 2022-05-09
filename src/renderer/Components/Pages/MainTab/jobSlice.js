@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 import { createSlice } from '@reduxjs/toolkit';
 import CONSTANTS from 'renderer/config/constants';
 const initialState = {
@@ -14,9 +15,15 @@ export const jobSlice = createSlice({
       const { job } = payload;
       state.jobList.push(job);
     },
+    updateJobStatus: (state, action) => {
+      const { payload } = action;
+      const { jobId, status } = payload;
+      const job = state.jobList.find(job => job.jobId === jobId);
+      if(job) job.status = status;
+    }
   },
 })
 
-export const { addJob } = jobSlice.actions;
+export const { addJob, updateJobStatus } = jobSlice.actions;
 
 export default jobSlice.reducer;

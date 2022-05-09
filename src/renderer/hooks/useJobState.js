@@ -1,6 +1,9 @@
 import React from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { addJob } from 'renderer/Components/Pages/MainTab/jobSlice';
+import {
+  addJob,
+  updateJobStatus,
+} from 'renderer/Components/Pages/MainTab/jobSlice';
 
 export default function useAppState() {
   const dispatch = useDispatch();
@@ -15,5 +18,11 @@ export default function useAppState() {
     },
     [dispatch]
   );
-  return { jobList, addJobState };
+  const updateJobStatusState = React.useCallback(
+    (jobId, status) => {
+      dispatch(updateJobStatus({ jobId, status }))
+    },
+    [dispatch]
+  )
+  return { jobList, addJobState, updateJobStatusState };
 }

@@ -8,7 +8,7 @@ const createTask = (taskInfo, index) => {
     jobId,
     taskId: Date.now() + index,
     taskType,
-    status: TASK_STATUS.READY,
+    status: TASK_STATUS.STANDBY,
     progress: 0,
   }
 };
@@ -27,7 +27,7 @@ const createJob = (jobInfo) => {
   return {
     jobId,
     tasks,
-    status: JOB_STATUS.READY,
+    status: JOB_STATUS.STANDBY,
     args
   };
 };
