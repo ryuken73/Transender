@@ -19,6 +19,16 @@ const Container = styled(Box)`
     }
   }
 `;
+const TinyBox = styled(Box)`
+  min-width: 40px;
+`
+const SmallBox = styled(Box)`
+  min-width: 70px;
+`
+const BigBox = styled(Box)`
+  min-width: 400px;
+  max-width: 400px;
+`
 
 const jobItem = (props) => {
   const { job, rownum } = props;
@@ -33,22 +43,22 @@ const jobItem = (props) => {
   return (
     <Container>
       <CheckBox checked={checked} />
-      <Box width="3%">
+      <TinyBox width="3%">
         <TextBox text={rownum} />
-      </Box>
-      <Box flex="2" maxWidth="500px" minWidth="500px">
+      </TinyBox>
+      <BigBox flex="2">
         <TextBox text={fileName} />
-      </Box>
-      <Box width="10%">
+      </BigBox>
+      <SmallBox width="10%">
         <TextBox text={size} />
-      </Box>
-      <Box width="10%">
+      </SmallBox>
+      <SmallBox width="10%">
         <TextBox text={status} />
-      </Box>
-      <Box width="10%">
+      </SmallBox>
+      <SmallBox width="10%">
         <TextBox text={pid} />
-      </Box>
-      <Box width="50%" marginRight="10px">
+      </SmallBox>
+      <Box width="50%" marginRight="20px">
         <Stepper />
       </Box>
     </Container>

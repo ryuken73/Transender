@@ -24,7 +24,7 @@ const Container = styled.div`
   justify-content: ${(props) => props.showPlaceholder && 'center'};
   align-items: center;
   border-radius: 5px;
-  border: grey 1px ${(props) => (props.isDragAccept ? 'dashed' : 'solid')};
+  border: grey 1px ${(props) => (props.isDragAccept ? 'dashed' : 'none')};
   font-size: calc(10px + 1.3vmin);
   color: white;
   width: 100%;
