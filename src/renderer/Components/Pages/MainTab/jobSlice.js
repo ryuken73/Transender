@@ -20,15 +20,15 @@ export const jobSlice = createSlice({
       const { jobs } = payload;
       state.jobList = [...state.jobList, ...jobs];
     },
-    updateJobStatus: (state, action) => {
+    updateJob: (state, action) => {
       const { payload } = action;
-      const { jobId, status } = payload;
+      const { jobId, key, value } = payload;
       const job = state.jobList.find(job => job.jobId === jobId);
-      if(job) job.status = status;
-    }
+      if(job) job[key] = value;
+    },
   },
 })
 
-export const { addJob, addJobs, updateJobStatus } = jobSlice.actions;
+export const { addJob, addJobs, updateJob  } = jobSlice.actions;
 
 export default jobSlice.reducer;

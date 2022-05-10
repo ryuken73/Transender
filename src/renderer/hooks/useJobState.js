@@ -7,7 +7,7 @@ import bullConstants from 'renderer/config/bull-constants';
 import {
   addJob,
   addJobs,
-  updateJobStatus,
+  updateJob,
 } from 'renderer/Components/Pages/MainTab/jobSlice';
 
 const { JOB_STATUS } = bullConstants;
@@ -28,12 +28,20 @@ export default function useAppState() {
         console.log('###', mediaInfo.getResult())
         if (isMediaFile) {
           dispatch(
-            updateJobStatus({ jobId: jobInfo.jobId, status: JOB_STATUS.READY })
+            updateJob({
+              jobId: jobInfo.jobId,
+              key: 'status',
+              value: JOB_STATUS.READY,
+            })
           );
           done(null, ret);
         } else {
           dispatch(
-            updateJobStatus({ jobId: jobInfo.jobId, status: JOB_STATUS.FAILED })
+            updateJob({
+              jobId: jobInfo.jobId,
+              key: 'status',
+              value: JOB_STATUS.FAILED,
+            })
           );
           done('codec unknows. suspect not media file.')
         }
@@ -57,11 +65,5 @@ export default function useAppState() {
     },
     [dispatch]
   );
-  const updateJobStatusState = React.useCallback(
-    (jobId, status) => {
-      dispatch(updateJobStatus({ jobId, status }))
-    },
-    [dispatch]
-  )
-  return { jobList, addJobsState, updateJobStatusState };
+  return { jobList, addJobsState };
 }
