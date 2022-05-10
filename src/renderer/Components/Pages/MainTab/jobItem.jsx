@@ -1,9 +1,11 @@
+/* eslint-disable react/prop-types */
 import React from 'react';
 import styled from 'styled-components';
 import Box from '@mui/material/Box';
 import CheckBox from 'renderer/Components/Common/CheckBox';
 import TextBox from 'renderer/Components/Common/TextBox';
 import Stepper from 'renderer/Components/Common/Stepper';
+import useJobItemState from 'renderer/hooks/useJobItemState';
 import colors from 'renderer/config/colors';
 
 const Container = styled(Box)`
@@ -30,19 +32,15 @@ const BigBox = styled(Box)`
   max-width: 400px;
 `
 
-const jobItem = (props) => {
+const JobItem = (props) => {
   const { job, rownum } = props;
-  const { status, args } = job;
-  const {
-    fileName = 'aaa.mp4',
-    size = '100MB',
-    pid = '0',
-    checked = false,
-  } = args;
+  const { jobId, checked, status, args } = job;
+  const { updateJobCheckState } = useJobItemState(jobId);
+  const { fileName = 'aaa.mp4', size = '100MB', pid = '0' } = args;
 
   return (
     <Container>
-      <CheckBox checked={checked} />
+      <CheckBox checked={checked} setChecked={updateJobCheckState}/>
       <TinyBox width="3%">
         <TextBox text={rownum} />
       </TinyBox>
@@ -65,4 +63,4 @@ const jobItem = (props) => {
   )
 };
 
-export default React.memo(jobItem);
+export default React.memo(JobItem);
