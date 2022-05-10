@@ -21,7 +21,7 @@ import useMessageBox from 'renderer/hooks/useMessageBox';
 import useSocketIO from 'renderer/hooks/useSocketIO';
 import useCheckConcept from './hooks/useCheckConcept';
 
-const { SOCKET_SERVER_URL, QUEUES } = constants;
+const { SOCKET_SERVER_URL } = constants;
 const { TASK_TYPES } = bullConstants;
 
 const BasicBox = styled.div`

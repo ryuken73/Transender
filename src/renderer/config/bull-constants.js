@@ -19,6 +19,7 @@ const CONSTANTS = {
     WAITING: 'waiting',
   },
   TASK_STATUS: {
+    STANDBY: 'standby',
     READY: 'ready',
     WAITING: 'waiting',
     ACTIVE: 'active',
