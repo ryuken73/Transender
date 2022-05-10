@@ -1,20 +1,18 @@
 /* eslint-disable promise/always-return */
 import React from 'react';
 import DnD from 'renderer/Components/Common/DnD';
-import jobItem from './jobItem';
+import JobItem from 'renderer/Components/Pages/MainTab/jobItem';
 import createJob from 'renderer/lib/jobUtil';
-import useJobState from 'renderer/hooks/useJobState';
+import useJobListState from 'renderer/hooks/useJobListState';
 import constants from 'renderer/config/bull-constants';
 import mediaInfoProc from 'renderer/lib/mediaInfoProc';
 import { getAbsolutePath } from 'renderer/lib/electronUtil';
-import JobItem from './jobItem';
-import JOB_CONSTANTS from 'renderer/config/bull-constants';
 
-const { JOB_STATUS, TASK_STATUS, TASK_DEFAULT } = JOB_CONSTANTS;
+const { JOB_STATUS, TASK_STATUS, TASK_DEFAULT } = constants;
 const { DEFAULT_TASK_FLOW } = constants;
 
 const MainTab = (props) => {
-  const { jobList, addJobsState } = useJobState();
+  const { jobList, addJobsState } = useJobListState();
   const handleDrop = React.useCallback(
     (drops) => {
       const jobs = drops.map((drop) => {
