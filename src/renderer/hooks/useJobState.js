@@ -6,6 +6,7 @@ import mediaInfoProc from 'renderer/lib/mediaInfoProc';
 import bullConstants from 'renderer/config/bull-constants';
 import {
   addJob,
+  addJobs,
   updateJobStatus,
 } from 'renderer/Components/Pages/MainTab/jobSlice';
 
@@ -42,11 +43,12 @@ export default function useAppState() {
       }
     })
   }, [dispatch])
-  const addJobState = React.useCallback(
+  const addJobsState = React.useCallback(
     (jobs) => {
       if (Array.isArray(jobs)) {
+        dispatch(addJobs({ jobs }));
         jobs.forEach((job) => {
-          dispatch(addJob({ job }));
+          // dispatch(addJob({ job }));
           mediainfoQueue.add({ data: job });
         });
       } else {
@@ -61,5 +63,5 @@ export default function useAppState() {
     },
     [dispatch]
   )
-  return { jobList, addJobState, updateJobStatusState };
+  return { jobList, addJobsState, updateJobStatusState };
 }

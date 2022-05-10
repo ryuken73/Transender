@@ -1,3 +1,4 @@
+import { getNextId } from 'renderer/utils';
 import JOB_CONSTANTS from 'renderer/config/bull-constants';
 
 const { JOB_STATUS, TASK_STATUS, TASK_DEFAULT } = JOB_CONSTANTS;
@@ -6,7 +7,7 @@ const createTask = (taskInfo, index) => {
   const { jobId, taskType } = taskInfo;
   return {
     jobId,
-    taskId: Date.now() + index,
+    taskId: getNextId(),
     taskType,
     status: TASK_STATUS.STANDBY,
     progress: 0,
@@ -15,7 +16,7 @@ const createTask = (taskInfo, index) => {
 
 const createJob = (jobInfo) => {
   const { taskFlow = [], args } = jobInfo;
-  const jobId = Date.now();
+  const jobId = getNextId();
   const tasks = taskFlow.map((taskType, index) => {
     const taskInfo = {
       jobId,

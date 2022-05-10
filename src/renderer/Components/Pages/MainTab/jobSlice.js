@@ -15,6 +15,11 @@ export const jobSlice = createSlice({
       const { job } = payload;
       state.jobList.push(job);
     },
+    addJobs: (state, action) => {
+      const { payload } = action;
+      const { jobs } = payload;
+      state.jobList = [...state.jobList, ...jobs];
+    },
     updateJobStatus: (state, action) => {
       const { payload } = action;
       const { jobId, status } = payload;
@@ -24,6 +29,6 @@ export const jobSlice = createSlice({
   },
 })
 
-export const { addJob, updateJobStatus } = jobSlice.actions;
+export const { addJob, addJobs, updateJobStatus } = jobSlice.actions;
 
 export default jobSlice.reducer;

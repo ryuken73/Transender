@@ -11,32 +11,15 @@ import JobItem from './jobItem';
 import JOB_CONSTANTS from 'renderer/config/bull-constants';
 
 const { JOB_STATUS, TASK_STATUS, TASK_DEFAULT } = JOB_CONSTANTS;
-const mediainfoBinary = getAbsolutePath('src/bin/Mediainfo.exe');
-const mediaInfo = mediaInfoProc(mediainfoBinary);
-
 const { DEFAULT_TASK_FLOW } = constants;
 
 const MainTab = (props) => {
-  const { jobList, addJobState, updateJobStatusState } = useJobState();
-  // React.useEffect(() => {
-  //   const standbyJobs = jobList.filter(job => job.status === JOB_STATUS.STANDBY)
-  //   if(standbyJobs.length > 0){
-  //     standbyJobs.forEach(async (job) => {
-  //       const ret = await mediaInfo.run(job.path);
-  //       const Video = mediaInfo.getStreams('Video');
-  //       if(ret){
-  //         updateJobStatusState(job.jobId, JOB_STATUS.READY);
-  //       }else{
-  //         updateJobStatusState(job.jobId, JOB_STATUS.FAILED);
-  //       }
-  //     })
-  //   }
-  // },[ jobList ])
+  const { jobList, addJobsState } = useJobState();
   const handleDrop = React.useCallback(
     (drops) => {
-      drops.forEach((drop) => {
+      const jobs = drops.map((drop) => {
         const { name, path, size } = drop;
-        const job =  createJob({
+        return createJob({
           taskFlow: DEFAULT_TASK_FLOW,
           args: {
             fileName: name,
@@ -44,10 +27,10 @@ const MainTab = (props) => {
             fileSize: size,
           },
         });
-        addJobState([job]);
       });
+      addJobsState(jobs);
     },
-    [addJobState]
+    [addJobsState]
   );
   console.log('$$$$', jobList);
   return (

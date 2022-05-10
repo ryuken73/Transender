@@ -237,7 +237,8 @@
     "redux-logger": "^3.0.6",
     "socket.io-client": "^4.4.1",
     "styled-components": "^5.3.3",
-    "tcp-ping": "^0.1.1"
+    "tcp-ping": "^0.1.1",
+    "uuidv4": "^6.2.13"
   },
   "devEngines": {
     "node": ">=14.x",

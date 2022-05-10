@@ -1,8 +1,8 @@
 /* eslint-disable consistent-return */
 /* eslint-disable no-underscore-dangle */
-const { EventEmitter } = require('events');
+import { getNextId } from 'renderer/utils';
 
-const getNextId = () => Date.now();
+const { EventEmitter } = require('events');
 
 class Task extends EventEmitter {
   constructor(task, queue, taskEvents) {
