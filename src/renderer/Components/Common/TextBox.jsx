@@ -15,10 +15,11 @@ const Container = styled(Box)`
   }
 `;
 const Text = styled(Box)`
-  font-size: ${(props) => props.fontSize || 'calc(12px+2vmin)'};
-  color: ${(props) => props.color || 'darkgrey'};
+  /* font-size: ${(props) => props.fontSize || 'calc(1px+2vmin)'}; */
+  font-size: ${(props) => props.fontSize || '14px'};
+  color: ${(props) => props.color || 'white'};
   font-weight: ${(props) => props.fontWeight || 400};
-  opacity: ${(props) => props.opacity || '0.8'};
+  opacity: ${(props) => props.opacity || '0.6'};
   cursor: ${(props) => props.cursor ? 'pointer' : props.clickable ? 'pointer' : 'auto'};
   overflow: hidden;
   text-overflow: ellipsis;

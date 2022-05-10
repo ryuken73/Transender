@@ -12,14 +12,17 @@ import Config from 'renderer/Components/Pages/Config';
 import Loading from 'renderer/Components/Common/Loading';
 import MessageBox from 'renderer/Components/Common/MessageBox';
 import styled from 'styled-components';
+import { createQueue } from 'renderer/lib/queueClass';
 import constants from 'renderer/config/constants';
+import bullConstants from 'renderer/config/bull-constants';
 import colors from 'renderer/config/colors';
 import useAppState from 'renderer/hooks/useAppState';
 import useMessageBox from 'renderer/hooks/useMessageBox';
 import useSocketIO from 'renderer/hooks/useSocketIO';
 import useCheckConcept from './hooks/useCheckConcept';
 
-const { SOCKET_SERVER_URL } = constants;
+const { SOCKET_SERVER_URL, QUEUES } = constants;
+const { TASK_TYPES } = bullConstants;
 
 const BasicBox = styled.div`
   display: flex;
@@ -82,6 +85,10 @@ export default function App() {
   const location = useLocation();
   const { pathname } = location;
   console.log(params, location, pathname);
+  React.useEffect(() => {
+    // initialize media info Queues
+    createQueue('mediainfo', bullConstants);
+  }, []);
   // const { socket } = useSocketIO({
   //   hostAddress: SOCKET_SERVER_URL,
   //   setSocketConnected,

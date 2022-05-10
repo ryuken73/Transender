@@ -34,9 +34,14 @@ const mediaInfo = (binaryPath = `${process.cwd()}/../../bin/mediainfo.exe`) => {
       return streams.map((stream) => stream[key]);
     };
   };
+  const isMediaFile = () => {
+    return !!getGeneral('CodecID') || !!getGeneral('InternetMediaType');
+  };
+
 
   return {
     run,
+    isMediaFile,
     getResult,
     getNumTracks,
     getGeneral,

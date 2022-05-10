@@ -18,33 +18,30 @@ const { DEFAULT_TASK_FLOW } = constants;
 
 const MainTab = (props) => {
   const { jobList, addJobState, updateJobStatusState } = useJobState();
-  React.useEffect(() => {
-    const standbyJobs = jobList.filter(job => job.status === JOB_STATUS.STANDBY)
-    if(standbyJobs.length > 0){
-      standbyJobs.forEach(async (job) => {
-        const ret = await mediaInfo.run(job.path);
-        const Video = mediaInfo.getStreams('Video');
-        if(ret){
-          updateJobStatusState(job.jobId, JOB_STATUS.READY);
-        }else{
-          updateJobStatusState(job.jobId, JOB_STATUS.FAILED);
-        }
-      })
-    }
-  },[ jobList ])
+  // React.useEffect(() => {
+  //   const standbyJobs = jobList.filter(job => job.status === JOB_STATUS.STANDBY)
+  //   if(standbyJobs.length > 0){
+  //     standbyJobs.forEach(async (job) => {
+  //       const ret = await mediaInfo.run(job.path);
+  //       const Video = mediaInfo.getStreams('Video');
+  //       if(ret){
+  //         updateJobStatusState(job.jobId, JOB_STATUS.READY);
+  //       }else{
+  //         updateJobStatusState(job.jobId, JOB_STATUS.FAILED);
+  //       }
+  //     })
+  //   }
+  // },[ jobList ])
   const handleDrop = React.useCallback(
     (drops) => {
       drops.forEach((drop) => {
         const { name, path, size } = drop;
-        // await mediaInfo.run(path);
-        // const Video = mediaInfo.getStreams('Video');
         const job =  createJob({
           taskFlow: DEFAULT_TASK_FLOW,
           args: {
             fileName: name,
             fullName: path,
             fileSize: size,
-            // duration: Video('Duration'),
           },
         });
         addJobState([job]);

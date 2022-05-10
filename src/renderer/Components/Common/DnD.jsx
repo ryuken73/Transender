@@ -25,7 +25,7 @@ const Container = styled.div`
   align-items: center;
   border-radius: 5px;
   border: grey 1px ${(props) => (props.isDragAccept ? 'dashed' : 'solid')};
-  font-size: calc(1px + 1.3vmin);
+  font-size: calc(10px + 1.3vmin);
   color: white;
   width: 100%;
   border-color: ${(props) => getColor(props)};

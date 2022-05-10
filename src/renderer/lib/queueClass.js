@@ -148,13 +148,19 @@ class Queue extends EventEmitter {
   }
 }
 
-const createQueue = (queueName, constatns) => {
+const createQueue = (queueName, constants) => {
   const instance = Queue.getInstance(queueName);
   if (instance) {
+    console.log('return existing queue:', queueName);
     return instance;
   }
-  Queue.instances[queueName] = new Queue(queueName, constatns);
+  Queue.instances[queueName] = new Queue(queueName, constants);
   return Queue.instances[queueName];
 };
 
-module.exports = createQueue;
+const getQueue = createQueue;
+
+module.exports = {
+  createQueue,
+  getQueue
+};
