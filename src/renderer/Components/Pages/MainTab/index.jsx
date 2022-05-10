@@ -2,6 +2,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import DnD from 'renderer/Components/Common/DnD';
+import TabButtons from 'renderer/Components/Pages/MainTab/TabButtons';
 import JobItemHeader from 'renderer/Components/Pages/MainTab/JobItemHeader';
 import JobItem from 'renderer/Components/Pages/MainTab/JobItem';
 import createJob from 'renderer/lib/jobUtil';
@@ -46,7 +47,8 @@ const MainTab = (props) => {
   console.log('$$$$', jobList);
   return (
     <Container>
-      <JobItemHeader></JobItemHeader>
+      <TabButtons />
+      <JobItemHeader />
       <DnD onDrop={handleDrop} showPlaceholder={jobList.length === 0}>
         {jobList.map((job, index) => (
           <JobItem job={job} key={job.jobId} rownum={index+1} />

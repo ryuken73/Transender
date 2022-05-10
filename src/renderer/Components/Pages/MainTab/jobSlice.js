@@ -20,6 +20,11 @@ export const jobSlice = createSlice({
       const { jobs } = payload;
       state.jobList = [...state.jobList, ...jobs];
     },
+    removeJob: (state, action) => {
+      const { payload } = action;
+      const { jobId } = payload;
+      state.jobList = state.jobList.filter(job => job.jobId !== jobId);
+    },
     updateJob: (state, action) => {
       const { payload } = action;
       const { jobId, key, value } = payload;
@@ -34,6 +39,6 @@ export const jobSlice = createSlice({
   },
 })
 
-export const { addJob, addJobs, updateJob, updateJobs } = jobSlice.actions;
+export const { addJob, addJobs, removeJob, updateJob, updateJobs } = jobSlice.actions;
 
 export default jobSlice.reducer;

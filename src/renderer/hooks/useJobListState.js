@@ -7,6 +7,7 @@ import bullConstants from 'renderer/config/bull-constants';
 import {
   addJob,
   addJobs,
+  removeJob,
   updateJob,
   updateJobs,
 } from 'renderer/Components/Pages/MainTab/jobSlice';
@@ -76,5 +77,17 @@ export default function useJobListState() {
     },
     [dispatch]
   );
-  return { jobList, allChecked, addJobsState, toggleAllCheckedState };
+  const removeJobAllCheckedState = React.useCallback(() => {
+    const checkedJobs = jobList.filter((job) => job.checked === true);
+    checkedJobs.forEach((job) => {
+      dispatch(removeJob({ jobId: job.jobId }));
+    })
+  }, [dispatch, jobList]);
+  return {
+    jobList,
+    allChecked,
+    addJobsState,
+    toggleAllCheckedState,
+    removeJobAllCheckedState,
+  };
 }

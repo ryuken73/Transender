@@ -111,7 +111,6 @@ export default function App() {
       </HeaderContainer>
       <BodyContainer>
         <CenterPane>
-          <div>navigate</div>
           <Routes>
             <Route index element={<MainTab />} />
             <Route path="/index.html" element={<Home />} />
