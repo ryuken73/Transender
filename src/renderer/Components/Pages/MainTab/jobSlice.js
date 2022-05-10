@@ -26,9 +26,14 @@ export const jobSlice = createSlice({
       const job = state.jobList.find(job => job.jobId === jobId);
       if(job) job[key] = value;
     },
+    updateJobs: (state, action) => {
+      const { payload } = action;
+      const { key, value } = payload;
+      state.jobList.forEach(job => job[key] = value);
+    }
   },
 })
 
-export const { addJob, addJobs, updateJob  } = jobSlice.actions;
+export const { addJob, addJobs, updateJob, updateJobs } = jobSlice.actions;
 
 export default jobSlice.reducer;
