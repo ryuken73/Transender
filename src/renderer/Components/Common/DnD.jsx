@@ -1,3 +1,4 @@
+/* eslint-disable react/jsx-props-no-spreading */
 /* eslint-disable react/destructuring-assignment */
 /* eslint-disable react/prop-types */
 import React from 'react';
@@ -56,9 +57,16 @@ const DnD = (props) => {
     isDragReject,
   } = useDropzone(dropZoneOptions);
 
+  const rootPropsMemo = React.useMemo(
+    () => getRootProps({ isFocused, isDragAccept, isDragReject }),
+    [getRootProps, isDragAccept, isDragReject, isFocused]
+  );
+
+  const inputPropsMemo = React.useMemo(() => getInputProps(), [getInputProps]);
+
   return (
-    <Container showPlaceholder={showPlaceholder} {...getRootProps({ isFocused, isDragAccept, isDragReject })}>
-      <input {...getInputProps()} />
+    <Container showPlaceholder={showPlaceholder} {...rootPropsMemo}>
+      <input {...inputPropsMemo} />
       {props.showPlaceholder && <Box sx={{ padding: '0px' }}>{message}</Box>}
       {props.children}
     </Container>
