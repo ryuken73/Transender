@@ -60,6 +60,7 @@ const CenterPane = styled(BasicBox)`
   flex-direction: column;
   font-size: calc(1px + 2vmin);
   padding: 8px;
+  border-right: none;
   margin-right: -1px;
   margin-left: -1px;
   height: 100%;
