@@ -9,6 +9,9 @@ import {
   updateJobs,
 } from 'renderer/Components/Pages/MainTab/jobSlice';
 import { startMediainfoQueue, addQueue } from 'renderer/lib/mediaInfoQueue';
+import bullConstants from 'renderer/config/bull-constants';
+
+const { JOB_STATUS } = bullConstants;
 
 export default function useJobListState() {
   const dispatch = useDispatch();
@@ -25,6 +28,13 @@ export default function useJobListState() {
         jobs.forEach((job) => {
           // dispatch(addJob({ job }));
           addQueue({ data: job });
+          dispatch(
+            updateJob({
+              jobId: job.jobId,
+              key: 'status',
+              value: JOB_STATUS.WAITING,
+            })
+          )
         });
       } else {
         throw new Error('jobs should be Array')
