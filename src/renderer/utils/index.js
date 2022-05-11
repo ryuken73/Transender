@@ -58,6 +58,9 @@ const date = {
     const timeString = `${hour}${timeSep}${minute}${timeSep}${second}`;
     return `${dateString}${sep}${timeString}`;
   },
+  getLogDate(){
+    return date.getString(new Date(), { dateSep: '-', timeSep: ':' });
+  }
 };
 
 const file = {

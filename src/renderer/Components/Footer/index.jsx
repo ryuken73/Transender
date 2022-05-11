@@ -1,10 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
-// import useMessage from 'renderer/hooks/useMessage';
+import useAppState from 'renderer/hooks/useAppState';
 import { getVersion } from 'renderer/lib/appUtil';
-import constants from 'renderer/config/constants';
-
-const { MSG_LEVEL } = constants;
 
 const Container = styled.div`
   width: 100%;
@@ -20,10 +17,7 @@ const Version = styled.div`
 
 const Footer = () => {
   const [version, setVersion] = React.useState('loading..');
-  // const { message } = useMessage({
-  //   level: MSG_LEVEL.INFO,
-  //   text: 'Ready',
-  // });
+  const { appLog } = useAppState();
   React.useEffect(() => {
     getVersion()
       .then((appVersion) => setVersion(appVersion))
@@ -33,6 +27,9 @@ const Footer = () => {
   return (
     <Container>
       {/* <AppMessage>[{message.level}][{message.text}]</AppMessage> */}
+      <AppMessage>
+        [{appLog.level}] [{appLog.date}] {appLog.message}
+      </AppMessage>
       <Version>v{version}</Version>
     </Container>
   )

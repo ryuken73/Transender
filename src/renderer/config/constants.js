@@ -1,9 +1,9 @@
 const dev =  {
-  MSG_LEVEL: {
-    DEBUG: 'debug',
-    INFO: 'info',
-    WARN: 'warn',
-    ERROR: 'error'
+  LOG_LEVEL: {
+    DEBUG: 'DEBUG',
+    INFO: 'INFO',
+    WARN: 'WARN',
+    ERROR: 'ERROR',
   },
   SOCKET_SERVER_URL: 'http://localhost:9009',
   EVENT_NEW_MESSAGES: 'post:newMessages',

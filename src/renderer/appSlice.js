@@ -1,10 +1,18 @@
 import { createSlice } from '@reduxjs/toolkit';
 import CONSTANTS from 'renderer/config/constants';
+import { date } from 'renderer/utils';
+
+const { LOG_LEVEL } = CONSTANTS;
 const initialState = {
   modalOpen: false,
   isMessageBoxHidden: true,
   messageBoxText: 'test',
   messageBoxLevel: 'success',
+  appLog: {
+    level: LOG_LEVEL.INFO,
+    date: date.getLogDate(),
+    message: 'App Started',
+  },
 };
 
 export const appSlice = createSlice({
@@ -18,14 +26,22 @@ export const appSlice = createSlice({
     },
     setStateValue: (state, action) => {
       const { payload } = action;
-      const [ key, value ] = payload;
-      console.log('$$$$',key, value);
+      const [key, value] = payload;
       state[key] = value;
     },
+    setAppLog: (state, action) => {
+      const { payload } = action;
+      const { level = LOG_LEVEL.INFO, message } = payload;
+      state.appLog = {
+        level,
+        date: date.getLogDate(),
+        message,
+      };
+    },
   },
-})
+});
 
-export const { setModalOpen, setStateValue } = appSlice.actions;
+export const { setModalOpen, setStateValue, setAppLog } = appSlice.actions;
 
 export const showMessageBoxForDuration =
   (text, duration = 1000, level = 'success') =>
