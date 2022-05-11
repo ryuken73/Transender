@@ -1,99 +1,75 @@
-const { EventEmitter } = require('events');
-const { spawnChild } = require('./spawnChild');
-const config = require('./config.json');
+const { spawn } = require('child_process');
+const controller = new AbortController();
+const { signal } = controller;
 
-const {
-  FFMPEG_BIN = 'c:/Users/user/Downloads/sendust-transcoder/bin/ffmpeg2018',
-  FFMPEG_ARGS = '-av copy',
-  FFMPEG_OPTS = {},
-  FFMPEG_PROGRESS_LINE_REGEXP = '^frame=',
-} = config;
-
-const mkSpawnArgs = (inFile, args, outFile) => {
-  const stringArgs = typeof args === 'string' ? args : args.join(' ');
-  return `-i ${inFile} ${stringArgs} ${outFile}`;
-};
-
-const stringToArray = (line, sep = ' ') => line.split(sep);
-const arrayToObject = (array, sep = '=') =>
-  array.reduce((acc, element) => {
-    const array = stringToArray(element, sep);
-    const key = array[0];
-    const value = array[1];
-    acc[key] = value;
-    return acc;
-  }, {});
-
-const parseProgressLine = (ffmpegProgressLine) => {
-  const arrayOfLines = stringToArray(ffmpegProgressLine, '\n');
-  return arrayToObject(arrayOfLines, '=');
-};
-
-const ffmpegStdoutParser = (line) => {
-  const isProgressLine = RegExp(FFMPEG_PROGRESS_LINE_REGEXP).test(line);
-  const progressObj = isProgressLine ? parseProgressLine(line) : {};
-  return {
-    isProgress: isProgressLine,
-    progressObj,
-    line,
-  };
-};
-
-const progressEmitter = (worker, totalFrames) => {
-  return (outputLine) => {
-    const parsed = ffmpegStdoutParser(outputLine.toString());
-    const { frame, progress } = parsed.progressObj;
-    const percent =
-      progress === 'end' ? 100.0 : ((frame * 100) / totalFrames).toFixed(1);
-    worker.emit('progress', {
-      percent,
-      ...parsed.progressObj,
-    });
-  };
-};
-
-class FFMPEG extends EventEmitter {
-  constructor(opts) {
-    super();
-    const { inFile = 'sample_in.mp4', outFile = 'sample_out.mp4' } = opts;
-    const { args = FFMPEG_ARGS } = opts;
-    const spawnArgs = mkSpawnArgs(inFile, args, outFile);
-    this.proc = spawnChild({
-      binary: FFMPEG_BIN,
-      args: spawnArgs,
-      options: FFMPEG_OPTS,
-    });
-    return this;
-  }
-
-  start = () => {
-    this.proc.start();
-  };
-
-  set stdoutHandler(handler) {
-    this.proc.stdoutHandler = handler;
-  }
-
-  set spawnHandler(handler) {
-    this.proc.spawnHandler = handler;
-  }
-
-  set exitHandler(handler) {
-    this.proc.exitHandler = handler;
+const FFMPEG_PROGRESS_LINE_REGEXP = '^frame=';
+const jsUtil = {
+  stringToArray(line, sep = ' ') {
+    return line.split(sep);
+  },
+  arrayToObject(array, sep = '='){
+    return array.reduce((acc, element) => {
+      const arrayTemp = jsUtil.stringToArray(element, sep);
+      const key = arrayTemp[0];
+      const value = arrayTemp[1];
+      acc[key] = value;
+      return acc;
+    }, {});
   }
 }
+const getProgressObj = (line) => {
+  if (!RegExp(FFMPEG_PROGRESS_LINE_REGEXP).test(line)) {
+    return null;
+  };
+  const arrayOfLines = jsUtil.stringToArray(line, '\n');
+  return jsUtil.arrayToObject(arrayOfLines, '=');
+}
 
-const ffmpeg = (options) => {
-  const worker = new FFMPEG(options);
-  const { totalFrames } = options;
-  worker.spawnHandler = () => {
-    worker.emit('ready');
+const ffmpeg = (
+  binaryPath = `${process.cwd()}/../../bin/ffmpeg2018.exe`,
+  spawnOptions = {}
+) => {
+  let childProcess;
+  const run = ({ inFile, ffmpegOptions, outFile, totalFrames }) => {
+    console.log(ffmpegOptions.split(' '))
+    const spawnArgs = ['-i', inFile, ...ffmpegOptions.split(' '), outFile];
+    const spawnOpts = { signal, ...spawnOptions };
+    childProcess = spawn(binaryPath, spawnArgs, spawnOpts);
+    childProcess.userDefined = { totalFrames };
+    childProcess.on('error', (error) => {
+      if (error.code === 'ABORT_ERR'){
+        console.log('force stopped')
+        childProcess.emit('force-stopped');
+        return;
+      }
+      console.log(error)
+    });
+    childProcess.on('exit', (code) => {
+      console.log('exit ffmpeg')
+    });
+    childProcess.stdout.on('data', (data) => {
+      console.log(data.toString());
+      const progressObj = getProgressObj(data.toString());
+      if (progressObj !== null) {
+        childProcess.emit('progress', progressObj);
+      }
+    });
+    childProcess.stderr.on('data', (data) => {
+      console.log(data.toString());
+    });
+    return childProcess;
   };
-  worker.exitHandler = (code) => {
-    worker.emit('exit');
+
+  const stop = () => controller.abort();
+  const getPID = () => childProcess.pid;
+  const getCmdParams = () => childProcess.spawnargs;
+
+  return {
+    run,
+    stop,
+    getPID,
+    getCmdParams
   };
-  worker.stdoutHandler = progressEmitter(worker, totalFrames);
-  return worker;
 };
 
 module.exports = ffmpeg;
