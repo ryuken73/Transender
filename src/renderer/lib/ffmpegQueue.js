@@ -1,26 +1,21 @@
 import { getQueue } from 'renderer/lib/queueClass';
 import { getAbsolutePath } from 'renderer/lib/electronUtil';
-import mediaInfoProc from 'renderer/lib/mediaInfoProc';
-import constants from 'renderer/config/constants';
+import ffmpegBin from 'renderer/lib/ffmpegBin';
 import bullConstants from 'renderer/config/bull-constants';
 import { updateJob } from 'renderer/Components/Pages/MainTab/jobSlice';
-import { setAppLog } from 'renderer/appSlice';
 
 const { JOB_STATUS } = bullConstants;
-const { LOG_LEVEL } = constants;
-const mediainfoBinary = getAbsolutePath('src/bin/Mediainfo.exe');
-const mediaInfo = mediaInfoProc(mediainfoBinary);
-const mediainfoQueue = getQueue('mediaInfo', bullConstants);
+const ffmpegBinary = getAbsolutePath('src/bin/ffmpeg2018.exe');
+const ffmpeg = ffmpegBin(ffmpegBinary);
+const ffmpegQueue = getQueue('ffmpeg', bullConstants);
 
-const startMediainfoQueue = (dispatch) => {
+const startFFmpegQueue = (dispatch) => {
   try {
-    mediainfoQueue.process(1, async (job, done) => {
+    ffmpegQueue.process(1, async (job, done) => {
       try {
         console.log('jobInfo:', job.data.args.fullName);
         const jobInfo = job.data;
-        const ret = await mediaInfo.run(jobInfo.args.fullName);
-        const isMediaFile = mediaInfo.isMediaFile();
-        console.log('###', mediaInfo.getResult())
+        const ret = await ffmpeg.run(jobInfo.args.fullName);
         if (isMediaFile) {
           dispatch(
             updateJob({
@@ -28,9 +23,6 @@ const startMediainfoQueue = (dispatch) => {
               key: 'status',
               value: JOB_STATUS.READY,
             })
-          );
-          dispatch(
-            setAppLog({ message: `Aanlyze ${jobInfo.args.fullName} done.` })
           );
           done(null, ret);
         } else {
@@ -41,12 +33,6 @@ const startMediainfoQueue = (dispatch) => {
               value: JOB_STATUS.FAILED,
             })
           );
-          dispatch(
-            setAppLog({
-              level: LOG_LEVEL.ERROR,
-              message: `Aanlyze ${jobInfo.args.fullName} Faild.[not-media-file]`,
-            })
-          )
           done('codec unknows. suspect not media file.')
         }
       } catch(err){
@@ -60,7 +46,7 @@ const startMediainfoQueue = (dispatch) => {
 };
 
 const addQueue = (jobData) => {
-  mediainfoQueue.add(jobData);
+  ffmpegQueue.add(jobData);
 };
 
-module.exports = { startMediainfoQueue, addQueue };
+module.exports = { startFFmpegQueue, addQueue };
