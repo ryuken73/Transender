@@ -4,6 +4,7 @@ import styled from 'styled-components';
 import DnD from 'renderer/Components/Common/DnD';
 import TabButtons from 'renderer/Components/Pages/MainTab/TabButtons';
 import JobItemHeader from 'renderer/Components/Pages/MainTab/JobItemHeader';
+import ScrollbarVirtual from 'renderer/Components/Common/ScrollBarVirtual';
 import JobItem from 'renderer/Components/Pages/MainTab/JobItem';
 import createJob from 'renderer/lib/jobUtil';
 import useJobListState from 'renderer/hooks/useJobListState';
@@ -50,6 +51,12 @@ const MainTab = (props) => {
       <TabButtons />
       <JobItemHeader />
       <DnD onDrop={handleDrop} showPlaceholder={jobList.length === 0}>
+        {/* <ScrollbarVirtual
+          items={jobList}
+          rowHeight={57}
+          heightMinus="200px"
+          ItemElement={JobItem}
+         /> */}
         {jobList.map((job, index) => (
           <JobItem job={job} key={job.jobId} rownum={index+1} />
         ))}
