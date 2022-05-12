@@ -1,7 +1,7 @@
 {
-  "name": "react-electron-template",
+  "name": "jin-transender",
   "version": "0.0.1",
-  "description": "A foundation for scalable desktop apps",
+  "description": "transcode & virus scan & send file",
   "main": "./dist/main/main.js",
   "author": {
     "name": "ryuken73",

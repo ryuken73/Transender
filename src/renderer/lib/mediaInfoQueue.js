@@ -8,7 +8,7 @@ import { setAppLog } from 'renderer/appSlice';
 
 const { JOB_STATUS } = bullConstants;
 const { LOG_LEVEL } = constants;
-const mediainfoBinary = getAbsolutePath('src/bin/Mediainfo.exe');
+const mediainfoBinary = getAbsolutePath('bin/Mediainfo.exe', true);
 const mediaInfo = mediaInfoProc(mediainfoBinary);
 const mediainfoQueue = getQueue('mediaInfo', bullConstants);
 

@@ -8,9 +8,9 @@ const getAbsolutePath = (file = 'app.html', asarUnpack = false) => {
   try {
     // console.log(file)
     const cwd = process.cwd();
-    const cwdElectronReact = path.join(cwd, 'app');
+    const cwdElectronReact = path.join(cwd, 'src');
     const { resourcesPath } = process;
-    // console.log(`cwd:${cwd}, resourcesPath:${resourcesPath}`);
+    console.log(`cwd:${cwd}, resourcesPath:${resourcesPath}`);
     const cwdBased = path.resolve(path.join(cwd, file));
     const cwdElectronReactBased = path.resolve(
       path.join(cwdElectronReact, file)
@@ -21,17 +21,17 @@ const getAbsolutePath = (file = 'app.html', asarUnpack = false) => {
     );
 
     if (fs.existsSync(cwdBased)) {
-      console.log('run in Nornal Electron CLI');
+      console.log('run in Normal Electron CLI');
       return cwdBased;
     }
     if (fs.existsSync(cwdElectronReactBased)) {
       return cwdElectronReactBased;
     }
     if (fs.existsSync(resourcesBased)) {
-      // console.log('run in packaged Electron App');
+      console.log('run in packaged Electron App');
       return resourcesBased;
     }
-    // console.log(`file not exists : ${file}`);
+    console.log(`file not exists : ${file}`);
     return false;
   } catch (error) {
     console.error(error);

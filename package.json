@@ -34,11 +34,16 @@
     "productName": "JIN-Transcoder",
     "appId": "co.sbs.jin-transcoder",
     "asar": true,
-    "asarUnpack": "**\\*.{node,dll}",
+    "asarUnpack": [
+      "**\\*.{node,dll}",
+      "bin/ffmpeg2018.exe",
+      "bin/MediaInfo.exe"
+    ],
     "files": [
       "dist",
       "node_modules",
-      "package.json"
+      "package.json",
+      "bin/"
     ],
     "afterSign": ".erb/scripts/notarize.js",
     "mac": {
