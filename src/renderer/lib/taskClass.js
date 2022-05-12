@@ -5,15 +5,28 @@ import { getNextId } from 'renderer/utils';
 const { EventEmitter } = require('events');
 
 class Task extends EventEmitter {
-  constructor(task, queue, taskEvents) {
+  constructor(taskBody, queue, taskEvents, taskId, priority) {
     super();
-    this.taskId = task.taskId || getNextId();
-    this.data = task.data;
+    this._taskId = taskId || getNextId();
+    this._body = taskBody;
     this._progress = 0;
     this._logs = [];
-    this._priority = task._priority || 999;
+    this._priority = priority || 999;
     this._ownQueue = queue;
     this.TASK_EVENTS = taskEvents;
+  }
+
+  get taskId() {
+    return this._taskId;
+  }
+
+  get body() {
+    return this._body;
+  }
+
+  priority(priority) {
+    if (priority === undefined) return this._priority;
+    this._priority = priority;
   }
 
   progress(percent) {
@@ -28,8 +41,8 @@ class Task extends EventEmitter {
   }
 }
 
-const createTask = (taskInfo, queue, taskEvents) => {
-  return new Task(taskInfo, queue, taskEvents);
+const createTask = (taskBody, queue, taskEvents) => {
+  return new Task(taskBody, queue, taskEvents);
 };
 
 module.exports = createTask;

@@ -16,7 +16,7 @@ const { JOB_STATUS } = bullConstants;
 export default function useJobListState() {
   const dispatch = useDispatch();
   const jobList = useSelector((state) => state.job.jobList);
-  const allChecked = jobList.every(job => job.checked === true);
+  const allChecked = jobList.every((job) => job.checked === true);
   React.useEffect(() => {
     startMediainfoQueue(dispatch);
   }, [dispatch])
@@ -27,7 +27,7 @@ export default function useJobListState() {
         dispatch(addJobs({ jobs }));
         jobs.forEach((job) => {
           // dispatch(addJob({ job }));
-          addQueue({ data: job });
+          addQueue(job);
           dispatch(
             updateJob({
               jobId: job.jobId,

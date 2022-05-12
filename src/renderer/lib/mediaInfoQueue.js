@@ -14,29 +14,29 @@ const mediainfoQueue = getQueue('mediaInfo', bullConstants);
 
 const startMediainfoQueue = (dispatch) => {
   try {
-    mediainfoQueue.process(1, async (job, done) => {
+    mediainfoQueue.process(1, async (qTask, done) => {
       try {
-        console.log('jobInfo:', job.data.args.fullName);
-        const jobInfo = job.data;
-        const ret = await mediaInfo.run(jobInfo.args.fullName);
+        const qBody = qTask.body;
+        console.log('qTask.body.args.fullName:', qBody.args.fullName);
+        const ret = await mediaInfo.run(qBody.args.fullName);
         const isMediaFile = mediaInfo.isMediaFile();
         console.log('###', mediaInfo.getResult())
         if (isMediaFile) {
           dispatch(
             updateJob({
-              jobId: jobInfo.jobId,
+              jobId: qBody.jobId,
               key: 'status',
               value: JOB_STATUS.READY,
             })
           );
           dispatch(
-            setAppLog({ message: `Aanlyze ${jobInfo.args.fullName} done.` })
+            setAppLog({ message: `Aanlyze ${qBody.args.fullName} done.` })
           );
           done(null, ret);
         } else {
           dispatch(
             updateJob({
-              jobId: jobInfo.jobId,
+              jobId: qBody.jobId,
               key: 'status',
               value: JOB_STATUS.FAILED,
             })
@@ -44,7 +44,7 @@ const startMediainfoQueue = (dispatch) => {
           dispatch(
             setAppLog({
               level: LOG_LEVEL.ERROR,
-              message: `Aanlyze ${jobInfo.args.fullName} Faild.[not-media-file]`,
+              message: `Aanlyze ${qBody.args.fullName} Faild.[not-media-file]`,
             })
           )
           done('codec unknows. suspect not media file.')

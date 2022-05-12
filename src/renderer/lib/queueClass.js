@@ -34,8 +34,8 @@ class Queue extends EventEmitter {
     return nextTask;
   };
 
-  add = (task) => {
-    const newTask = createTask(task, this, this.TASK_EVENTS);
+  add = (taskBody) => {
+    const newTask = createTask(taskBody, this, this.TASK_EVENTS);
     this._setTaskStatus(newTask, this.TASK_STATUS.WAITING);
     this.runNextTask();
   };
