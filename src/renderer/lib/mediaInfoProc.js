@@ -1,11 +1,12 @@
-const { exec } = require('child_process');
+const { execFile } = require('child_process');
 
 const mediaInfo = (binaryPath = `${process.cwd()}/../../bin/mediainfo.exe`) => {
   let result = {};
   const run = (inFile) => {
     return new Promise((resolve, reject) => {
-      exec(
-        `${binaryPath} "${inFile}" --Output=JSON --Full`,
+      execFile(
+        binaryPath,
+        [inFile, '--Output=JSON', '--Full'],
         (error, stdout, stderr) => {
           if (error) {
             reject(error)
@@ -14,7 +15,7 @@ const mediaInfo = (binaryPath = `${process.cwd()}/../../bin/mediainfo.exe`) => {
           resolve(true);
         }
       );
-    })
+    });
   };
   const getResult = () => result;
   const getNumTracks = () => result.media.track.length;
@@ -37,7 +38,6 @@ const mediaInfo = (binaryPath = `${process.cwd()}/../../bin/mediainfo.exe`) => {
   const isMediaFile = () => {
     return !!getGeneral('CodecID') || !!getGeneral('InternetMediaType');
   };
-
 
   return {
     run,
