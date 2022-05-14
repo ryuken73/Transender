@@ -1,7 +1,7 @@
 import { getNextId } from 'renderer/utils';
 import JOB_CONSTANTS from 'renderer/config/bull-constants';
 
-const { JOB_STATUS, TASK_STATUS, TASK_DEFAULT } = JOB_CONSTANTS;
+const { JOB_STATUS, Q_ITEM_STATUS, TASK_DEFAULT } = JOB_CONSTANTS;
 
 const createTask = (taskInfo, index) => {
   const { jobId, taskType } = taskInfo;
@@ -9,7 +9,7 @@ const createTask = (taskInfo, index) => {
     jobId,
     taskId: getNextId(),
     taskType,
-    status: TASK_STATUS.STANDBY,
+    status: Q_ITEM_STATUS.STANDBY,
     progress: 0,
   }
 };

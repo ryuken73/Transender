@@ -14,29 +14,30 @@ const mediainfoQueue = getQueue('mediaInfo', bullConstants);
 
 const startMediainfoQueue = (dispatch) => {
   try {
-    mediainfoQueue.process(1, async (qTask, done) => {
+    mediainfoQueue.process(10, async (qItem, done) => {
       try {
-        const qBody = qTask.body;
-        console.log('qTask.body.args.fullName:', qBody.args.fullName);
-        const ret = await mediaInfo.run(qBody.args.fullName);
+        console.log('!!!!!', qItem)
+        const qItemBody = qItem.itemBody;
+        console.log('qTask.body.args.fullName:', qItemBody.args.fullName);
+        const ret = await mediaInfo.run(qItemBody.args.fullName);
         const isMediaFile = mediaInfo.isMediaFile();
         console.log('###', mediaInfo.getResult())
         if (isMediaFile) {
           dispatch(
             updateJob({
-              jobId: qBody.jobId,
+              jobId: qItem.itemId,
               key: 'status',
               value: JOB_STATUS.READY,
             })
           );
           dispatch(
-            setAppLog({ message: `Aanlyze ${qBody.args.fullName} done.` })
+            setAppLog({ message: `Aanlyze ${qItemBody.args.fullName} done.` })
           );
-          done(null, ret);
+          done(null, isMediaFile);
         } else {
           dispatch(
             updateJob({
-              jobId: qBody.jobId,
+              jobId: qItem.itemId,
               key: 'status',
               value: JOB_STATUS.FAILED,
             })
@@ -44,11 +45,12 @@ const startMediainfoQueue = (dispatch) => {
           dispatch(
             setAppLog({
               level: LOG_LEVEL.ERROR,
-              message: `Aanlyze ${qBody.args.fullName} Faild.[not-media-file]`,
+              message: `Aanlyze ${qItemBody.args.fullName} Faild.[not-media-file]`,
             })
           )
           done('codec unknows. suspect not media file.')
         }
+        return mediainfoQueue;
       } catch(err){
         console.log('errored:', err);
         done(err)
@@ -60,7 +62,7 @@ const startMediainfoQueue = (dispatch) => {
 };
 
 const addQueue = (jobData) => {
-  mediainfoQueue.add(jobData);
+  return mediainfoQueue.add(jobData, jobData.jobId );
 };
 
 module.exports = { startMediainfoQueue, addQueue };

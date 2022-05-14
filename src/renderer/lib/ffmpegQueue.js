@@ -11,11 +11,12 @@ const ffmpegQueue = getQueue('ffmpeg', bullConstants);
 
 const startFFmpegQueue = (dispatch) => {
   try {
-    ffmpegQueue.process(1, async (job, done) => {
+    ffmpegQueue.process(1, async (qTask, done) => {
       try {
-        console.log('jobInfo:', job.data.args.fullName);
-        const jobInfo = job.data;
-        const ret = await ffmpeg.run(jobInfo.args.fullName);
+        const qBody = qTask.body;
+        console.log('jobInfo:', qBody.args);
+        // qBody = {inFile, ffmpegOptions, outFile, totalFrames}
+        const ret = await ffmpeg.run(qBody.args);
         if (isMediaFile) {
           dispatch(
             updateJob({
@@ -39,6 +40,7 @@ const startFFmpegQueue = (dispatch) => {
         console.log('errored:', err);
         done(err)
       }
+      return ffmpegQueue;
     })
   } catch (err) {
     console.log(err);

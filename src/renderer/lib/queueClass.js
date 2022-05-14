@@ -1,24 +1,24 @@
 /* eslint-disable no-underscore-dangle */
 const { EventEmitter } = require('events');
-const createTask = require('./taskClass');
+const createQItem = require('./qItemClass');
 
 class Queue extends EventEmitter {
   constructor(name, constants) {
     super();
+    const { DEFAULT_CONCURRENCY, Q_ITEM_STATUS, Q_WORKER_EVENTS, Q_EVENTS } = constants;
     this.name = name;
-    const { DEFAULT_CONCURRENCY, TASK_STATUS, TASK_EVENTS, QUEUE_EVENTS } = constants;
-    this.taskLists = {
-      [TASK_STATUS.WAITING]: [],
-      [TASK_STATUS.ACTIVE]: [],
-      [TASK_STATUS.COMPLETED]: [],
-      [TASK_STATUS.FAILED]: [],
-      [TASK_STATUS.DELAYED]: [],
+    this.qItemList = {
+      [Q_ITEM_STATUS.WAITING]: [],
+      [Q_ITEM_STATUS.ACTIVE]: [],
+      [Q_ITEM_STATUS.COMPLETED]: [],
+      [Q_ITEM_STATUS.FAILED]: [],
+      [Q_ITEM_STATUS.DELAYED]: [],
     };
-    this._worker = null;
+    this._qWorker = null;
     this._concurrency = DEFAULT_CONCURRENCY;
-    this.TASK_STATUS = TASK_STATUS;
-    this.TASK_EVENTS = TASK_EVENTS;
-    this.QUEUE_EVENTS = QUEUE_EVENTS;
+    this.Q_ITEM_STATUS = Q_ITEM_STATUS;
+    this.Q_WORKER_EVENTS = Q_WORKER_EVENTS;
+    this.Q_EVENTS = Q_EVENTS;
   }
 
   static instances = {};
@@ -27,103 +27,105 @@ class Queue extends EventEmitter {
     return Queue.instances[name];
   }
 
-  _getNext = () => {
-    const waitTasks = this.taskLists[this.TASK_STATUS.WAITING];
-    const nextTask = waitTasks[0];
-    this._removeTaskStatus(nextTask, this.TASK_STATUS.WAITING);
-    return nextTask;
+  _getNextItem = () => {
+    const waitItems = this.qItemList[this.Q_ITEM_STATUS.WAITING];
+    const nextItem = waitItems[0];
+    this._removeItemStatusFrom(nextItem, this.Q_ITEM_STATUS.WAITING);
+    return nextItem;
   };
 
-  add = (taskBody) => {
-    const newTask = createTask(taskBody, this, this.TASK_EVENTS);
-    this._setTaskStatus(newTask, this.TASK_STATUS.WAITING);
-    this.runNextTask();
+  add = (itemBody, itemId) => {
+    const newItem = createQItem(itemBody, this, itemId);
+    this._setItemStatus(newItem, this.Q_ITEM_STATUS.WAITING);
+    setImmediate(() => this._runNextItem());
+    return newItem;
   };
 
-  _removeTaskStatus = (task, taskStatus) => {
-    const fromList = this.taskLists[taskStatus];
-    this.taskLists[taskStatus] = fromList.filter(
-      (fromtask) => fromtask.taskId !== task.taskId
+  _removeItemStatusFrom = (item, itemStatus) => {
+    const fromList = this.qItemList[itemStatus];
+    this.qItemList[itemStatus] = fromList.filter(
+      (fromItem) => fromItem.itemId !== item.itemId
     );
   };
 
-  _setTaskStatus = (task, taskStatus) => {
-    const targetList = this.taskLists[taskStatus];
-    this.taskLists[taskStatus] = [...targetList, task];
+  _setItemStatus = (item, itemStatus) => {
+    const targetList = this.qItemList[itemStatus];
+    this.qItemList[itemStatus] = [...targetList, item];
+    item.emit(itemStatus);
   };
 
-  _movetaskStatus = (task, fromStatus, toStatus) => {
-    this._removeTaskStatus(task, fromStatus);
-    this._setTaskStatus(task, toStatus);
+  _moveItemStatus = (item, fromStatus, toStatus) => {
+    this._removeItemStatusFrom(item, fromStatus);
+    this._setItemStatus(item, toStatus);
   };
 
-  done = (task) => {
+  done = (item) => {
     return (error, result) => {
       if (error) {
-        this._movetaskStatus(
-          task,
-          this.TASK_STATUS.ACTIVE,
-          this.TASK_STATUS.FAILED
+        this._moveItemStatus(
+          item,
+          this.Q_ITEM_STATUS.ACTIVE,
+          this.Q_ITEM_STATUS.FAILED
         );
-        this.emit(this.QUEUE_EVENTS.FAILED, task.taskId, error);
-        this.runNextTask();
+        this.emit(this.Q_EVENTS.FAILED, item.itemId, error);
+        this._runNextItem();
         return;
         // throw error;
       }
-      this._movetaskStatus(
-        task,
-        this.TASK_STATUS.ACTIVE,
-        this.TASK_STATUS.COMPLETED
+      this._moveItemStatus(
+        item,
+        this.Q_ITEM_STATUS.ACTIVE,
+        this.Q_ITEM_STATUS.COMPLETED
       );
-      this.emit(this.QUEUE_EVENTS.COMPLETED, task.taskId, result);
-      this.runNextTask();
+      this.emit(this.Q_EVENTS.COMPLETED, item.itemId, result);
+      this._runNextItem();
     };
   };
 
-  runNextTask = () => {
-    if (this._worker === null) return;
+  _runNextItem = () => {
+    if (this._qWorker === null) return;
     console.log(
       `waiting: ${this.getWaitCount()} active: ${this.getActiveCount()} completed: ${this.getCompletedCount()} failed: ${this.getFailedCount()}`
     );
     if (this.getActive().length >= this._concurrency) return;
-    const nexttask = this._getNext();
-    if (nexttask === undefined) {
+    const nextItem = this._getNextItem();
+    if (nextItem === undefined) {
       this.emit('drained');
     } else {
-      this._setTaskStatus(nexttask, this.TASK_STATUS.ACTIVE);
-      nexttask.on(this.TASK_EVENTS.PROGRESS, (progress) =>
-        this.emit(this.QUEUE_EVENTS.PROGRESS, nexttask, progress)
+      this._setItemStatus(nextItem, this.Q_ITEM_STATUS.ACTIVE);
+      nextItem.on(this.Q_WORKER_EVENTS.PROGRESS, (progress) =>
+        this.emit(this.Q_EVENTS.PROGRESS, nextItem, progress)
       );
-      this.emit(this.QUEUE_EVENTS.ACTIVE, nexttask, this.done(nexttask));
+      this.emit(this.Q_EVENTS.ACTIVE, nextItem, this.done(nextItem));
     }
   };
 
-  gettask = (taskId) => this.tasks.find((task) => task.taskId === taskId);
+  // getTask = (itemId) => this.tasks.find((task) => task.taskId === taskId);
 
-  gettasks = (status) => this.taskLists[status];
+  // getTasks = (status) => this.taskLists[status];
 
-  getActive = () => this.taskLists[this.TASK_STATUS.ACTIVE];
+  getActive = () => this.qItemList[this.Q_ITEM_STATUS.ACTIVE];
 
-  getWaitCount = () => this.taskLists[this.TASK_STATUS.WAITING].length;
+  getWaitCount = () => this.qItemList[this.Q_ITEM_STATUS.WAITING].length;
 
-  getActiveCount = () => this.taskLists[this.TASK_STATUS.ACTIVE].length;
+  getActiveCount = () => this.qItemList[this.Q_ITEM_STATUS.ACTIVE].length;
 
-  getCompletedCount = () => this.taskLists[this.TASK_STATUS.COMPLETED].length;
+  getCompletedCount = () => this.qItemList[this.Q_ITEM_STATUS.COMPLETED].length;
 
-  getFailedCount = () => this.taskLists[this.TASK_STATUS.FAILED].length;
+  getFailedCount = () => this.qItemList[this.Q_ITEM_STATUS.FAILED].length;
 
-  empty = () => (this.taskLists[this.TASK_STATUS.WAITING] = []);
+  // empty = () => (this.qItemList[this.Q_ITEM_STATUS.WAITING] = []);
 
-  gettaskLogs = (taskId) => {
-    const task = this.gettask(taskId);
-    if (task) return task.logs;
-  };
+  // getTaskLogs = (taskId) => {
+  //   const task = this.gettask(taskId);
+  //   if (task) return task.logs;
+  // };
 
   _registerWorker(worker) {
-    if (this._worker !== null) {
+    if (this._qWorker !== null) {
       return false;
     }
-    this._worker = worker;
+    this._qWorker = worker;
     return true;
   }
 
@@ -139,9 +141,9 @@ class Queue extends EventEmitter {
     this._concurrency = concurrency;
     const registered = this._registerWorker(worker);
     if (registered) {
-      this.on(this.QUEUE_EVENTS.ACTIVE, this._worker);
+      this.on(this.Q_EVENTS.ACTIVE, this._qWorker);
       // invoke task which added before calling process()
-      this.runNextTask();
+      this._runNextItem();
     } else {
       throw new Error('duplicate processors. run Queue.clearProcessor() first');
     }
