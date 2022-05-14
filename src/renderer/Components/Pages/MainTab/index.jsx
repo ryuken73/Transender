@@ -8,12 +8,12 @@ import ScrollbarVirtual from 'renderer/Components/Common/ScrollBarVirtual';
 import JobItem from 'renderer/Components/Pages/MainTab/JobItem';
 import createJob from 'renderer/lib/jobUtil';
 import useJobListState from 'renderer/hooks/useJobListState';
-import constants from 'renderer/config/bull-constants';
+import bullConstants from 'renderer/config/bull-constants';
 import mediaInfoProc from 'renderer/lib/mediaInfoProc';
 import { getAbsolutePath } from 'renderer/lib/electronUtil';
 
-const { JOB_STATUS, TASK_STATUS, TASK_DEFAULT } = constants;
-const { DEFAULT_TASK_FLOW } = constants;
+const { JOB_STATUS, TASK_STATUS, TASK_DEFAULT } = bullConstants;
+const { DEFAULT_TASK_FLOW } = bullConstants;
 
 const Container = styled.div`
   display: flex;
@@ -45,7 +45,6 @@ const MainTab = (props) => {
     },
     [addJobsState]
   );
-  console.log('$$$$', jobList);
   return (
     <Container>
       <TabButtons />

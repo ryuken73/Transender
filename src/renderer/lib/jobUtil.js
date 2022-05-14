@@ -30,7 +30,7 @@ const createJob = (jobInfo) => {
     tasks,
     status: JOB_STATUS.STANDBY,
     checked: false,
-    args
+    args,
   };
 };
 

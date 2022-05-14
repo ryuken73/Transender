@@ -37,6 +37,9 @@ const JobItem = (props) => {
   const { jobId, checked, status, args } = job;
   const { updateJobCheckState } = useJobItemState(jobId);
   const { fileName = 'aaa.mp4', size = '100MB', pid = '0' } = args;
+  React.useEffect(() => {
+    console.log('job changed: ',job.jobId);
+  }, [job])
 
   return (
     <Container>
