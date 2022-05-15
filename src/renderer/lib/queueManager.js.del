@@ -1,0 +1,21 @@
+import {
+  startMediainfoQueue,
+  addQueue as addMediainfoQueue,
+} from 'renderer/lib/mediaInfoQueue';
+import {
+  startFFmpegQueue,
+  addQueue as addFFmpegQueue,
+} from 'renderer/lib/ffmpegQueue';
+import {
+  startVirusScanQueue,
+  addQueue as addVirusScanQueue,
+} from 'renderer/lib/virusScanQueue';
+import {
+  startSendFileQueue,
+  addQueue as addSendFileQueue,
+} from 'renderer/lib/senfFileQueue';
+
+const mediainfoQueue = startMediainfoQueue();
+const ffmpegQueue = startFFmpegQueue();
+const virusScanQueue = startVirusScanQueue();
+const sendFileQueue = startSendFileQueue();

@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-shadow */
+/* eslint-disable import/named */
 /* eslint-disable promise/always-return */
 import React from 'react';
 import styled from 'styled-components';
@@ -9,28 +11,31 @@ import JobItem from 'renderer/Components/Pages/MainTab/JobItem';
 import { createJob, getNextTask } from 'renderer/lib/jobUtil';
 import useJobListState from 'renderer/hooks/useJobListState';
 import bullConstants from 'renderer/config/bull-constants';
-import mediaInfoProc from 'renderer/lib/mediaInfoProc';
-import { getAbsolutePath } from 'renderer/lib/electronUtil';
-import {
-  startMediainfoQueue,
-  addQueue as addMediainfoQueue,
-} from 'renderer/lib/mediaInfoQueue';
-
-const addMethods = {
-  'mediainfo': addMediainfoQueue,
-}
-
-const mediainfoHandler = result => {
-  const video = result.getVideo();
-  console.log(video);
-}
+// import mediaInfoProc from 'renderer/lib/mediaInfoProc';
+// import {
+  // startMediainfoQueue,
+  // addQueue as addMediainfoQueue,
+// } from 'renderer/lib/mediaInfoQueue';
 
 
-const doneHandlers = {
-  'mediainfo': mediainfoHandler
-}
+// const makeFFmpegOptions = (video, audio) => {
+//   return '-y -acodec copy -progress pipe:1';
+// }
+// const makeFFmpegOutPath = () => {
+//   return 'd:/temp/aaa.mp4';
+// }
 
-const { JOB_STATUS, TASK_STATUS, TASK_DEFAULT, Q_WORKER_EVENTS } = bullConstants;
+// const mediainfoHandler = result => {
+//   const { rawResult, video, audio } = result;
+//   console.log('&&&&', video('Count'));
+//   const ffmpegOptions = makeFFmpegOptions(video, audio);
+//   const totalFrames = video('Count')[0];
+//   const outFile = makeFFmpegOutPath();
+// }
+
+
+
+// const { JOB_STATUS, TASK_STATUS, TASK_DEFAULT, Q_WORKER_EVENTS } = bullConstants;
 const { DEFAULT_TASK_FLOW } = bullConstants;
 
 const Container = styled.div`
@@ -43,31 +48,30 @@ const Header = styled.div`
   height: 30px;
   width: 100%;
 `
-const startNewTask = (task, job) => {
-  const { taskType } = task;
-  console.log(taskType);
-  const addQueue = addMethods[taskType];
-  const worker = addQueue(task, job);
-  // worker.on(Q_WORKER_EVENTS.COMPLETED, result => console.log('##### task done!:', result.getVideo()))
-  worker.on(Q_WORKER_EVENTS.COMPLETED, doneHandlers[taskType]);
-  worker.on(Q_WORKER_EVENTS.FAILED, (error) =>
-    console.log('##### task failed!:', error)
-  );
-};
-
-const startAddedJobs = jobs => {
-  jobs.forEach(job => {
-    const firstTask = getNextTask(job);
-    if (firstTask.autoStart) {
-      startNewTask(firstTask, job);
-    }
-  });
-};
 
 const MainTab = (props) => {
-  const { jobList, addJobsState } = useJobListState();
+  const { jobList, addJobsState, addMediainfoItem } = useJobListState();
+  const addMethods = {
+    mediainfo: addMediainfoItem,
+  };
   const handleDrop = React.useCallback(
     (drops) => {
+      const startTask = (task, job) => {
+        const { taskType } = task;
+        const addQueue = addMethods[taskType];
+        console.log('~~~~', addQueue)
+        addQueue(task, job);
+      };
+
+      const startAddedJobs = (jobs) => {
+        jobs.forEach((job) => {
+          const task = getNextTask(job);
+          if (task.autoStart) {
+            startTask(task, job);
+          }
+        });
+      };
+
       const jobs = drops.map((drop) => {
         const { name, path, size } = drop;
         return createJob({
@@ -82,7 +86,7 @@ const MainTab = (props) => {
       addJobsState(jobs);
       startAddedJobs(jobs);
     },
-    [addJobsState]
+    [addJobsState, addMethods]
   );
   return (
     <Container>

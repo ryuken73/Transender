@@ -7,12 +7,16 @@ import {
   removeJob,
   updateJob,
   updateJobs,
+  startMediainfoQueue,
+  addToMediainfoQueue,
 } from 'renderer/Components/Pages/MainTab/jobSlice';
 import {
-  startMediainfoQueue,
-  addQueue as addMediainfoQueue,
-} from 'renderer/lib/mediaInfoQueue';
+  mediaInfo,
+  mediainfoQueue,
+  addMediainfoQueue,
+} from 'renderer/lib/queueUtil';
 import bullConstants from 'renderer/config/bull-constants';
+import useJobItemState from './useJobItemState';
 
 const { JOB_STATUS, Q_EVENTS, Q_ITEM_STATUS, Q_WORKER_EVENTS } = bullConstants;
 
@@ -24,11 +28,7 @@ export default function useJobListState() {
     console.log('%%%%% called useJobListState');
     let queue;
     try {
-      queue = startMediainfoQueue(dispatch);
-      queue.on(Q_EVENTS.WAITING, (qItem) => console.log('%%%% waiting:', qItem));
-      queue.on(Q_EVENTS.ACTIVE, (qItem) => console.log('%%%% started:', qItem));
-      queue.on(Q_EVENTS.COMPLETED, (qItem, result) => console.log('%%%% completed: call dispatch', qItem, result));
-      queue.on(Q_EVENTS.FAILED, (qItem, error) => console.log('%%%% failed:', qItem, error));
+      dispatch(startMediainfoQueue());
     } catch (err) {
       console.error(err);
     }
@@ -37,8 +37,8 @@ export default function useJobListState() {
       if (queue) {
         // remove EventListener of mediaInfo
       }
-    }
-  }, [dispatch])
+    };
+  }, [dispatch]);
 
   const addJobsState = React.useCallback(
     (jobs) => {
@@ -50,22 +50,52 @@ export default function useJobListState() {
     },
     [dispatch]
   );
-  const toggleAllCheckedState = React.useCallback((checked) => {
+
+  const toggleAllCheckedState = React.useCallback(
+    (checked) => {
       dispatch(updateJobs({ key: 'checked', value: checked }));
     },
     [dispatch]
   );
+
   const removeJobAllCheckedState = React.useCallback(() => {
     const checkedJobs = jobList.filter((job) => job.checked === true);
     checkedJobs.forEach((job) => {
       dispatch(removeJob({ jobId: job.jobId }));
-    })
+    });
   }, [dispatch, jobList]);
+
+  const makeFFmpegOptions = (video, audio) => {
+    return '-y -acodec copy -progress pipe:1';
+  };
+
+  const makeFFmpegOutPath = () => {
+    return 'd:/temp/aaa.mp4';
+  };
+
+  const addMediainfoItem = React.useCallback(
+    (task, job) => {
+      const worker = addMediainfoQueue(task, job);
+      worker.on(Q_WORKER_EVENTS.COMPLETED, (result) => {
+        const { rawResult, video, audio } = result;
+        console.log('&&&&', video('Count'));
+        const ffmpegOptions = makeFFmpegOptions(video, audio);
+        const totalFrames = video('Count')[0];
+        const outFile = makeFFmpegOutPath();
+      });
+      worker.on(Q_WORKER_EVENTS.FAILED, (error) =>
+        console.log('##### task failed!:', error)
+      );
+    },
+    [dispatch]
+  );
+
   return {
     jobList,
     allChecked,
     addJobsState,
     toggleAllCheckedState,
     removeJobAllCheckedState,
+    addMediainfoItem,
   };
 }
