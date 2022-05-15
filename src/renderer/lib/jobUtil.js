@@ -35,6 +35,6 @@ export const createJob = (jobInfo) => {
   };
 };
 
-export const getNextTask = job => {
+export const getNextStandbyTask = (job) => {
   return job.tasks.find((task) => task.status === Q_ITEM_STATUS.STANDBY);
 };

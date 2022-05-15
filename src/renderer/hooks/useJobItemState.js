@@ -1,45 +1,13 @@
+/* eslint-disable import/named */
 /* eslint-disable @typescript-eslint/no-shadow */
 import React from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { getQueue } from 'renderer/lib/queueClass';
-import { getAbsolutePath } from 'renderer/lib/electronUtil';
 import { updateJob } from 'renderer/Components/Pages/MainTab/jobSlice';
-import { getMediainfoQueue } from 'renderer/lib/mediaInfoQueue';
-import { getFFmepgQueue } from 'renderer/lib/ffmpegQueue';
-import { getVirusScanQueue } from 'renderer/lib/virusScanQueue';
-import { getSendFileQueue } from 'renderer/lib/sendFileQueue';
+import { getNextTask } from 'renderer/lib/jobUtil';
 import bullConstants from 'renderer/config/bull-constants';
+import { addMediainfoQueue } from 'renderer/lib/queueUtil';
 
-const { TASK_TYPES, Q_W } = bullConstants;
-
-// const getQueueWorkers = (tasks) => {
-//   const mediainfoQueue = getMediainfoQueue();
-//   const ffmpegQueue = getFFmepgQueue();
-//   const virusScanQueue = getVirusScanQueue();
-//   const sendFileQueue = getSendFileQueue();
-//   const { getQItem: getQItemMediainfo } = mediainfoQueue;
-//   const { getQItem: getQItemFFmpeg } = ffmpegQueue;
-//   const { getQItem: getQItemVirusScan } = virusScanQueue;
-//   const { getQItem: getQItemSendFile } = sendFileQueue;
-//   const mediainfoTask = tasks.find(
-//     (task) => task.taskType === TASK_TYPES.MEDIAINFO
-//   );
-//   const ffmpegTask = tasks.find(
-//     (task) => task.taskType === TASK_TYPES.TRANSCODE
-//   );
-//   const virusScanTask = tasks.find(
-//     (task) => task.taskType === TASK_TYPES.VIRUS_SCAN
-//   );
-//   const sendFileTask = tasks.find(
-//     (task) => task.taskType === TASK_TYPES.SEND_FILE
-//   );
-//   return {
-//     mediainfoWorker: getQItemMediainfo(mediainfoTask.taskId);
-//     ffmpegWorker: getQItemFFmpeg(ffmpegTask.taskId);
-//     virusScanWorker: getQItemVirusScan(virusScanTask.taskId);
-//     sendFileWorker: getQItemSendFile(sendFileTask.taskId);
-//   }
-// }
+const { TASK_TYPES, JOB_STATUS, Q_EVENTS, Q_ITEM_STATUS, Q_WORKER_EVENTS } = bullConstants;
 
 const replaceElement = (array, element, index) => {
   const newArray = [...array];
@@ -79,6 +47,30 @@ export default function useJobItemState(jobId) {
     },
     [updateJobState, job]
   );
+  const makeFFmpegOptions = (video, audio) => {
+    return '-y -acodec copy -progress pipe:1';
+  };
+
+  const makeFFmpegOutPath = () => {
+    return 'd:/temp/aaa.mp4';
+  };
+  const addMediainfoItem = React.useCallback(
+    (task) => {
+      const worker = addMediainfoQueue(task, job);
+      worker.on(Q_WORKER_EVENTS.COMPLETED, (result) => {
+        const { rawResult, video, audio } = result;
+        console.log('&&&&', video('Count'));
+        const ffmpegOptions = makeFFmpegOptions(video, audio);
+        const totalFrames = video('Count')[0];
+        const outFile = makeFFmpegOutPath();
+        console.log(getNextTask(job));
+      });
+      worker.on(Q_WORKER_EVENTS.FAILED, (error) =>
+        console.log('##### task failed!:', error)
+      );
+    },
+    [job]
+  );
 
   return {
     job,
@@ -86,5 +78,6 @@ export default function useJobItemState(jobId) {
     updateJobCheckState,
     updateJobStatusState,
     updateJobTask,
+    addMediainfoItem,
   };
 }

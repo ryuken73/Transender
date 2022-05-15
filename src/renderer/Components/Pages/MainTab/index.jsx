@@ -8,7 +8,7 @@ import TabButtons from 'renderer/Components/Pages/MainTab/TabButtons';
 import JobItemHeader from 'renderer/Components/Pages/MainTab/JobItemHeader';
 import ScrollbarVirtual from 'renderer/Components/Common/ScrollBarVirtual';
 import JobItem from 'renderer/Components/Pages/MainTab/JobItem';
-import { createJob, getNextTask } from 'renderer/lib/jobUtil';
+import { createJob, getNextStandbyTask } from 'renderer/lib/jobUtil';
 import useJobListState from 'renderer/hooks/useJobListState';
 import bullConstants from 'renderer/config/bull-constants';
 // import mediaInfoProc from 'renderer/lib/mediaInfoProc';
@@ -50,27 +50,27 @@ const Header = styled.div`
 `
 
 const MainTab = (props) => {
-  const { jobList, addJobsState, addMediainfoItem } = useJobListState();
-  const addMethods = {
-    mediainfo: addMediainfoItem,
-  };
+  const { jobList, addJobsState } = useJobListState();
+  // const addMethods = {
+  //   mediainfo: addMediainfoItem,
+  // };
   const handleDrop = React.useCallback(
     (drops) => {
-      const startTask = (task, job) => {
-        const { taskType } = task;
-        const addQueue = addMethods[taskType];
-        console.log('~~~~', addQueue)
-        addQueue(task, job);
-      };
+      // const startTask = (task, job) => {
+      //   const { taskType } = task;
+      //   const addQueue = addMethods[taskType];
+      //   console.log('~~~~', addQueue)
+      //   addQueue(task, job);
+      // };
 
-      const startAddedJobs = (jobs) => {
-        jobs.forEach((job) => {
-          const task = getNextTask(job);
-          if (task.autoStart) {
-            startTask(task, job);
-          }
-        });
-      };
+      // const startAddedJobs = (jobs) => {
+      //   jobs.forEach((job) => {
+      //     const task = getNextTask(job);
+      //     if (task.autoStart) {
+      //       startTask(task, job);
+      //     }
+      //   });
+      // };
 
       const jobs = drops.map((drop) => {
         const { name, path, size } = drop;
@@ -84,9 +84,9 @@ const MainTab = (props) => {
         });
       });
       addJobsState(jobs);
-      startAddedJobs(jobs);
+      // startAddedJobs(jobs);
     },
-    [addJobsState, addMethods]
+    [addJobsState]
   );
   return (
     <Container>

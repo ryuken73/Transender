@@ -6,6 +6,7 @@ import CheckBox from 'renderer/Components/Common/CheckBox';
 import TextBox from 'renderer/Components/Common/TextBox';
 import Stepper from 'renderer/Components/Common/Stepper';
 import useJobItemState from 'renderer/hooks/useJobItemState';
+import { getNextStandbyTask } from 'renderer/lib/jobUtil';
 import colors from 'renderer/config/colors';
 
 const Container = styled(Box)`
@@ -35,11 +36,27 @@ const BigBox = styled(Box)`
 const JobItem = (props) => {
   const { job, rownum } = props;
   const { jobId, checked, status, sourceFile } = job;
-  const { updateJobCheckState } = useJobItemState(jobId);
+  const { updateJobCheckState, addMediainfoItem } = useJobItemState(jobId);
   const { fileName = 'aaa.mp4', size = '100MB', pid = '0' } = sourceFile;
+  const addMethods = {
+    mediainfo: addMediainfoItem,
+  };
   React.useEffect(() => {
+    const startStandbyTask = (task, job) => {
+        const { taskType } = task;
+        const addQueue = addMethods[taskType];
+        console.log('~~~~', addQueue)
+        addQueue(task, job);
+    }
+    const startTask = (job) => {
+      const task = getNextStandbyTask(job);
+      if (task.autoStart){
+        startStandbyTask(task, job);
+      }
+    }
     console.log('job changed: ',job.jobId);
-  }, [job])
+    startTask(job)
+  }, [job, addMethods])
 
   return (
     <Container>
