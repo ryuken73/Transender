@@ -63,13 +63,21 @@ export default function useJobItemState(jobId) {
         const ffmpegOptions = makeFFmpegOptions(video, audio);
         const totalFrames = video('Count')[0];
         const outFile = makeFFmpegOutPath();
-        console.log(getNextTask(job));
+        const nextTask = getNextTask(job, task);
+        const updatedTask = {
+          ...nextTask,
+          ffmpegOptions,
+          totalFrames,
+          outFile,
+        };
+        console.log(updatedTask)
+        dispatch(updateJobTask(updatedTask));
       });
       worker.on(Q_WORKER_EVENTS.FAILED, (error) =>
         console.log('##### task failed!:', error)
       );
     },
-    [job]
+    [dispatch, job]
   );
 
   return {

@@ -38,3 +38,11 @@ export const createJob = (jobInfo) => {
 export const getNextStandbyTask = (job) => {
   return job.tasks.find((task) => task.status === Q_ITEM_STATUS.STANDBY);
 };
+
+export const getNextTask = (job, task) => {
+  const index = job.tasks.findIndex((ele) => ele.taskId === task.taskId);
+  if (index + 1 > job.tasks.length || index === -1) {
+    return null;
+  }
+  return job.tasks[index + 1];
+};
