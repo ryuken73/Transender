@@ -56,7 +56,7 @@ const JobItem = (props) => {
     }
     console.log('job changed: ',job.jobId);
     startTask(job)
-  }, [job, addMethods])
+  }, [])
 
   return (
     <Container>
