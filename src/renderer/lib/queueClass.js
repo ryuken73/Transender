@@ -102,7 +102,10 @@ class Queue extends EventEmitter {
     }
   };
 
-  // getTask = (itemId) => this.tasks.find((task) => task.taskId === taskId);
+  getQItem = (itemId) =>
+    Object.values(this.qItemList)
+      .flat()
+      .find((qItem) => qItem.itemId === itemId);
 
   // getTasks = (status) => this.taskLists[status];
 

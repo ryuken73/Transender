@@ -69,8 +69,9 @@ CONSTANTS.TASK_DEFAULT = {
   },
   [CONSTANTS.TASK_TYPES.TRANSCODE]: {
     autoStart: false,
-    input: { inputFile: '', totalFrames: 0, outputFile: ''},
-    output: { outputFile: ''}
+    ffmpegOptions: '',
+    totalFrames: null,
+    outFile: '',
   },
   [CONSTANTS.TASK_TYPES.VIRUS_SCAN]: {
     input: ['outFile'],
