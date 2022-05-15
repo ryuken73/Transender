@@ -6,13 +6,31 @@ import TabButtons from 'renderer/Components/Pages/MainTab/TabButtons';
 import JobItemHeader from 'renderer/Components/Pages/MainTab/JobItemHeader';
 import ScrollbarVirtual from 'renderer/Components/Common/ScrollBarVirtual';
 import JobItem from 'renderer/Components/Pages/MainTab/JobItem';
-import createJob from 'renderer/lib/jobUtil';
+import { createJob, getNextTask } from 'renderer/lib/jobUtil';
 import useJobListState from 'renderer/hooks/useJobListState';
 import bullConstants from 'renderer/config/bull-constants';
 import mediaInfoProc from 'renderer/lib/mediaInfoProc';
 import { getAbsolutePath } from 'renderer/lib/electronUtil';
+import {
+  startMediainfoQueue,
+  addQueue as addMediainfoQueue,
+} from 'renderer/lib/mediaInfoQueue';
 
-const { JOB_STATUS, TASK_STATUS, TASK_DEFAULT } = bullConstants;
+const addMethods = {
+  'mediainfo': addMediainfoQueue,
+}
+
+const mediainfoHandler = result => {
+  const video = result.getVideo();
+  console.log(video);
+}
+
+
+const doneHandlers = {
+  'mediainfo': mediainfoHandler
+}
+
+const { JOB_STATUS, TASK_STATUS, TASK_DEFAULT, Q_WORKER_EVENTS } = bullConstants;
 const { DEFAULT_TASK_FLOW } = bullConstants;
 
 const Container = styled.div`
@@ -25,6 +43,26 @@ const Header = styled.div`
   height: 30px;
   width: 100%;
 `
+const startNewTask = (task, job) => {
+  const { taskType } = task;
+  console.log(taskType);
+  const addQueue = addMethods[taskType];
+  const worker = addQueue(task, job);
+  // worker.on(Q_WORKER_EVENTS.COMPLETED, result => console.log('##### task done!:', result.getVideo()))
+  worker.on(Q_WORKER_EVENTS.COMPLETED, doneHandlers[taskType]);
+  worker.on(Q_WORKER_EVENTS.FAILED, (error) =>
+    console.log('##### task failed!:', error)
+  );
+};
+
+const startAddedJobs = jobs => {
+  jobs.forEach(job => {
+    const firstTask = getNextTask(job);
+    if (firstTask.autoStart) {
+      startNewTask(firstTask, job);
+    }
+  });
+};
 
 const MainTab = (props) => {
   const { jobList, addJobsState } = useJobListState();
@@ -34,7 +72,7 @@ const MainTab = (props) => {
         const { name, path, size } = drop;
         return createJob({
           taskFlow: DEFAULT_TASK_FLOW,
-          args: {
+          sourceFile: {
             fileName: name,
             fullName: path,
             fileSize: size,
@@ -42,6 +80,7 @@ const MainTab = (props) => {
         });
       });
       addJobsState(jobs);
+      startAddedJobs(jobs);
     },
     [addJobsState]
   );

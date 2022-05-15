@@ -8,30 +8,33 @@ const createTask = (taskInfo, index) => {
   return {
     jobId,
     taskId: getNextId(),
-    taskType,
     status: Q_ITEM_STATUS.STANDBY,
     progress: 0,
+    ...taskInfo
   }
 };
 
-const createJob = (jobInfo) => {
-  const { taskFlow = [], args } = jobInfo;
+export const createJob = (jobInfo) => {
+  const { taskFlow = [], sourceFile } = jobInfo;
   const jobId = getNextId();
   const tasks = taskFlow.map((taskType, index) => {
     const taskInfo = {
       jobId,
       taskType,
-      ...TASK_DEFAULT[taskType]
+      ...TASK_DEFAULT[taskType],
     }
     return createTask(taskInfo, index);
   });
+  console.log('---------------', tasks)
   return {
     jobId,
     tasks,
     status: JOB_STATUS.STANDBY,
     checked: false,
-    args,
+    sourceFile,
   };
 };
 
-export default createJob;
+export const getNextTask = job => {
+  return job.tasks.find((task) => task.status === Q_ITEM_STATUS.STANDBY);
+};

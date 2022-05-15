@@ -34,9 +34,9 @@ const BigBox = styled(Box)`
 
 const JobItem = (props) => {
   const { job, rownum } = props;
-  const { jobId, checked, status, args } = job;
+  const { jobId, checked, status, sourceFile } = job;
   const { updateJobCheckState } = useJobItemState(jobId);
-  const { fileName = 'aaa.mp4', size = '100MB', pid = '0' } = args;
+  const { fileName = 'aaa.mp4', size = '100MB', pid = '0' } = sourceFile;
   React.useEffect(() => {
     console.log('job changed: ',job.jobId);
   }, [job])

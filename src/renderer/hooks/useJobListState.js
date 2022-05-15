@@ -14,34 +14,36 @@ import {
 } from 'renderer/lib/mediaInfoQueue';
 import bullConstants from 'renderer/config/bull-constants';
 
-const { JOB_STATUS, Q_ITEM_STATUS, Q_WORKER_EVENTS } = bullConstants;
+const { JOB_STATUS, Q_EVENTS, Q_ITEM_STATUS, Q_WORKER_EVENTS } = bullConstants;
 
 export default function useJobListState() {
   const dispatch = useDispatch();
   const jobList = useSelector((state) => state.job.jobList);
   const allChecked = jobList.every((job) => job.checked === true);
   React.useEffect(() => {
-    const queue = startMediainfoQueue(dispatch);
+    console.log('%%%%% called useJobListState');
+    let queue;
+    try {
+      queue = startMediainfoQueue(dispatch);
+      queue.on(Q_EVENTS.WAITING, (qItem) => console.log('%%%% waiting:', qItem));
+      queue.on(Q_EVENTS.ACTIVE, (qItem) => console.log('%%%% started:', qItem));
+      queue.on(Q_EVENTS.COMPLETED, (qItem, result) => console.log('%%%% completed: call dispatch', qItem, result));
+      queue.on(Q_EVENTS.FAILED, (qItem, error) => console.log('%%%% failed:', qItem, error));
+    } catch (err) {
+      console.error(err);
+    }
+    return () => {
+      console.log('remove event listener', queue);
+      if (queue) {
+        // remove EventListener of mediaInfo
+      }
+    }
   }, [dispatch])
 
   const addJobsState = React.useCallback(
     (jobs) => {
       if (Array.isArray(jobs)) {
         dispatch(addJobs({ jobs }));
-        return jobs.map((job) => {
-          // dispatch(addJob({ job }));
-          const task = addMediainfoQueue(job);
-          task.on(Q_WORKER_EVENTS.COMPLETED, result => console.log('##### task done!:', result))
-          task.on(Q_WORKER_EVENTS.FAILED, error => console.log('##### task failed!:', error))
-          dispatch(
-            updateJob({
-              jobId: job.jobId,
-              key: 'status',
-              value: Q_ITEM_STATUS.WAITING,
-            })
-          );
-          return task;
-        });
       } else {
         throw new Error('jobs should be Array');
       }

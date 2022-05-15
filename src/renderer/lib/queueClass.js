@@ -24,7 +24,7 @@ class Queue extends EventEmitter {
   static instances = {};
 
   static getInstance(name) {
-    return Queue.instances[name];
+    return Queue.instances[name];;
   }
 
   _getNextItem = () => {
@@ -37,6 +37,7 @@ class Queue extends EventEmitter {
   add = (itemBody, itemId) => {
     const newItem = createQItem(itemBody, this, itemId);
     this._setItemStatus(newItem, this.Q_ITEM_STATUS.WAITING);
+    this.emit(this.Q_EVENTS.WAITING, newItem);
     setImmediate(() => this._runNextItem());
     return newItem;
   };
@@ -48,15 +49,15 @@ class Queue extends EventEmitter {
     );
   };
 
-  _setItemStatus = (item, itemStatus) => {
+  _setItemStatus = (item, itemStatus, result) => {
     const targetList = this.qItemList[itemStatus];
     this.qItemList[itemStatus] = [...targetList, item];
-    item.emit(itemStatus);
+    item.emit(itemStatus, result);
   };
 
-  _moveItemStatus = (item, fromStatus, toStatus) => {
+  _moveItemStatus = (item, fromStatus, toStatus, result) => {
     this._removeItemStatusFrom(item, fromStatus);
-    this._setItemStatus(item, toStatus);
+    this._setItemStatus(item, toStatus, result);
   };
 
   done = (item) => {
@@ -67,7 +68,7 @@ class Queue extends EventEmitter {
           this.Q_ITEM_STATUS.ACTIVE,
           this.Q_ITEM_STATUS.FAILED
         );
-        this.emit(this.Q_EVENTS.FAILED, item.itemId, error);
+        this.emit(this.Q_EVENTS.FAILED, item, error);
         this._runNextItem();
         return;
         // throw error;
@@ -75,9 +76,10 @@ class Queue extends EventEmitter {
       this._moveItemStatus(
         item,
         this.Q_ITEM_STATUS.ACTIVE,
-        this.Q_ITEM_STATUS.COMPLETED
+        this.Q_ITEM_STATUS.COMPLETED,
+        result
       );
-      this.emit(this.Q_EVENTS.COMPLETED, item.itemId, result);
+      this.emit(this.Q_EVENTS.COMPLETED, item, result);
       this._runNextItem();
     };
   };

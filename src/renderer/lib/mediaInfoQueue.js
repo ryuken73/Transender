@@ -14,30 +14,30 @@ const mediainfoQueue = getQueue('mediaInfo', bullConstants);
 
 const startMediainfoQueue = (dispatch) => {
   try {
-    mediainfoQueue.process(10, async (qItem, done) => {
+    mediainfoQueue.process(1, async (qItem, done) => {
       try {
         console.log('!!!!!', qItem)
         const qItemBody = qItem.itemBody;
-        console.log('qTask.body.args.fullName:', qItemBody.args.fullName);
-        const ret = await mediaInfo.run(qItemBody.args.fullName);
+        // console.log('qTask.body.args.fullName:', qItemBody.args.fullName);
+        const ret = await mediaInfo.run(qItemBody.inputFile);
         const isMediaFile = mediaInfo.isMediaFile();
         console.log('###', mediaInfo.getResult())
         if (isMediaFile) {
           dispatch(
             updateJob({
-              jobId: qItem.itemId,
+              jobId: qItemBody.jobId,
               key: 'status',
               value: JOB_STATUS.READY,
             })
           );
           dispatch(
-            setAppLog({ message: `Aanlyze ${qItemBody.args.fullName} done.` })
+            setAppLog({ message: `Aanlyze ${qItemBody.inputFile} done.` })
           );
-          done(null, isMediaFile);
+          done(null, { isMediaFile, getResult: mediaInfo.getResult, getVideo: mediaInfo.getStreams('Video') });
         } else {
           dispatch(
             updateJob({
-              jobId: qItem.itemId,
+              jobId: qItemBody.jobId,
               key: 'status',
               value: JOB_STATUS.FAILED,
             })
@@ -45,24 +45,30 @@ const startMediainfoQueue = (dispatch) => {
           dispatch(
             setAppLog({
               level: LOG_LEVEL.ERROR,
-              message: `Aanlyze ${qItemBody.args.fullName} Faild.[not-media-file]`,
+              message: `Aanlyze ${qItemBody.inputFile} Faild.[not-media-file]`,
             })
           )
           done('codec unknows. suspect not media file.')
         }
-        return mediainfoQueue;
       } catch(err){
         console.log('errored:', err);
         done(err)
       }
     })
   } catch (err) {
-    console.log(err);
+    throw new Error(err);
+    // console.log(err);
   }
+  return mediainfoQueue;
 };
 
-const addQueue = (jobData) => {
-  return mediainfoQueue.add(jobData, jobData.jobId );
+const addQueue = (task, job) => {
+  return mediainfoQueue.add({
+    ...task,
+    inputFile: job.sourceFile.fullName,
+    },
+    task.taskId
+  );
 };
 
 module.exports = { startMediainfoQueue, addQueue };

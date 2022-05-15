@@ -62,10 +62,23 @@ const CONSTANTS = {
 };
 
 CONSTANTS.TASK_DEFAULT = {
-  [CONSTANTS.TASK_TYPES.MEDIAINFO]: {},
-  [CONSTANTS.TASK_TYPES.TRANSCODE]: {},
-  [CONSTANTS.TASK_TYPES.VIRUS_SCAN]: {},
-  [CONSTANTS.TASK_TYPES.SEND_FILE]: {},
+  [CONSTANTS.TASK_TYPES.MEDIAINFO]: {
+    autoStart: true,
+    input: { inputFile: ' ' },
+    output: { totalFrames: 0 },
+  },
+  [CONSTANTS.TASK_TYPES.TRANSCODE]: {
+    autoStart: false,
+    input: { inputFile: '', totalFrames: 0, outputFile: ''},
+    output: { outputFile: ''}
+  },
+  [CONSTANTS.TASK_TYPES.VIRUS_SCAN]: {
+    input: ['outFile'],
+    autoStart: true,
+  },
+  [CONSTANTS.TASK_TYPES.SEND_FILE]: {
+    autoStart: true,
+  },
 };
 
 CONSTANTS.DEFAULT_TASK_FLOW = [
