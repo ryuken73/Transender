@@ -1,3 +1,4 @@
+/* eslint-disable no-plusplus */
 const fs = require('fs');
 const mkdirp = require('mkdirp');
 const path = require('path');
@@ -22,6 +23,15 @@ const number = {
       return `0${num}`;
     }
     return num.toString();
+  },
+  niceBytes(num) {
+    const units = ['bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
+    let l = 0;
+    let n = parseInt(num, 10) || 0;
+    while (n >= 1024 && ++l) {
+      n /= 1024;
+    }
+    return `${n.toFixed(n < 10 && l > 0 ? 1 : 0)} ${units[l]}`;
   },
 };
 
@@ -58,9 +68,9 @@ const date = {
     const timeString = `${hour}${timeSep}${minute}${timeSep}${second}`;
     return `${dateString}${sep}${timeString}`;
   },
-  getLogDate(){
+  getLogDate() {
     return date.getString(new Date(), { dateSep: '-', timeSep: ':' });
-  }
+  },
 };
 
 const file = {
@@ -303,7 +313,7 @@ module.exports = {
   date,
   string,
   order,
-  getNextId
+  getNextId,
 };
 
 // const trottled = fp.throttle(100, console.log);

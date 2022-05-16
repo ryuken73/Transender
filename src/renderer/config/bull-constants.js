@@ -38,6 +38,7 @@ const CONSTANTS = {
     COMPLETED: 'completed',
     FAILED: 'failed',
     DELAYED: 'delayed',
+    PROGRESS: 'progress',
   },
   Q_WORKER_EVENTS: {
     PROGRESS: 'progress',

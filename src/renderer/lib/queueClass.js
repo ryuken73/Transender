@@ -98,7 +98,7 @@ class Queue extends EventEmitter {
       this._setItemStatus(nextItem, this.Q_ITEM_STATUS.ACTIVE);
       nextItem.on(this.Q_WORKER_EVENTS.PROGRESS, (progress) => {
         this.emit(this.Q_EVENTS.PROGRESS, nextItem, progress);
-        nextItem.emit(this.Q_ITEM_STATUS.PROGRESS, progress);
+        // nextItem.emit(this.Q_ITEM_STATUS.PROGRESS, progress);
       });
       this.emit(this.Q_EVENTS.ACTIVE, nextItem, this.done(nextItem));
     }

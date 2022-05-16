@@ -40,11 +40,18 @@ const BigBox = styled(Box)`
 
 const JobItem = (props) => {
   const { job, rownum } = props;
-  const { jobId, checked, status, sourceFile } = job;
+  const {
+    jobId,
+    checked,
+    status,
+    sourceFile,
+    outFileSize = '0Bytes',
+    pid = 0,
+  } = job;
   const { updateJobCheckState, updateJobStatusState } = useJobItemState(jobId);
   const { addMediainfoItem } = useMediainfoQueue(jobId);
   const { addFFmpegItem } = useFFmpegQueue(jobId);
-  const { fileName = 'aaa.mp4', size = '100MB', pid = '0' } = sourceFile;
+  const { fileName = 'aaa.mp4' } = sourceFile;
   console.log('re-render JobItem', job)
   const addVirusScan = () => {};
   const addSendFile = () => {};
@@ -95,7 +102,7 @@ const JobItem = (props) => {
         <TextBox text={fileName} />
       </BigBox>
       <SmallBox width="10%">
-        <TextBox text={size} />
+        <TextBox text={outFileSize} />
       </SmallBox>
       <SmallBox width="10%">
         <TextBox text={status} />

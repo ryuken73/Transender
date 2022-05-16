@@ -38,12 +38,32 @@ export default function useJobItemState(jobId) {
     },
     [updateJobState, job]
   );
-
+  const updateJobFileSizeState = React.useCallback(
+    (size) => {
+      updateJobState('outFileSize', size);
+    },
+    [updateJobState]
+  );
+  const updateJobPidState = React.useCallback(
+    (pid) => {
+      updateJobState('pid', pid);
+    },
+    [updateJobState]
+  );
+  const updateJobSpeedState = React.useCallback(
+    (speed) => {
+      updateJobState('speed', speed);
+    },
+    [updateJobState]
+  );
   return {
     job,
     updateJobState,
     updateJobCheckState,
     updateJobStatusState,
     updateJobTask,
+    updateJobFileSizeState,
+    updateJobPidState,
+    updateJobSpeedState,
   };
 }
