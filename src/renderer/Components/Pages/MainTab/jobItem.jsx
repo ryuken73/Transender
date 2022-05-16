@@ -6,6 +6,7 @@ import CheckBox from 'renderer/Components/Common/CheckBox';
 import TextBox from 'renderer/Components/Common/TextBox';
 import Stepper from 'renderer/Components/Common/Stepper';
 import useJobItemState from 'renderer/hooks/useJobItemState';
+import useMediainfoQueue from 'renderer/hooks/useMediainfoQueue';
 import { getNextStandbyTask } from 'renderer/lib/jobUtil';
 import bullConstants from 'renderer/config/bull-constants';
 import colors from 'renderer/config/colors';
@@ -39,7 +40,8 @@ const BigBox = styled(Box)`
 const JobItem = (props) => {
   const { job, rownum } = props;
   const { jobId, checked, status, sourceFile } = job;
-  const { updateJobCheckState, updateJobStatusState, addMediainfoItem } = useJobItemState(jobId);
+  const { updateJobCheckState, updateJobStatusState } = useJobItemState(jobId);
+  const { addMediainfoItem } = useMediainfoQueue(jobId);
   const { fileName = 'aaa.mp4', size = '100MB', pid = '0' } = sourceFile;
   console.log('re-render JobItem', job)
   const addMethods = {
@@ -72,7 +74,7 @@ const JobItem = (props) => {
       console.log('&&&&& start start new task:', job.status);
       startTask(job);
     }
-  }, [job])
+  }, [job, startTask])
 
   return (
     <Container>

@@ -10,6 +10,7 @@ import ScrollbarVirtual from 'renderer/Components/Common/ScrollBarVirtual';
 import JobItem from 'renderer/Components/Pages/MainTab/JobItem';
 import { createJob } from 'renderer/lib/jobUtil';
 import useJobListState from 'renderer/hooks/useJobListState';
+import useMediainfoQueue from 'renderer/hooks/useMediainfoQueue';
 import bullConstants from 'renderer/config/bull-constants';
 
 // const { JOB_STATUS, TASK_STATUS, TASK_DEFAULT, Q_WORKER_EVENTS } = bullConstants;
@@ -27,7 +28,8 @@ const Header = styled.div`
 `
 
 const MainTab = () => {
-  const { jobList, addJobsState, startMediainfoQueue } = useJobListState();
+  const { jobList, addJobsState } = useJobListState();
+  const { startMediainfoQueue } = useMediainfoQueue();
   React.useEffect(() => {
     console.log('%%%%% called useJobListState');
     let queue;
