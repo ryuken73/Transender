@@ -78,13 +78,14 @@ export default function useMediainfoQueue(jobId) {
           status: Q_ITEM_STATUS.COMPLETED
         }
         // updateJobTask(statusChanged);
-        console.log('&&&&', video('Count'));
+        console.log('&&&&', video('FrameCount'));
         const ffmpegOptions = makeFFmpegOptions(video, audio);
-        const totalFrames = video('Count')[0];
+        const totalFrames = video('FrameCount')[0];
         const outFile = makeFFmpegOutPath();
         const nextTask = getNextTask(job, task);
         const updatedTask = {
           ...nextTask,
+          inFile: job.sourceFile.fullName,
           ffmpegOptions,
           totalFrames,
           outFile,
@@ -98,7 +99,7 @@ export default function useMediainfoQueue(jobId) {
         updateJobStatusState(JOB_STATUS.FAILED);
       });
     },
-    [job]
+    [job, updateJobStatusState, updateJobTask]
   );
 
   return {

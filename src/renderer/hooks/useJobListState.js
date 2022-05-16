@@ -35,6 +35,9 @@ export default function useJobListState() {
       dispatch(removeJob({ jobId: job.jobId }));
     });
   }, [dispatch, jobList]);
+  const setAllManualStartState = React.useCallback(() => {
+    dispatch(updateJobs({ key: 'manualStarted', value: true }));
+  }, [])
 
   return {
     jobList,
@@ -42,5 +45,6 @@ export default function useJobListState() {
     addJobsState,
     toggleAllCheckedState,
     removeJobAllCheckedState,
+    setAllManualStartState,
   };
 }

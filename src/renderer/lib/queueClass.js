@@ -52,6 +52,7 @@ class Queue extends EventEmitter {
   _setItemStatus = (item, itemStatus, result) => {
     const targetList = this.qItemList[itemStatus];
     this.qItemList[itemStatus] = [...targetList, item];
+    console.log(`${this.name} itemStatus:${itemStatus}`)
     item.emit(itemStatus, result);
   };
 
@@ -87,7 +88,7 @@ class Queue extends EventEmitter {
   _runNextItem = () => {
     if (this._qWorker === null) return;
     console.log(
-      `waiting: ${this.getWaitCount()} active: ${this.getActiveCount()} completed: ${this.getCompletedCount()} failed: ${this.getFailedCount()}`
+      `## ${this.name} => waiting: ${this.getWaitCount()} active: ${this.getActiveCount()} completed: ${this.getCompletedCount()} failed: ${this.getFailedCount()}`
     );
     if (this.getActive().length >= this._concurrency) return;
     const nextItem = this._getNextItem();
@@ -95,9 +96,10 @@ class Queue extends EventEmitter {
       this.emit('drained');
     } else {
       this._setItemStatus(nextItem, this.Q_ITEM_STATUS.ACTIVE);
-      nextItem.on(this.Q_WORKER_EVENTS.PROGRESS, (progress) =>
-        this.emit(this.Q_EVENTS.PROGRESS, nextItem, progress)
-      );
+      nextItem.on(this.Q_WORKER_EVENTS.PROGRESS, (progress) => {
+        this.emit(this.Q_EVENTS.PROGRESS, nextItem, progress);
+        nextItem.emit(this.Q_ITEM_STATUS.PROGRESS, progress);
+      });
       this.emit(this.Q_EVENTS.ACTIVE, nextItem, this.done(nextItem));
     }
   };

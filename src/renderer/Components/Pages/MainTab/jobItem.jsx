@@ -7,6 +7,7 @@ import TextBox from 'renderer/Components/Common/TextBox';
 import Stepper from 'renderer/Components/Common/Stepper';
 import useJobItemState from 'renderer/hooks/useJobItemState';
 import useMediainfoQueue from 'renderer/hooks/useMediainfoQueue';
+import useFFmpegQueue from 'renderer/hooks/useFFmpegQueue';
 import { getNextStandbyTask } from 'renderer/lib/jobUtil';
 import bullConstants from 'renderer/config/bull-constants';
 import colors from 'renderer/config/colors';
@@ -42,11 +43,19 @@ const JobItem = (props) => {
   const { jobId, checked, status, sourceFile } = job;
   const { updateJobCheckState, updateJobStatusState } = useJobItemState(jobId);
   const { addMediainfoItem } = useMediainfoQueue(jobId);
+  const { addFFmpegItem } = useFFmpegQueue(jobId);
   const { fileName = 'aaa.mp4', size = '100MB', pid = '0' } = sourceFile;
   console.log('re-render JobItem', job)
-  const addMethods = {
-    mediainfo: addMediainfoItem,
-  };
+  const addVirusScan = () => {};
+  const addSendFile = () => {};
+  const addMethods = React.useMemo(() => {
+    return {
+      mediainfo: addMediainfoItem,
+      transcode: addFFmpegItem,
+      virusScan: addVirusScan,
+      sendFile: addSendFile,
+    };
+  }, [addFFmpegItem, addMediainfoItem])
   const startStandbyTask = React.useCallback((task, job) => {
       const { taskType } = task;
       const addQueue = addMethods[taskType];
@@ -54,14 +63,14 @@ const JobItem = (props) => {
       console.log('~~~~ add new task', task)
       addQueue(task, job);
     },
-    [updateJobStatusState]
+    [addMethods, updateJobStatusState]
   );
 
   const startTask = React.useCallback((job) => {
     // prevous task should not be in standby state
     console.log('*** tasks in job state:', job)
       const task = getNextStandbyTask(job);
-      if (task.autoStart){
+      if (task.autoStart || job.manualStarted){
         console.log('~~~~ startStandbyTask', task)
         startStandbyTask(task, job);
       }

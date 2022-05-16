@@ -45,7 +45,8 @@ const ffmpeg = (
       console.log(error)
     });
     childProcess.on('exit', (code) => {
-      console.log('exit ffmpeg')
+      console.log('exit ffmpeg: code= ', code);
+      childProcess.emit('done');
     });
     childProcess.stdout.on('data', (data) => {
       console.log(data.toString());
