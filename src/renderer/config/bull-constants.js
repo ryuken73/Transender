@@ -7,12 +7,12 @@ const CONSTANTS = {
     SEND_FILE: 'sendFile',
   },
   JOB_STATUS: {
-    STANDBY: 'standby',
-    READY: 'ready',
-    WAITING: 'waiting',
-    ACTIVE: 'active',
-    COMPLETED: 'completed',
-    FAILED: 'faild',
+    STANDBY: 'standby', // ready to run next task
+    READY: 'ready',  // ready to run next task (previus task success)
+    WAITING: 'waiting', // one of task is wait in queue
+    ACTIVE: 'active', // one of task is active
+    COMPLETED: 'completed', // all task done
+    FAILED: 'faild', // some task failed
     DELAYED: 'delayed',
   },
   // TASK_EVENTS: {
@@ -64,8 +64,6 @@ const CONSTANTS = {
 CONSTANTS.TASK_DEFAULT = {
   [CONSTANTS.TASK_TYPES.MEDIAINFO]: {
     autoStart: true,
-    input: { inputFile: ' ' },
-    output: { totalFrames: 0 },
   },
   [CONSTANTS.TASK_TYPES.TRANSCODE]: {
     autoStart: false,

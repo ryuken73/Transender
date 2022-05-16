@@ -35,6 +35,9 @@ export const createJob = (jobInfo) => {
   };
 };
 
+export const getTask = (job, task) => {
+  return job.tasks.find((ele) => ele.taskId === task.taskId);
+};
 export const getNextStandbyTask = (job) => {
   return job.tasks.find((task) => task.status === Q_ITEM_STATUS.STANDBY);
 };

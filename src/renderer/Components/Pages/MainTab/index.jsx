@@ -8,32 +8,9 @@ import TabButtons from 'renderer/Components/Pages/MainTab/TabButtons';
 import JobItemHeader from 'renderer/Components/Pages/MainTab/JobItemHeader';
 import ScrollbarVirtual from 'renderer/Components/Common/ScrollBarVirtual';
 import JobItem from 'renderer/Components/Pages/MainTab/JobItem';
-import { createJob, getNextStandbyTask } from 'renderer/lib/jobUtil';
+import { createJob } from 'renderer/lib/jobUtil';
 import useJobListState from 'renderer/hooks/useJobListState';
 import bullConstants from 'renderer/config/bull-constants';
-// import mediaInfoProc from 'renderer/lib/mediaInfoProc';
-// import {
-  // startMediainfoQueue,
-  // addQueue as addMediainfoQueue,
-// } from 'renderer/lib/mediaInfoQueue';
-
-
-// const makeFFmpegOptions = (video, audio) => {
-//   return '-y -acodec copy -progress pipe:1';
-// }
-// const makeFFmpegOutPath = () => {
-//   return 'd:/temp/aaa.mp4';
-// }
-
-// const mediainfoHandler = result => {
-//   const { rawResult, video, audio } = result;
-//   console.log('&&&&', video('Count'));
-//   const ffmpegOptions = makeFFmpegOptions(video, audio);
-//   const totalFrames = video('Count')[0];
-//   const outFile = makeFFmpegOutPath();
-// }
-
-
 
 // const { JOB_STATUS, TASK_STATUS, TASK_DEFAULT, Q_WORKER_EVENTS } = bullConstants;
 const { DEFAULT_TASK_FLOW } = bullConstants;
@@ -49,29 +26,25 @@ const Header = styled.div`
   width: 100%;
 `
 
-const MainTab = (props) => {
-  const { jobList, addJobsState } = useJobListState();
-  // const addMethods = {
-  //   mediainfo: addMediainfoItem,
-  // };
+const MainTab = () => {
+  const { jobList, addJobsState, startMediainfoQueue } = useJobListState();
+  React.useEffect(() => {
+    console.log('%%%%% called useJobListState');
+    let queue;
+    try {
+      startMediainfoQueue();
+    } catch (err) {
+      console.error(err);
+    }
+    return () => {
+      console.log('remove event listener', queue);
+      if (queue) {
+        // remove EventListener of mediaInfo
+      }
+    };
+  }, []);
   const handleDrop = React.useCallback(
     (drops) => {
-      // const startTask = (task, job) => {
-      //   const { taskType } = task;
-      //   const addQueue = addMethods[taskType];
-      //   console.log('~~~~', addQueue)
-      //   addQueue(task, job);
-      // };
-
-      // const startAddedJobs = (jobs) => {
-      //   jobs.forEach((job) => {
-      //     const task = getNextTask(job);
-      //     if (task.autoStart) {
-      //       startTask(task, job);
-      //     }
-      //   });
-      // };
-
       const jobs = drops.map((drop) => {
         const { name, path, size } = drop;
         return createJob({
@@ -84,7 +57,6 @@ const MainTab = (props) => {
         });
       });
       addJobsState(jobs);
-      // startAddedJobs(jobs);
     },
     [addJobsState]
   );

@@ -3,9 +3,9 @@
 import React from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { updateJob } from 'renderer/Components/Pages/MainTab/jobSlice';
-import { getNextTask } from 'renderer/lib/jobUtil';
-import bullConstants from 'renderer/config/bull-constants';
 import { addMediainfoQueue } from 'renderer/lib/queueUtil';
+import { getTask, getNextTask } from 'renderer/lib/jobUtil';
+import bullConstants from 'renderer/config/bull-constants';
 
 const { TASK_TYPES, JOB_STATUS, Q_EVENTS, Q_ITEM_STATUS, Q_WORKER_EVENTS } = bullConstants;
 
@@ -13,16 +13,13 @@ const replaceElement = (array, element, index) => {
   const newArray = [...array];
   newArray[index] = element;
   return newArray;
-}
+};
 
 export default function useJobItemState(jobId) {
   const dispatch = useDispatch();
   const job = useSelector((state) =>
     state.job.jobList.find((job) => job.jobId === jobId)
   );
-  const { tasks } = job;
-  React.useEffect(() => {
-  }, [tasks]);
   const updateJobState = React.useCallback((key, value) => {
     dispatch(updateJob({ jobId, key, value }));
     },
@@ -38,19 +35,21 @@ export default function useJobItemState(jobId) {
     },
     [updateJobState]
   );
-  const updateJobTask = React.useCallback((task) => {
-      const targetTaskIndex = job.tasks.findIndex(
-        (element) => element.taskId === task.taskId
-      );
-      const tasks = replaceElement(job.tasks, task, targetTaskIndex);
-      updateJobState('tasks', tasks);
+  const updateJobTask = React.useCallback(tasks => {
+    const tasksCloned = [...job.tasks];
+      tasks.forEach((task) => {
+        const targetTaskIndex = job.tasks.findIndex(
+          (element) => element.taskId === task.taskId
+        );
+        tasksCloned[targetTaskIndex] = task;
+      });
+      updateJobState('tasks', tasksCloned);
     },
     [updateJobState, job]
   );
   const makeFFmpegOptions = (video, audio) => {
     return '-y -acodec copy -progress pipe:1';
   };
-
   const makeFFmpegOutPath = () => {
     return 'd:/temp/aaa.mp4';
   };
@@ -59,6 +58,12 @@ export default function useJobItemState(jobId) {
       const worker = addMediainfoQueue(task, job);
       worker.on(Q_WORKER_EVENTS.COMPLETED, (result) => {
         const { rawResult, video, audio } = result;
+        const currentTask = getTask(job, task);
+        const completedTask = {
+          ...currentTask,
+          status: Q_ITEM_STATUS.COMPLETED
+        }
+        // updateJobTask(statusChanged);
         console.log('&&&&', video('Count'));
         const ffmpegOptions = makeFFmpegOptions(video, audio);
         const totalFrames = video('Count')[0];
@@ -71,15 +76,16 @@ export default function useJobItemState(jobId) {
           outFile,
         };
         console.log(updatedTask)
-        dispatch(updateJobTask(updatedTask));
+        updateJobTask([completedTask, updatedTask]);
+        updateJobStatusState(JOB_STATUS.READY);
       });
-      worker.on(Q_WORKER_EVENTS.FAILED, (error) =>
+      worker.on(Q_WORKER_EVENTS.FAILED, (error) => {
         console.log('##### task failed!:', error)
-      );
+        updateJobStatusState(JOB_STATUS.FAILED);
+      });
     },
-    [dispatch, job]
+    [job, updateJobStatusState, updateJobTask]
   );
-
   return {
     job,
     updateJobState,

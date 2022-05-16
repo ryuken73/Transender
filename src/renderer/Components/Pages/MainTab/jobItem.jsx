@@ -7,7 +7,10 @@ import TextBox from 'renderer/Components/Common/TextBox';
 import Stepper from 'renderer/Components/Common/Stepper';
 import useJobItemState from 'renderer/hooks/useJobItemState';
 import { getNextStandbyTask } from 'renderer/lib/jobUtil';
+import bullConstants from 'renderer/config/bull-constants';
 import colors from 'renderer/config/colors';
+
+const { JOB_STATUS }  = bullConstants;
 
 const Container = styled(Box)`
   && {
@@ -36,27 +39,40 @@ const BigBox = styled(Box)`
 const JobItem = (props) => {
   const { job, rownum } = props;
   const { jobId, checked, status, sourceFile } = job;
-  const { updateJobCheckState, addMediainfoItem } = useJobItemState(jobId);
+  const { updateJobCheckState, updateJobStatusState, addMediainfoItem } = useJobItemState(jobId);
   const { fileName = 'aaa.mp4', size = '100MB', pid = '0' } = sourceFile;
+  console.log('re-render JobItem', job)
   const addMethods = {
     mediainfo: addMediainfoItem,
   };
-  React.useEffect(() => {
-    const startStandbyTask = (task, job) => {
-        const { taskType } = task;
-        const addQueue = addMethods[taskType];
-        console.log('~~~~', addQueue)
-        addQueue(task, job);
-    }
-    const startTask = (job) => {
+  const startStandbyTask = React.useCallback((task, job) => {
+      const { taskType } = task;
+      const addQueue = addMethods[taskType];
+      updateJobStatusState(JOB_STATUS.WAITING);
+      console.log('~~~~ add new task', task)
+      addQueue(task, job);
+    },
+    [updateJobStatusState]
+  );
+
+  const startTask = React.useCallback((job) => {
+    // prevous task should not be in standby state
+    console.log('*** tasks in job state:', job)
       const task = getNextStandbyTask(job);
       if (task.autoStart){
+        console.log('~~~~ startStandbyTask', task)
         startStandbyTask(task, job);
       }
+    },
+    [startStandbyTask]
+  );
+  React.useEffect(() => {
+    console.log('^^^ job changed: ',job.jobId, job.status);
+    if (job.status === JOB_STATUS.STANDBY || job.status === JOB_STATUS.READY){
+      console.log('&&&&& start start new task:', job.status);
+      startTask(job);
     }
-    console.log('job changed: ',job.jobId);
-    startTask(job)
-  }, [])
+  }, [job])
 
   return (
     <Container>
