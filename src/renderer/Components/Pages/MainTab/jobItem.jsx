@@ -46,6 +46,7 @@ const JobItem = (props) => {
     status,
     sourceFile,
     outFileSize = '0Bytes',
+    percent = '0%',
     pid = 0,
   } = job;
   const { updateJobCheckState, updateJobStatusState } = useJobItemState(jobId);
@@ -106,6 +107,9 @@ const JobItem = (props) => {
       </SmallBox>
       <SmallBox width="10%">
         <TextBox text={status} />
+      </SmallBox>
+      <SmallBox width="10%">
+        <TextBox text={percent} />
       </SmallBox>
       <SmallBox width="10%">
         <TextBox text={pid} />

@@ -47,6 +47,9 @@ const JobItem = () => {
         <TextBox text="상태" />
       </SmallBox>
       <SmallBox width="10%">
+        <TextBox text="진행율" />
+      </SmallBox>
+      <SmallBox width="10%">
         <TextBox text="PID" />
       </SmallBox>
       <Box width="50%" marginRight="20px" />
