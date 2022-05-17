@@ -13,6 +13,7 @@ const Container = styled(Box)`
 const StyledButtonSmall = styled(ButtonSmall)`
   padding: 3px 4px !important;
   span {
+    margin-left: 0px;
     svg.MuiSvgIcon-root {
       font-size: 15px;
     }
