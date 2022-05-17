@@ -78,7 +78,7 @@ const JobItem = (props) => {
     // prevous task should not be in standby state
     console.log('*** tasks in job state:', job)
       const task = getNextStandbyTask(job);
-      if (task.autoStart || job.manualStarted){
+      if (task.autoStart || (job.manualStarted && job.checked)){
         console.log('~~~~ startStandbyTask', task)
         startStandbyTask(task, job);
       }
