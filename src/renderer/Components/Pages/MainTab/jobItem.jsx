@@ -14,6 +14,15 @@ import colors from 'renderer/config/colors';
 
 const { JOB_STATUS }  = bullConstants;
 
+const changeItemOpacity = props => {
+  return props.status === 'active'
+    ? 1
+    : props.status === 'ready'
+    ? 0.8
+    : props.status === 'standby'
+    ? 0.6
+    : 0.4;
+}
 const Container = styled(Box)`
   && {
     display: flex;
@@ -21,6 +30,7 @@ const Container = styled(Box)`
     align-items: center;
     min-height: 40px;
     width: 100%;
+    opacity: ${changeItemOpacity};
     background: ${(props) => (props.checked ? colors.checked : 'transparent')};
     &:hover {
       background: ${colors.hovered};
@@ -36,6 +46,9 @@ const SmallBox = styled(Box)`
 const BigBox = styled(Box)`
   min-width: 400px;
   max-width: 400px;
+`
+const LightTextBox = styled(TextBox)`
+  opacity: 1;
 `
 
 const JobItem = (props) => {
@@ -54,8 +67,8 @@ const JobItem = (props) => {
   const { addFFmpegItem } = useFFmpegQueue(jobId);
   const { fileName = 'aaa.mp4' } = sourceFile;
   console.log('re-render JobItem', job)
-  const addVirusScan = () => {};
-  const addSendFile = () => {};
+  const addVirusScan = React.useCallback(() => {},[]);
+  const addSendFile = React.useCallback(() => {},[]);
   const addMethods = React.useMemo(() => {
     return {
       mediainfo: addMediainfoItem,
@@ -63,7 +76,7 @@ const JobItem = (props) => {
       virusScan: addVirusScan,
       sendFile: addSendFile,
     };
-  }, [addFFmpegItem, addMediainfoItem])
+  }, [addFFmpegItem, addMediainfoItem, addVirusScan, addSendFile])
   const startStandbyTask = React.useCallback((task, job) => {
       const { taskType } = task;
       const addQueue = addMethods[taskType];
@@ -94,25 +107,25 @@ const JobItem = (props) => {
   }, [job, startTask])
 
   return (
-    <Container>
+    <Container status={status}>
       <CheckBox checked={checked} setChecked={updateJobCheckState}/>
       <TinyBox width="3%">
-        <TextBox text={rownum} />
+        <LightTextBox text={rownum} />
       </TinyBox>
       <BigBox flex="2">
-        <TextBox text={fileName} />
+        <LightTextBox text={fileName} />
       </BigBox>
       <SmallBox width="10%">
-        <TextBox text={outFileSize} />
+        <LightTextBox text={outFileSize} />
       </SmallBox>
       <SmallBox width="10%">
-        <TextBox text={status} />
+        <LightTextBox text={status} />
       </SmallBox>
       <SmallBox width="10%">
-        <TextBox text={percent} />
+        <LightTextBox text={percent} />
       </SmallBox>
       <SmallBox width="10%">
-        <TextBox text={pid} />
+        <LightTextBox text={pid} />
       </SmallBox>
       <Box width="50%" marginRight="20px">
         <Stepper />
