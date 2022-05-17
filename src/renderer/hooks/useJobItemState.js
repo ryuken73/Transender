@@ -44,6 +44,12 @@ export default function useJobItemState(jobId) {
     },
     [updateJobState]
   );
+  const updateJobPercentState = React.useCallback(
+    (percent) => {
+      updateJobState('percent', percent);
+    },
+    [updateJobState]
+  );
   const updateJobPidState = React.useCallback(
     (pid) => {
       updateJobState('pid', pid);
@@ -63,6 +69,7 @@ export default function useJobItemState(jobId) {
     updateJobStatusState,
     updateJobTask,
     updateJobFileSizeState,
+    updateJobPercentState,
     updateJobPidState,
     updateJobSpeedState,
   };

@@ -25,6 +25,7 @@ export default function useFFmpegQueue(jobId) {
     updateJobTask,
     updateJobStatusState,
     updateJobFileSizeState,
+    updateJobPercentState,
     updateJobPidState,
   } = useJobItemState(jobId);
   const startFFmpegQueue = React.useCallback(() => {
@@ -98,8 +99,9 @@ export default function useFFmpegQueue(jobId) {
         updateJobStatusState(JOB_STATUS.ACTIVE);
       });
       worker.on(Q_ITEM_STATUS.PROGRESS, (progressObj) => {
-        const { total_size, speed, out_time, drop_frames } = progressObj;
+        const { frame, total_size, speed, out_time, drop_frames } = progressObj;
         updateJobFileSizeState(number.niceBytes(total_size));
+        updateJobPercentState(number.nicePercent(frame, task.totalFrames));
       });
       worker.on('spawn', (pid) => {
         // console.log('in pid, jobId=', job.jobId);

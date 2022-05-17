@@ -33,6 +33,9 @@ const number = {
     }
     return `${n.toFixed(n < 10 && l > 0 ? 1 : 0)} ${units[l]}`;
   },
+  nicePercent(now, total) {
+    return parseFloat((now/total)*100).toFixed(1) + '%';
+  }
 };
 
 const string = {
