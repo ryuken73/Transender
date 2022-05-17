@@ -23,10 +23,6 @@ const CustomTextBox = styled(TextBox)`
   opacity: 0.8;
   margin-right: 5px;
 `
-const CustomTextBoxLimitWidth = styled(CustomTextBox)`
-  /* max-width: 90%; */
-  min-width: 0;
-`
 const Version = styled.div`
   margin-left: auto;
 `;
@@ -46,10 +42,7 @@ const Footer = () => {
       <AppMessage>
         <CustomTextBox text={`[${appLog.level}]`} />
         <CustomTextBox text={`[${appLog.date}]`} />
-        <CustomTextBoxLimitWidth
-          containerProps={{ minWidth: 0 }}
-          text={appLog.message}
-        />
+        <CustomTextBox containerProps={{ minWidth: 0 }} text={appLog.message} />
       </AppMessage>
       <Version>
         <CustomTextBox text={`v${version}`} />

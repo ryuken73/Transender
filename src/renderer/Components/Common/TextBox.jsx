@@ -12,7 +12,6 @@ const Container = styled(Box)`
     margin-right: ${(props) => props.margin || props.marginRight || '0px'};
     text-align: ${(props) => props.textalign || 'left'};
     user-select: ${(props) => props.userselect || 'none'};
-    min-width: ${(props) => `${props.minWidth} !important` || 'auto'};
   }
 `;
 const Text = styled(Box)`
