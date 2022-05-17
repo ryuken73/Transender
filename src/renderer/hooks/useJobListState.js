@@ -13,7 +13,7 @@ import {
 export default function useJobListState() {
   const dispatch = useDispatch();
   const jobList = useSelector((state) => state.job.jobList);
-  const allChecked = jobList.every((job) => job.checked === true);
+  const allChecked = jobList.length === 0 ? false : jobList.every((job) => job.checked === true);
   const addJobsState = React.useCallback((jobs) => {
       if (Array.isArray(jobs)) {
         dispatch(addJobs({ jobs }));
