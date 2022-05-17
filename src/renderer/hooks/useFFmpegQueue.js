@@ -1,26 +1,27 @@
 /* eslint-disable import/named */
 import React from 'react';
-import { useSelector, useDispatch } from 'react-redux';
+import { useSelector } from 'react-redux';
 import { getTask, getNextTask } from 'renderer/lib/jobUtil';
 import useJobItemState from 'renderer/hooks/useJobItemState';
+import useAppState from 'renderer/hooks/useAppState';
 import constants from 'renderer/config/constants';
 import bullConstants from 'renderer/config/bull-constants';
-import { setAppLog } from 'renderer/appSlice';
 import { ffmpegQueue, addFFmpegQueue } from 'renderer/lib/queueUtil';
 import ffmpegProc from 'renderer/lib/ffmpegProc';
 import { number } from 'renderer/utils';
 import { getAbsolutePath } from 'renderer/lib/electronUtil';
 
+const path = require('path');
 const ffmpegBinary = getAbsolutePath('bin/ffmpeg2018.exe', true);
 
 const { LOG_LEVEL } = constants;
 const { JOB_STATUS, Q_ITEM_STATUS, Q_WORKER_EVENTS } = bullConstants;
 
 export default function useFFmpegQueue(jobId) {
-  const dispatch = useDispatch();
   const job = useSelector((state) =>
     state.job.jobList.find((job) => job.jobId === jobId)
   );
+  const { setAppLogState } = useAppState();
   const {
     updateJobTask,
     updateJobStatusState,
@@ -43,22 +44,13 @@ export default function useFFmpegQueue(jobId) {
             outFile,
             totalFrames
           });
-          childProcess.on('exit', (code) => {
+          childProcess.on('done', (code) => {
             if (code === 0) {
-              dispatch(
-                setAppLog({
-                  message: `Transcoding ${inFile} ---> ${outFile} done.`,
-                })
-              );
               done(null, 'ffmpeg success');
+              qItem.emit(Q_WORKER_EVENTS.COMPLETED);
             } else {
-              dispatch(
-                setAppLog({
-                  level: LOG_LEVEL.ERROR,
-                  message: `Transcoding ${inFile} ---> ${outFile} failed!.`,
-                })
-              );
               done('ffmpeg failed');
+              qItem.emit(Q_WORKER_EVENTS.FAILED);
             }
           });
           childProcess.on('spawn', () => {
@@ -66,14 +58,11 @@ export default function useFFmpegQueue(jobId) {
           })
           childProcess.on('error', (error) => {
             done(error);
+            qItem.emit(Q_WORKER_EVENTS.FAILED, error);
           });
           childProcess.on('progress', (progressObj) => {
-            // console.log('$$$$$ pid', childProcess.pid, progressObj);
             qItem.emit('progress', progressObj);
           });
-          // childProcess.on('progress', (progressObj) => {
-          //   qItem.emit('progress', progressObj);
-          // });
         } catch (err) {
           console.log('errored:', err);
           done(err);
@@ -93,6 +82,9 @@ export default function useFFmpegQueue(jobId) {
   };
   const addFFmpegItem = React.useCallback(
     (task) => {
+      const { inFile, outFile } = task;
+      const shortInFile = path.basename(inFile);
+      const shortOutFile = path.basename(outFile);
       const worker = addFFmpegQueue(task, job);
       console.log('%%%%%% worker:', worker)
       worker.on(Q_ITEM_STATUS.ACTIVE, () => {
@@ -109,25 +101,28 @@ export default function useFFmpegQueue(jobId) {
       });
       worker.on(Q_ITEM_STATUS.COMPLETED, (result) => {
         console.log(result);
+        const logMessage = `Transcoding ${shortInFile} ---> ${shortOutFile} done.`;
+        setAppLogState(logMessage);
         const currentTask = getTask(job, task);
         const completedTask = {
           ...currentTask,
-          status: Q_ITEM_STATUS.COMPLETED
-        }
-        // const ffmpegOptions = makeFFmpegOptions(video, audio);
-        // const totalFrames = video('Count')[0];
-        const inFile = task.outFile;
+          status: Q_ITEM_STATUS.COMPLETED,
+        };
+        const nextInFile = outFile;
         const nextTask = getNextTask(job, task);
         const updatedTask = {
           ...nextTask,
-          inFile,
+          inFile: nextInFile,
         };
         console.log(updatedTask)
         updateJobTask([completedTask, updatedTask]);
         updateJobStatusState(JOB_STATUS.READY);
+        updateJobPercentState('100%');
       });
       worker.on(Q_WORKER_EVENTS.FAILED, (error) => {
         console.log('##### task failed!:', error);
+        const logMessage = `Transcoding ${shortInFile} ---> ${shortOutFile} faild.`;
+        setAppLogState(logMessage, LOG_LEVEL.ERROR);
         updateJobStatusState(JOB_STATUS.FAILED);
       });
     },
@@ -136,7 +131,9 @@ export default function useFFmpegQueue(jobId) {
       updateJobFileSizeState,
       updateJobPidState,
       updateJobStatusState,
+      updateJobPercentState,
       updateJobTask,
+      setAppLogState
     ]
   );
 

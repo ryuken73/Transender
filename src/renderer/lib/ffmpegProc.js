@@ -35,6 +35,7 @@ const ffmpeg = (
 ) => {
   let childProcess;
   let controller;
+
   const run = ({ inFile, ffmpegOptions, outFile, totalFrames }) => {
     console.log(ffmpegOptions.split(' '))
     controller = new AbortController();
@@ -50,33 +51,33 @@ const ffmpeg = (
         childProcess.emit('force-stopped');
         return;
       }
-      console.log(error)
     });
     childProcess.on('exit', (code) => {
       console.log('exit ffmpeg: code= ', code);
-      childProcess.emit('done');
+      childProcess.emit('done', code);
     });
     childProcess.stdout.on('data', (data) => {
-      console.log('stdout >>', data.toString());
+      // console.log('stdout >>', data.toString());
       const progressObj = getProgressObj(data.toString());
       if (progressObj !== null) {
         childProcess.emit('progress', progressObj);
       }
     });
     childProcess.stderr.on('data', (data) => {
-      console.log('stderr >>', data.toString());
+      // console.log('stderr >>', data.toString());
       if(hasFFmpegErrorString(data.toString())){
-        console.error('there are some errors in stderr.', data.toString());
+        // console.error('there are some errors in stderr.', data.toString());
+        // stop will emit childProcess 'error' event.
         stop();
       }
     });
     return childProcess;
   };
-
   const stop = () => {
     console.log('&&& manual stop called!');
     controller.abort();
   }
+
   const getPID = () => childProcess.pid;
   const getCmdParams = () => childProcess.spawnargs;
 
