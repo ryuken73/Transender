@@ -9,7 +9,7 @@ export default function useJobItemState(jobId) {
   const job = useSelector((state) =>
     state.job.jobList.find((job) => job.jobId === jobId)
   );
-  console.log('##### job in useJobItemState changed!', job)
+  // console.log('##### job in useJobItemState changed!', job)
   const updateJobState = React.useCallback((key, value) => {
       dispatch(updateJob({ jobId, key, value }));
     },
@@ -26,7 +26,7 @@ export default function useJobItemState(jobId) {
     [updateJobState]
   );
   const updateJobTask = React.useCallback(tasks => {
-    console.log('^^^ in updateJobTask:', job);
+    // console.log('^^^ in updateJobTask:', job);
       const tasksCloned = [...job.tasks];
       tasks.forEach((task) => {
         const targetTaskIndex = tasksCloned.findIndex(
