@@ -12,7 +12,10 @@ import {
   addMediainfoQueue,
 } from 'renderer/lib/queueUtil';
 
-const { LOG_LEVEL } = constants;
+const { file } = require('renderer/utils');
+const { changeDir, changeExtension } = file;
+
+const { LOG_LEVEL, FFMPEG_OPTIONS } = constants;
 const { JOB_STATUS, Q_ITEM_STATUS, Q_WORKER_EVENTS } = bullConstants;
 
 export default function useMediainfoQueue(jobId) {
@@ -62,10 +65,17 @@ export default function useMediainfoQueue(jobId) {
     return mediainfoQueue;
   });
   const makeFFmpegOptions = (video, audio) => {
-    return '-y -acodec copy -progress pipe:1';
+    const toMxfOption = FFMPEG_OPTIONS.MXF.join(' ');
+    // return '-y -acodec copy -progress pipe:1';
+    return toMxfOption;
   };
-  const makeFFmpegOutPath = () => {
-    return 'd:/temp/aaa.mp4';
+  const makeFFmpegOutPath = (job) => {
+    const origFile = job.sourceFile.fullName;
+    const targetFile = changeDir(
+      changeExtension(origFile, '.mxf'),
+      'd:/temp/transender'
+    );
+    return targetFile;
   };
   const addMediainfoItem = React.useCallback(
     (task) => {
@@ -81,7 +91,7 @@ export default function useMediainfoQueue(jobId) {
         console.log('&&&&', video('FrameCount'));
         const ffmpegOptions = makeFFmpegOptions(video, audio);
         const totalFrames = video('FrameCount')[0];
-        const outFile = makeFFmpegOutPath();
+        const outFile = makeFFmpegOutPath(job);
         const nextTask = getNextTask(job, task);
         const updatedTask = {
           ...nextTask,

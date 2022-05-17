@@ -81,6 +81,13 @@ const file = {
     const stat = await fs.promises.stat(fname);
     return stat.size;
   },
+  changeExtension(fullName, extension) {
+    const basename = path.basename(fullName, path.extname(fullName));
+    return path.join(path.dirname(fullName), basename + extension);
+  },
+  changeDir(fullName, toDir) {
+    return path.join(toDir, path.basename(fullName));
+  },
   validType: {
     directory(dirname) {
       if (typeof dirname === 'string') return true;
