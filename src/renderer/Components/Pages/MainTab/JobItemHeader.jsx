@@ -27,6 +27,9 @@ const BigBox = styled(Box)`
   min-width: 400px;
   max-width: 400px;
 `
+const CustomTextBox = styled(TextBox)`
+  text-align: center ;
+`
 
 const JobItem = () => {
   const { allChecked, toggleAllCheckedState } = useJobListState();
@@ -35,22 +38,22 @@ const JobItem = () => {
     <Container>
       <CheckBox checked={allChecked} setChecked={toggleAllCheckedState}/>
       <TinyBox width="3%">
-        <TextBox text="순번" />
+        <CustomTextBox text="순번" />
       </TinyBox>
       <BigBox flex="2">
-        <TextBox text="파일명" />
+        <CustomTextBox text="파일명" />
       </BigBox>
       <SmallBox width="10%">
-        <TextBox text="크기" />
+        <CustomTextBox text="크기" />
       </SmallBox>
       <SmallBox width="10%">
-        <TextBox text="상태" />
+        <CustomTextBox text="상태" />
       </SmallBox>
       <SmallBox width="10%">
-        <TextBox text="진행율" />
+        <CustomTextBox text="진행율" />
       </SmallBox>
       <SmallBox width="10%">
-        <TextBox text="PID" />
+        <CustomTextBox text="PID" />
       </SmallBox>
       <Box width="50%" marginRight="20px" />
     </Container>

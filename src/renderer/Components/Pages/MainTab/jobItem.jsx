@@ -48,6 +48,7 @@ const BigBox = styled(Box)`
   max-width: 400px;
 `
 const LightTextBox = styled(TextBox)`
+  text-align: center;
   opacity: 1;
 `
 
@@ -113,7 +114,7 @@ const JobItem = (props) => {
         <LightTextBox text={rownum} />
       </TinyBox>
       <BigBox flex="2">
-        <LightTextBox text={fileName} />
+        <LightTextBox textAlign="left" text={fileName} />
       </BigBox>
       <SmallBox width="10%">
         <LightTextBox text={outFileSize} />
