@@ -77,6 +77,10 @@ const date = {
 };
 
 const file = {
+  async getSize(fname) {
+    const stat = await fs.promises.stat(fname);
+    return stat.size;
+  },
   validType: {
     directory(dirname) {
       if (typeof dirname === 'string') return true;
