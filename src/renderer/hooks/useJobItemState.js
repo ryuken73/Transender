@@ -11,7 +11,7 @@ export default function useJobItemState(jobId) {
   );
   console.log('##### job in useJobItemState changed!', job)
   const updateJobState = React.useCallback((key, value) => {
-    dispatch(updateJob({ jobId, key, value }));
+      dispatch(updateJob({ jobId, key, value }));
     },
     [dispatch, jobId]
   );

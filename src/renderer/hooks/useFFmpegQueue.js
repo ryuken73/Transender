@@ -6,8 +6,12 @@ import useJobItemState from 'renderer/hooks/useJobItemState';
 import constants from 'renderer/config/constants';
 import bullConstants from 'renderer/config/bull-constants';
 import { setAppLog } from 'renderer/appSlice';
-import { ffmpeg, ffmpegQueue, addFFmpegQueue } from 'renderer/lib/queueUtil';
+import { ffmpegQueue, addFFmpegQueue } from 'renderer/lib/queueUtil';
+import ffmpegProc from 'renderer/lib/ffmpegProc';
 import { number } from 'renderer/utils';
+import { getAbsolutePath } from 'renderer/lib/electronUtil';
+
+const ffmpegBinary = getAbsolutePath('bin/ffmpeg2018.exe', true);
 
 const { LOG_LEVEL } = constants;
 const { JOB_STATUS, Q_ITEM_STATUS, Q_WORKER_EVENTS } = bullConstants;
@@ -31,6 +35,7 @@ export default function useFFmpegQueue(jobId) {
           const qItemBody = qItem.itemBody;
           console.log('qItemBody:', qItemBody);
           const { inFile, ffmpegOptions, outFile, totalFrames } = qItemBody;
+          const ffmpeg = ffmpegProc(ffmpegBinary);
           const childProcess = ffmpeg.run({
             inFile,
             ffmpegOptions,
@@ -62,8 +67,12 @@ export default function useFFmpegQueue(jobId) {
             done(error);
           });
           childProcess.on('progress', (progressObj) => {
+            // console.log('$$$$$ pid', childProcess.pid, progressObj);
             qItem.emit('progress', progressObj);
           });
+          // childProcess.on('progress', (progressObj) => {
+          //   qItem.emit('progress', progressObj);
+          // });
         } catch (err) {
           console.log('errored:', err);
           done(err);
@@ -86,13 +95,16 @@ export default function useFFmpegQueue(jobId) {
       const worker = addFFmpegQueue(task, job);
       console.log('%%%%%% worker:', worker)
       worker.on(Q_ITEM_STATUS.ACTIVE, () => {
-        updateJobStatusState(JOB_STATUS.ACTIVE)
-      })
+        updateJobStatusState(JOB_STATUS.ACTIVE);
+      });
       worker.on(Q_ITEM_STATUS.PROGRESS, (progressObj) => {
         const { total_size, speed, out_time, drop_frames } = progressObj;
         updateJobFileSizeState(number.niceBytes(total_size));
-      })
-      worker.on('spawn', (pid) => updateJobPidState(pid));
+      });
+      worker.on('spawn', (pid) => {
+        // console.log('in pid, jobId=', job.jobId);
+        updateJobPidState(pid)
+      });
       worker.on(Q_ITEM_STATUS.COMPLETED, (result) => {
         console.log(result);
         const currentTask = getTask(job, task);
@@ -117,7 +129,13 @@ export default function useFFmpegQueue(jobId) {
         updateJobStatusState(JOB_STATUS.FAILED);
       });
     },
-    [job, updateJobStatusState, updateJobTask]
+    [
+      job,
+      updateJobFileSizeState,
+      updateJobPidState,
+      updateJobStatusState,
+      updateJobTask,
+    ]
   );
 
   return {

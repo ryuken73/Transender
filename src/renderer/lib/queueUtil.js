@@ -9,7 +9,6 @@ const mediaInfo = mediaInfoProc(mediainfoBinary);
 const mediainfoQueue = getQueue('mediaInfo', bullConstants);
 
 const ffmpegBinary = getAbsolutePath('bin/ffmpeg2018.exe', true);
-const ffmpeg = ffmpegProc(ffmpegBinary);
 const ffmpegQueue = getQueue('ffmpeg', bullConstants);
 
 // const getMediainfoQueue = () => mediainfoQueue;
@@ -33,7 +32,6 @@ module.exports = {
   mediaInfo,
   mediainfoQueue,
   addMediainfoQueue,
-  ffmpeg,
   ffmpegQueue,
   addFFmpegQueue,
 };
