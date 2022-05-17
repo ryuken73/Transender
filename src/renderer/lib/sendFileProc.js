@@ -1,75 +1,66 @@
-const { spawn } = require('child_process');
-const controller = new AbortController();
-const { signal } = controller;
+/* eslint-disable promise/always-return */
+/* eslint-disable prettier/prettier */
+const EventEmitter = require('events');
+const http = require('http');
+const fs = require('fs');
+const { file } = require('../utils');
 
-const FFMPEG_PROGRESS_LINE_REGEXP = '^frame=';
-const jsUtil = {
-  stringToArray(line, sep = ' ') {
-    return line.split(sep);
-  },
-  arrayToObject(array, sep = '='){
-    return array.reduce((acc, element) => {
-      const arrayTemp = jsUtil.stringToArray(element, sep);
-      const key = arrayTemp[0];
-      const value = arrayTemp[1];
-      acc[key] = value;
-      return acc;
-    }, {});
-  }
-}
-const getProgressObj = (line) => {
-  if (!RegExp(FFMPEG_PROGRESS_LINE_REGEXP).test(line)) {
-    return null;
-  };
-  const arrayOfLines = jsUtil.stringToArray(line, '\n');
-  return jsUtil.arrayToObject(arrayOfLines, '=');
-}
+const sendFile = () => {
+  let eventEmitter;
+  let controller;
+  const run = ({ inFile, hostname, port, path }) => {
+    eventEmitter = new EventEmitter();
+    controller = new AbortController();
+    const { signal } = controller;
+    // const fileSize = await file.getSize(inFile);
+    const options = {
+      hostname,
+      port,
+      path,
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/octet-stream',
+      },
+      signal,
+    };
+    const rStream = fs.createReadStream(inFile, { highWaterMark: 1024 * 1024 });
+    const req = http.request(options, res => {
+      res.on('data', chunk => {
+        console.log(chunk.toString());
+      })
+      res.on('end', () => {
+        eventEmitter.emit('done');
+      })
+    });
+    const handleError = error => {
+      eventEmitter.emit('error', error);
+    }
+    req.on('error', handleError);
 
-const ffmpeg = (
-  binaryPath = `${process.cwd()}/../../bin/ffmpeg2018.exe`,
-  spawnOptions = {}
-) => {
-  let childProcess;
-  const run = ({ inFile, ffmpegOptions, outFile, totalFrames }) => {
-    console.log(ffmpegOptions.split(' '))
-    const spawnArgs = ['-i', inFile, ...ffmpegOptions.split(' '), outFile];
-    const spawnOpts = { signal, ...spawnOptions };
-    childProcess = spawn(binaryPath, spawnArgs, spawnOpts);
-    childProcess.userDefined = { totalFrames };
-    childProcess.on('error', (error) => {
-      if (error.code === 'ABORT_ERR'){
-        console.log('force stopped')
-        childProcess.emit('force-stopped');
-        return;
-      }
-      console.log(error)
+    rStream.on('end', () => {
+      req.end();
     });
-    childProcess.on('exit', (code) => {
-      console.log('exit ffmpeg')
-    });
-    childProcess.stdout.on('data', (data) => {
-      console.log(data.toString());
-      const progressObj = getProgressObj(data.toString());
-      if (progressObj !== null) {
-        childProcess.emit('progress', progressObj);
-      }
-    });
-    childProcess.stderr.on('data', (data) => {
-      console.log(data.toString());
-    });
-    return childProcess;
+    file.getSize(inFile).then((fileSize) => {
+      rStream.on('data', (chunk) => {
+        req.write(chunk);
+        eventEmitter.emit('progress', {
+          totalSize: fileSize,
+          sent: rStream.bytesRead
+        })
+      });
+    })
+  .catch(error => {
+    eventEmitter.emit('error', error)
+  })
+
+    return eventEmitter;
   };
 
-  const stop = () => controller.abort();
-  const getPID = () => childProcess.pid;
-  const getCmdParams = () => childProcess.spawnargs;
-
-  return {
-    run,
-    stop,
-    getPID,
-    getCmdParams
+  const stop = () => {
+    console.log('request aborted!!')
+    controller.abort();
   };
+  return { run, stop, };
 };
 
-module.exports = ffmpeg;
+module.exports = sendFile;
