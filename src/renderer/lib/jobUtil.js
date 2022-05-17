@@ -30,7 +30,7 @@ export const createJob = (jobInfo) => {
     jobId,
     tasks,
     status: JOB_STATUS.STANDBY,
-    checked: false,
+    checked: true,
     manualStarted: false,
     sourceFile,
   };

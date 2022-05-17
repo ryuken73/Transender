@@ -45,9 +45,9 @@ const JobItem = (props) => {
     checked,
     status,
     sourceFile,
-    outFileSize = '0Bytes',
-    percent = '0%',
-    pid = 0,
+    outFileSize = '-',
+    percent = '-',
+    pid = '-',
   } = job;
   const { updateJobCheckState, updateJobStatusState } = useJobItemState(jobId);
   const { addMediainfoItem } = useMediainfoQueue(jobId);
