@@ -26,7 +26,7 @@ export const appSlice = createSlice({
     },
     setStateValue: (state, action) => {
       const { payload } = action;
-      const [key, value] = payload;
+      const { key, value } = payload;
       state[key] = value;
     },
     setAppLog: (state, action) => {
@@ -46,17 +46,17 @@ export const { setModalOpen, setStateValue, setAppLog } = appSlice.actions;
 export const showMessageBoxForDuration =
   (text, duration = 1000, level = 'success') =>
   async (dispatch, getState) => {
-    dispatch(setStateValue(['isMessageBoxHidden', false]));
-    dispatch(setStateValue(['messageBoxLevel', level]));
-    dispatch(setStateValue(['messageBoxText', text]));
+    dispatch(setStateValue({ key: 'isMessageBoxHidden', value: false }));
+    dispatch(setStateValue({ key: 'messageBoxLevel', value: level }));
+    dispatch(setStateValue({ key: 'messageBoxText', value: text }));
     setTimeout(() => {
-      dispatch(setStateValue(['isMessageBoxHidden', true]));
+      dispatch(setStateValue({ key: 'isMessageBoxHidden', value: true }));
     }, [duration])
     setTimeout(() => {
       const state = getState();
       if(state.app.isMessageBoxHidden) {
-        dispatch(setStateValue(['messageBoxText', '']));
-        dispatch(setStateValue(['messageBoxLevel', 'success']));
+        dispatch(setStateValue({ key: 'messageBoxText', value: '' }));
+        dispatch(setStateValue({ key: 'messageBoxLevel', value: 'success' }));
       }
     }, [duration + 500]);
 }
