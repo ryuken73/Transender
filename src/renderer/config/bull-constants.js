@@ -12,7 +12,7 @@ const CONSTANTS = {
     WAITING: 'waiting', // one of task is wait in queue
     ACTIVE: 'active', // one of task is active
     COMPLETED: 'completed', // all task done
-    FAILED: 'faild', // some task failed
+    FAILED: 'failed', // some task failed
     DELAYED: 'delayed',
   },
   // TASK_EVENTS: {

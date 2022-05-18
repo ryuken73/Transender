@@ -1,7 +1,7 @@
 /* eslint-disable import/named */
 import React from 'react';
 import { useSelector } from 'react-redux';
-import { getTask, getNextTask, taskStatusUpdater } from 'renderer/lib/jobUtil';
+import { getTask, getNextTask, taskUpdater } from 'renderer/lib/jobUtil';
 import useJobItemState from 'renderer/hooks/useJobItemState';
 import useAppState from 'renderer/hooks/useAppState';
 import constants from 'renderer/config/constants';
@@ -89,11 +89,13 @@ export default function useFFmpegQueue(jobId) {
       const shortOutFile = path.basename(outFile);
       const currentTask = getTask(job, task);
       const nextTask = getNextTask(job, task);
-      const getCurrentTaskUpdated = taskStatusUpdater(currentTask);
+      const getCurrentTaskUpdated = taskUpdater(currentTask);
+      const getNextTaskUpdated = taskUpdater(nextTask);
       const worker = addFFmpegQueue(task, job);
       console.log('%%%%%% worker:', worker)
       worker.on(Q_ITEM_STATUS.ACTIVE, () => {
-        const activeTask = getCurrentTaskUpdated(Q_ITEM_STATUS.ACTIVE);
+        // eslint-disable-next-line prettier/prettier
+        const activeTask = getCurrentTaskUpdated({status: Q_ITEM_STATUS.ACTIVE});
         updateJobTask([activeTask]);
         updateJobStatusState(JOB_STATUS.ACTIVE);
       });
@@ -112,12 +114,10 @@ export default function useFFmpegQueue(jobId) {
         console.log(result);
         const logMessage = `Transcoding ${shortInFile} ---> ${shortOutFile} done.`;
         setAppLogState(logMessage);
-        const completedTask = getCurrentTaskUpdated(Q_ITEM_STATUS.COMPLETED)
+        // eslint-disable-next-line prettier/prettier
+        const completedTask = getCurrentTaskUpdated({status: Q_ITEM_STATUS.COMPLETED})
         const nextInFile = outFile;
-        const updatedTask = {
-          ...nextTask,
-          inFile: nextInFile,
-        };
+        const updatedTask = getNextTaskUpdated({ inFile: nextInFile });
         console.log(updatedTask)
         updateJobTask([completedTask, updatedTask]);
         updateJobStatusState(JOB_STATUS.READY);
@@ -125,9 +125,10 @@ export default function useFFmpegQueue(jobId) {
       });
       worker.on(Q_WORKER_EVENTS.FAILED, (error) => {
         console.log('##### task failed!:', error);
-        const failedTask = getCurrentTaskUpdated(Q_ITEM_STATUS.FAILED);
+        // eslint-disable-next-line prettier/prettier
+        const failedTask = getCurrentTaskUpdated({status: Q_ITEM_STATUS.FAILED});
         updateJobTask([failedTask]);
-        const logMessage = `Transcoding ${shortInFile} ---> ${shortOutFile} faild.`;
+        const logMessage = `Transcoding ${shortInFile} ---> ${shortOutFile} failed.`;
         setAppLogState(logMessage, LOG_LEVEL.ERROR);
         updateJobStatusState(JOB_STATUS.FAILED);
       });

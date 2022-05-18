@@ -20,6 +20,8 @@ const changeItemOpacity = props => {
     ? 1
     : props.status === 'ready'
     ? 0.8
+    : props.status === 'failed' || props.status === 'completed'
+    ? 0.5
     : props.status === 'standby'
     ? 0.6
     : 0.4;

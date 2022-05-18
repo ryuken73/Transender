@@ -42,11 +42,11 @@ export const getTask = (job, task) => {
 export const getNextStandbyTask = (job) => {
   return job.tasks.find((task) => task.status === Q_ITEM_STATUS.STANDBY);
 };
-export const taskStatusUpdater = (task) => {
-  return (status) => {
+export const taskUpdater = (task) => {
+  return (dataObj) => {
     return {
       ...task,
-      status,
+      ...dataObj,
     };
   };
 };

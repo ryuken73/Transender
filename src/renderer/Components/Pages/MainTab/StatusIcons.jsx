@@ -20,11 +20,12 @@ const Container = styled.div`
 `;
 const CustomIconButton = styled(IconButton)`
   && {
-    /* color: white; */
-    color: ${(props) => (props.running ? 'greenyellow' : 'white')};
+    color: white;
+    /* color: ${(props) => (props.running ? 'greenyellow' : 'white')}; */
     padding: 1px;
     cursor: auto;
-    opacity: ${(props) => (props.running ? 1 : 0.6)};
+    opacity: ${(props) =>
+      props.running ? 1 : props.failure || props.success ? 0.8 : 0.4};
   }
 `
 const WithDoneIconButton = (props) => {
@@ -34,7 +35,12 @@ const WithDoneIconButton = (props) => {
   const running = status === Q_ITEM_STATUS.ACTIVE;
   console.log('^^^',status, success)
   return (
-    <CustomIconButton running={running} size="small">
+    <CustomIconButton
+      running={running}
+      success={success}
+      failure={failure}
+      size="small"
+    >
       {success ? (
         <CheckIcon fontSize="inherit" />
       ) : failure ? (

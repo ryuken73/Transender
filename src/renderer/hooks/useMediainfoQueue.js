@@ -1,7 +1,7 @@
 /* eslint-disable import/named */
 import React from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { getTask, getNextTask, taskStatusUpdater } from 'renderer/lib/jobUtil';
+import { getTask, getNextTask, taskUpdater } from 'renderer/lib/jobUtil';
 import useJobItemState from 'renderer/hooks/useJobItemState';
 import constants from 'renderer/config/constants';
 import bullConstants from 'renderer/config/bull-constants';
@@ -62,7 +62,7 @@ export default function useMediainfoQueue(jobId) {
             dispatch(
               setAppLog({
                 level: LOG_LEVEL.ERROR,
-                message: `Aanlyze ${qItemBody.inputFile} Faild.[not-media-file]`,
+                message: `Aanlyze ${qItemBody.inputFile} Failed.[not-media-file]`,
               })
             )
             done('codec unknows. suspect not media file.')
@@ -83,30 +83,31 @@ export default function useMediainfoQueue(jobId) {
     (task) => {
       const currentTask = getTask(job, task);
       const nextTask = getNextTask(job, task);
-      const getCurrentTaskUpdated = taskStatusUpdater(currentTask);
+      const getCurrentTaskUpdated = taskUpdater(currentTask);
+      const getNextTaskUpdated = taskUpdater(nextTask);
       const worker = addMediainfoQueue(task, job);
       worker.on(Q_WORKER_EVENTS.COMPLETED, (result) => {
         const { rawResult, video, audio } = result;
         // eslint-disable-next-line prettier/prettier
-        const completedTask = getCurrentTaskUpdated(Q_ITEM_STATUS.COMPLETED);
+        const completedTask = getCurrentTaskUpdated({status: Q_ITEM_STATUS.COMPLETED});
         console.log('&&&&', video('FrameCount'));
         const ffmpegOptions = makeFFmpegOptions(video, audio);
         const totalFrames = video('FrameCount')[0];
         const outFile = makeFFmpegOutPath(job);
-        const updatedTask = {
-          ...nextTask,
+        const updatedTask = getNextTaskUpdated({
           inFile: job.sourceFile.fullName,
           ffmpegOptions,
           totalFrames,
           outFile,
-        };
+        });
         console.log(updatedTask)
         updateJobTask([completedTask, updatedTask]);
         updateJobStatusState(JOB_STATUS.READY);
       });
       worker.on(Q_WORKER_EVENTS.FAILED, (error) => {
         console.log('##### task failed!:', error);
-        const failedTask = getCurrentTaskUpdated(Q_ITEM_STATUS.FAILED);
+        // eslint-disable-next-line prettier/prettier
+        const failedTask = getCurrentTaskUpdated({status: Q_ITEM_STATUS.FAILED});
         updateJobTask([failedTask]);
         updateJobStatusState(JOB_STATUS.FAILED);
       });
