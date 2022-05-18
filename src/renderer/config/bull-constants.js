@@ -11,7 +11,7 @@ const CONSTANTS = {
     READY: 'ready',  // ready to run next task (previus task success)
     WAITING: 'waiting', // one of task is wait in queue
     ACTIVE: 'active', // one of task is active
-    COMPLETED: 'completed', // all task done
+    COMPLETED: 'done', // all task done
     FAILED: 'failed', // some task failed
     DELAYED: 'delayed',
   },
@@ -73,7 +73,7 @@ CONSTANTS.TASK_DEFAULT = {
     outFile: '',
   },
   [CONSTANTS.TASK_TYPES.VIRUS_SCAN]: {
-    inputFile: '',
+    inFile: '',
     autoStart: true,
   },
   [CONSTANTS.TASK_TYPES.SEND_FILE]: {
