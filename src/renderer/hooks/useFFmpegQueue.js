@@ -1,7 +1,7 @@
 /* eslint-disable import/named */
 import React from 'react';
 import { useSelector } from 'react-redux';
-import { getTask, getNextTask } from 'renderer/lib/jobUtil';
+import { getTask, getNextTask, taskStatusUpdater } from 'renderer/lib/jobUtil';
 import useJobItemState from 'renderer/hooks/useJobItemState';
 import useAppState from 'renderer/hooks/useAppState';
 import constants from 'renderer/config/constants';
@@ -87,14 +87,13 @@ export default function useFFmpegQueue(jobId) {
       const { inFile, outFile } = task;
       const shortInFile = path.basename(inFile);
       const shortOutFile = path.basename(outFile);
+      const currentTask = getTask(job, task);
+      const nextTask = getNextTask(job, task);
+      const getCurrentTaskUpdated = taskStatusUpdater(currentTask);
       const worker = addFFmpegQueue(task, job);
       console.log('%%%%%% worker:', worker)
       worker.on(Q_ITEM_STATUS.ACTIVE, () => {
-        const currentTask = getTask(job, task);
-        const activeTask = {
-          ...currentTask,
-          status: Q_ITEM_STATUS.ACTIVE
-        }
+        const activeTask = getCurrentTaskUpdated(Q_ITEM_STATUS.ACTIVE);
         updateJobTask([activeTask]);
         updateJobStatusState(JOB_STATUS.ACTIVE);
       });
@@ -113,13 +112,8 @@ export default function useFFmpegQueue(jobId) {
         console.log(result);
         const logMessage = `Transcoding ${shortInFile} ---> ${shortOutFile} done.`;
         setAppLogState(logMessage);
-        const currentTask = getTask(job, task);
-        const completedTask = {
-          ...currentTask,
-          status: Q_ITEM_STATUS.COMPLETED,
-        };
+        const completedTask = getCurrentTaskUpdated(Q_ITEM_STATUS.COMPLETED)
         const nextInFile = outFile;
-        const nextTask = getNextTask(job, task);
         const updatedTask = {
           ...nextTask,
           inFile: nextInFile,
@@ -131,11 +125,7 @@ export default function useFFmpegQueue(jobId) {
       });
       worker.on(Q_WORKER_EVENTS.FAILED, (error) => {
         console.log('##### task failed!:', error);
-        const currentTask = getTask(job, task);
-        const failedTask = {
-          ...currentTask,
-          status: Q_ITEM_STATUS.FAILED
-        }
+        const failedTask = getCurrentTaskUpdated(Q_ITEM_STATUS.FAILED);
         updateJobTask([failedTask]);
         const logMessage = `Transcoding ${shortInFile} ---> ${shortOutFile} faild.`;
         setAppLogState(logMessage, LOG_LEVEL.ERROR);

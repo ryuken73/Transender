@@ -1,7 +1,7 @@
 /* eslint-disable import/named */
 import React from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { getTask, getNextTask } from 'renderer/lib/jobUtil';
+import { getTask, getNextTask, taskStatusUpdater } from 'renderer/lib/jobUtil';
 import useJobItemState from 'renderer/hooks/useJobItemState';
 import constants from 'renderer/config/constants';
 import bullConstants from 'renderer/config/bull-constants';
@@ -17,6 +17,20 @@ const { changeDir, changeExtension } = file;
 
 const { LOG_LEVEL, FFMPEG_OPTIONS } = constants;
 const { JOB_STATUS, Q_ITEM_STATUS, Q_WORKER_EVENTS } = bullConstants;
+
+const makeFFmpegOptions = (video, audio) => {
+  const toMxfOption = FFMPEG_OPTIONS.MXF.join(' ');
+  // return '-y -acodec copy -progress pipe:1';
+  return toMxfOption;
+};
+const makeFFmpegOutPath = (job) => {
+  const origFile = job.sourceFile.fullName;
+  const targetFile = changeDir(
+    changeExtension(origFile, '.mxf'),
+    'd:/temp/transender'
+  );
+  return targetFile;
+};
 
 export default function useMediainfoQueue(jobId) {
   const dispatch = useDispatch();
@@ -64,35 +78,21 @@ export default function useMediainfoQueue(jobId) {
     }
     return mediainfoQueue;
   });
-  const makeFFmpegOptions = (video, audio) => {
-    const toMxfOption = FFMPEG_OPTIONS.MXF.join(' ');
-    // return '-y -acodec copy -progress pipe:1';
-    return toMxfOption;
-  };
-  const makeFFmpegOutPath = (job) => {
-    const origFile = job.sourceFile.fullName;
-    const targetFile = changeDir(
-      changeExtension(origFile, '.mxf'),
-      'd:/temp/transender'
-    );
-    return targetFile;
-  };
+
   const addMediainfoItem = React.useCallback(
     (task) => {
+      const currentTask = getTask(job, task);
+      const nextTask = getNextTask(job, task);
+      const getCurrentTaskUpdated = taskStatusUpdater(currentTask);
       const worker = addMediainfoQueue(task, job);
       worker.on(Q_WORKER_EVENTS.COMPLETED, (result) => {
         const { rawResult, video, audio } = result;
-        const currentTask = getTask(job, task);
-        const completedTask = {
-          ...currentTask,
-          status: Q_ITEM_STATUS.COMPLETED
-        }
-        // updateJobTask(statusChanged);
+        // eslint-disable-next-line prettier/prettier
+        const completedTask = getCurrentTaskUpdated(Q_ITEM_STATUS.COMPLETED);
         console.log('&&&&', video('FrameCount'));
         const ffmpegOptions = makeFFmpegOptions(video, audio);
         const totalFrames = video('FrameCount')[0];
         const outFile = makeFFmpegOutPath(job);
-        const nextTask = getNextTask(job, task);
         const updatedTask = {
           ...nextTask,
           inFile: job.sourceFile.fullName,
@@ -106,11 +106,7 @@ export default function useMediainfoQueue(jobId) {
       });
       worker.on(Q_WORKER_EVENTS.FAILED, (error) => {
         console.log('##### task failed!:', error);
-        const currentTask = getTask(job, task);
-        const failedTask = {
-          ...currentTask,
-          status: Q_ITEM_STATUS.FAILED
-        }
+        const failedTask = getCurrentTaskUpdated(Q_ITEM_STATUS.FAILED);
         updateJobTask([failedTask]);
         updateJobStatusState(JOB_STATUS.FAILED);
       });

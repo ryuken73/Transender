@@ -42,6 +42,14 @@ export const getTask = (job, task) => {
 export const getNextStandbyTask = (job) => {
   return job.tasks.find((task) => task.status === Q_ITEM_STATUS.STANDBY);
 };
+export const taskStatusUpdater = (task) => {
+  return (status) => {
+    return {
+      ...task,
+      status,
+    };
+  };
+};
 
 export const getNextTask = (job, task) => {
   const index = job.tasks.findIndex((ele) => ele.taskId === task.taskId);
