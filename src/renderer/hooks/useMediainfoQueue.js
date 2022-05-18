@@ -105,7 +105,13 @@ export default function useMediainfoQueue(jobId) {
         updateJobStatusState(JOB_STATUS.READY);
       });
       worker.on(Q_WORKER_EVENTS.FAILED, (error) => {
-        console.log('##### task failed!:', error)
+        console.log('##### task failed!:', error);
+        const currentTask = getTask(job, task);
+        const failedTask = {
+          ...currentTask,
+          status: Q_ITEM_STATUS.FAILED
+        }
+        updateJobTask([failedTask]);
         updateJobStatusState(JOB_STATUS.FAILED);
       });
     },

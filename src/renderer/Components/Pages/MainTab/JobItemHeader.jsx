@@ -47,6 +47,9 @@ const JobItem = () => {
       <TinyBox width="3%">
         <CustomTextBox text="순번" />
       </TinyBox>
+      <MediumBox flex="2">
+        <CustomTextBox text="작업상태" />
+      </MediumBox>
       <BigBox flex="2">
         <CustomTextBox text="파일명" />
       </BigBox>

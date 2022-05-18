@@ -90,6 +90,12 @@ export default function useFFmpegQueue(jobId) {
       const worker = addFFmpegQueue(task, job);
       console.log('%%%%%% worker:', worker)
       worker.on(Q_ITEM_STATUS.ACTIVE, () => {
+        const currentTask = getTask(job, task);
+        const activeTask = {
+          ...currentTask,
+          status: Q_ITEM_STATUS.ACTIVE
+        }
+        updateJobTask([activeTask]);
         updateJobStatusState(JOB_STATUS.ACTIVE);
       });
       worker.on(Q_ITEM_STATUS.PROGRESS, (progressObj) => {
@@ -125,6 +131,12 @@ export default function useFFmpegQueue(jobId) {
       });
       worker.on(Q_WORKER_EVENTS.FAILED, (error) => {
         console.log('##### task failed!:', error);
+        const currentTask = getTask(job, task);
+        const failedTask = {
+          ...currentTask,
+          status: Q_ITEM_STATUS.FAILED
+        }
+        updateJobTask([failedTask]);
         const logMessage = `Transcoding ${shortInFile} ---> ${shortOutFile} faild.`;
         setAppLogState(logMessage, LOG_LEVEL.ERROR);
         updateJobStatusState(JOB_STATUS.FAILED);

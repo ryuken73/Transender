@@ -5,6 +5,7 @@ import Box from '@mui/material/Box';
 import CheckBox from 'renderer/Components/Common/CheckBox';
 import TextBox from 'renderer/Components/Common/TextBox';
 import Stepper from 'renderer/Components/Common/Stepper';
+import StatusIcons from 'renderer/Components/Pages/MainTab/StatusIcons';
 import useJobItemState from 'renderer/hooks/useJobItemState';
 import useMediainfoQueue from 'renderer/hooks/useMediainfoQueue';
 import useFFmpegQueue from 'renderer/hooks/useFFmpegQueue';
@@ -122,6 +123,9 @@ const JobItem = (props) => {
       <TinyBox width="3%">
         <LightTextBox text={rownum} />
       </TinyBox>
+      <MediumBox>
+        <StatusIcons tasks={job.tasks} />
+      </MediumBox>
       <BigBox>
         <LightTextBox textAlign="left" text={fileName} />
       </BigBox>
