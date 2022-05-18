@@ -49,10 +49,10 @@ export default function useFFmpegQueue(jobId) {
           childProcess.on('done', (code) => {
             if (code === 0) {
               done(null, 'ffmpeg success');
-              qItem.emit(Q_WORKER_EVENTS.COMPLETED);
+              // qItem.emit(Q_WORKER_EVENTS.COMPLETED);
             } else {
               done('ffmpeg failed');
-              qItem.emit(Q_WORKER_EVENTS.FAILED);
+              // qItem.emit(Q_WORKER_EVENTS.FAILED);
             }
           });
           childProcess.on('spawn', () => {
@@ -60,7 +60,7 @@ export default function useFFmpegQueue(jobId) {
           })
           childProcess.on('error', (error) => {
             done(error);
-            qItem.emit(Q_WORKER_EVENTS.FAILED, error);
+            // qItem.emit(Q_WORKER_EVENTS.FAILED, error);
           });
           childProcess.on('progress', (progressObj) => {
             qItem.emit('progress', progressObj);
@@ -117,7 +117,7 @@ export default function useFFmpegQueue(jobId) {
         // eslint-disable-next-line prettier/prettier
         const completedTask = getCurrentTaskUpdated({status: Q_ITEM_STATUS.COMPLETED})
         const nextInFile = outFile;
-        const updatedTask = getNextTaskUpdated({ inputFile: nextInFile });
+        const updatedTask = getNextTaskUpdated({ inFile: nextInFile });
         console.log(updatedTask)
         updateJobTask([completedTask, updatedTask]);
         updateJobStatusState(JOB_STATUS.READY);
