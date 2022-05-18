@@ -46,6 +46,10 @@ const SmallBox = styled(Box)`
   min-width: 70px;
   max-width: 70px;
 `
+const MediumBox = styled(Box)`
+  min-width: 120px;
+  max-width: 120px;
+`
 const BigBox = styled(Box)`
   width: 100%;
   min-width: 400px;
@@ -64,6 +68,8 @@ const JobItem = (props) => {
     sourceFile,
     outFileSize = '-',
     percent = '-',
+    speed = '-',
+    outTime = '-',
     pid = '-',
   } = job;
   const { updateJobCheckState, updateJobStatusState } = useJobItemState(jobId);
@@ -128,6 +134,12 @@ const JobItem = (props) => {
       <SmallBox width="10%">
         <LightTextBox text={percent} />
       </SmallBox>
+      <SmallBox width="10%">
+        <LightTextBox text={speed} />
+      </SmallBox>
+      <MediumBox>
+        <LightTextBox text={outTime} />
+      </MediumBox>
       <SmallBox width="10%">
         <LightTextBox text={pid} />
       </SmallBox>

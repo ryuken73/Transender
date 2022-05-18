@@ -62,6 +62,12 @@ export default function useJobItemState(jobId) {
     },
     [updateJobState]
   );
+  const updateJobOutTimeState = React.useCallback(
+    (outTime) => {
+      updateJobState('outTime', outTime);
+    },
+    [updateJobState]
+  );
   return {
     job,
     updateJobState,
@@ -70,6 +76,7 @@ export default function useJobItemState(jobId) {
     updateJobTask,
     updateJobFileSizeState,
     updateJobPercentState,
+    updateJobOutTimeState,
     updateJobPidState,
     updateJobSpeedState,
   };

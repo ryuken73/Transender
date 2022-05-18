@@ -26,6 +26,10 @@ const SmallBox = styled(Box)`
   min-width: 70px;
   max-width: 70px;
 `
+const MediumBox = styled(Box)`
+  min-width: 120px;
+  max-width: 120px;
+`
 const BigBox = styled(Box)`
   width: 100%
   min-width: 400px;
@@ -55,6 +59,12 @@ const JobItem = () => {
       <SmallBox width="10%">
         <CustomTextBox text="진행율" />
       </SmallBox>
+      <SmallBox width="10%">
+        <CustomTextBox text="속도" />
+      </SmallBox>
+      <MediumBox>
+        <CustomTextBox text="시간" />
+      </MediumBox>
       <SmallBox width="10%">
         <CustomTextBox text="PID" />
       </SmallBox>
