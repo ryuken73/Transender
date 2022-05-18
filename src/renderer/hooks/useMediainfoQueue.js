@@ -45,12 +45,12 @@ export default function useMediainfoQueue(jobId) {
           // console.log('!!!!!', qItem)
           const qItemBody = qItem.itemBody;
           console.log('qItemBody:', qItemBody);
-          const ret = await mediaInfo.run(qItemBody.inputFile);
+          const ret = await mediaInfo.run(qItemBody.inFile);
           const isMediaFile = mediaInfo.isMediaFile();
           console.log('###', mediaInfo.getResult())
           if (isMediaFile) {
             dispatch(
-              setAppLog({ message: `Aanlyze ${qItemBody.inputFile} done.` })
+              setAppLog({ message: `Aanlyze ${qItemBody.inFile} done.` })
             );
             done(null, {
               isMediaFile,
@@ -62,7 +62,7 @@ export default function useMediainfoQueue(jobId) {
             dispatch(
               setAppLog({
                 level: LOG_LEVEL.ERROR,
-                message: `Aanlyze ${qItemBody.inputFile} Failed.[not-media-file]`,
+                message: `Aanlyze ${qItemBody.inFile} Failed.[not-media-file]`,
               })
             )
             done('codec unknows. suspect not media file.')
@@ -86,6 +86,12 @@ export default function useMediainfoQueue(jobId) {
       const getCurrentTaskUpdated = taskUpdater(currentTask);
       const getNextTaskUpdated = taskUpdater(nextTask);
       const worker = addMediainfoQueue(task, job);
+      worker.on(Q_ITEM_STATUS.ACTIVE, () => {
+        // eslint-disable-next-line prettier/prettier
+        const activeTask = getCurrentTaskUpdated({status: Q_ITEM_STATUS.ACTIVE});
+        updateJobTask([activeTask]);
+        updateJobStatusState(JOB_STATUS.ACTIVE);
+      });
       worker.on(Q_WORKER_EVENTS.COMPLETED, (result) => {
         const { rawResult, video, audio } = result;
         // eslint-disable-next-line prettier/prettier

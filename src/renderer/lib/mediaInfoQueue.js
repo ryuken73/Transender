@@ -13,7 +13,7 @@ const getMediainfoQueue = () => mediainfoQueue;
 const addQueue = (task, job) => {
   return mediainfoQueue.add({
     ...task,
-    inputFile: job.sourceFile.fullName,
+    inFile: job.sourceFile.fullName,
     },
     task.taskId
   );

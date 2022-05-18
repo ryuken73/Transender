@@ -19,7 +19,7 @@ const startSendFileQueue = () => {
         console.log('!!!!!', qItem)
         const qItemBody = qItem.itemBody;
         // console.log('qTask.body.args.fullName:', qItemBody.args.fullName);
-        const ret = await sendFile.run(qItemBody.inputFile);
+        const ret = await sendFile.run(qItemBody.inFile);
         console.log('###', sendFile.getResult())
         done(null, {
           rawResult: sendFile.getResult(),
@@ -39,7 +39,7 @@ const startSendFileQueue = () => {
 const addQueue = (task, job) => {
   return sendFileQueue.add({
     ...task,
-    inputFile: job.sourceFile.fullName,
+    inFile: job.sourceFile.fullName,
     },
     task.taskId
   );

@@ -28,21 +28,21 @@ export default function useVirusScanQueue(jobId) {
           // console.log('!!!!!', qItem)
           const qItemBody = qItem.itemBody;
           console.log('qItemBody:', qItemBody);
-          await virusScan.run(qItemBody.inputFile);
+          await virusScan.run(qItemBody.inFile);
           const result = virusScan.getResult();
           console.log('###', result);
           if (result.success) {
             dispatch(
-              setAppLog({ message: `virus scan ${qItemBody.inputFile} done.` })
+              setAppLog({ message: `virus scan ${qItemBody.inFile} done.` })
             );
             done(null, {
-              inputFile: qItemBody.inputFile,
+              inFile: qItemBody.inFile,
             });
           } else {
             dispatch(
               setAppLog({
                 level: LOG_LEVEL.ERROR,
-                message: `virus found [${qItemBody.inputFile}]`,
+                message: `virus found [${qItemBody.inFile}]`,
               })
             )
             done('unexpected error')
@@ -66,14 +66,20 @@ export default function useVirusScanQueue(jobId) {
       const getCurrentTaskUpdated = taskUpdater(currentTask);
       const getNextTaskUpdated = taskUpdater(nextTask);
       const worker = addVirusScanQueue(task, job);
+      worker.on(Q_ITEM_STATUS.ACTIVE, () => {
+        // eslint-disable-next-line prettier/prettier
+        const activeTask = getCurrentTaskUpdated({status: Q_ITEM_STATUS.ACTIVE});
+        updateJobTask([activeTask]);
+        updateJobStatusState(JOB_STATUS.ACTIVE);
+      });
       worker.on(Q_WORKER_EVENTS.COMPLETED, (result) => {
-        const { inputFile } = result;
+        const { inFile } = result;
+        console.log('##### task success!:');
         // eslint-disable-next-line prettier/prettier
         const completedTask = getCurrentTaskUpdated({status: Q_ITEM_STATUS.COMPLETED});
         const updatedTask = getNextTaskUpdated({
-          inputFile,
+          inFile,
         });
-        console.log(updatedTask)
         updateJobTask([completedTask, updatedTask]);
         updateJobStatusState(JOB_STATUS.READY);
       });
