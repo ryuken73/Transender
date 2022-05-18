@@ -6,10 +6,14 @@ import CheckBox from 'renderer/Components/Common/CheckBox';
 import TextBox from 'renderer/Components/Common/TextBox';
 import Stepper from 'renderer/Components/Common/Stepper';
 import StatusIcons from 'renderer/Components/Pages/MainTab/StatusIcons';
+import IconButton from '@mui/material/IconButton';
+import ReplayIcon from '@mui/icons-material/Replay';
+import CancelIcon from '@mui/icons-material/Cancel';
 import useJobItemState from 'renderer/hooks/useJobItemState';
 import useMediainfoQueue from 'renderer/hooks/useMediainfoQueue';
 import useFFmpegQueue from 'renderer/hooks/useFFmpegQueue';
 import useVirusScanQueue from 'renderer/hooks/useVirusScanQueue';
+import useSendFileQueue from 'renderer/hooks/useSendFileQueue';
 import { getNextStandbyTask } from 'renderer/lib/jobUtil';
 import bullConstants from 'renderer/config/bull-constants';
 import colors from 'renderer/config/colors';
@@ -62,6 +66,15 @@ const LightTextBox = styled(TextBox)`
   text-align: center;
   opacity: 1;
 `
+const CustomIconButton = styled(IconButton)`
+  && {
+    color: ${(props) =>
+      props.disabled ? 'grey !important' : 'white'};
+    padding: 5px;
+    background: ${(props) =>
+      props.disabled ? 'transparent !important' : 'darkslategrey'};
+  }
+`
 
 const JobItem = (props) => {
   const { job, rownum } = props;
@@ -76,22 +89,26 @@ const JobItem = (props) => {
     outTime = '-',
     pid = '-',
   } = job;
-  const { updateJobCheckState, updateJobStatusState } = useJobItemState(jobId);
+  const {
+    retryEnabled,
+    updateJobCheckState,
+    updateJobStatusState,
+    retryFailedTask,
+  } = useJobItemState(jobId);
   const { addMediainfoItem } = useMediainfoQueue(jobId);
   const { addFFmpegItem } = useFFmpegQueue(jobId);
   const { addVirusScanItem } = useVirusScanQueue(jobId);
+  const { addSendFileItem } = useSendFileQueue(jobId);
   const { fileName = 'aaa.mp4' } = sourceFile;
   console.log('re-render JobItem', job)
-  const addVirusScan = React.useCallback(() => {},[]);
-  const addSendFile = React.useCallback(() => {},[]);
   const addMethods = React.useMemo(() => {
     return {
       mediainfo: addMediainfoItem,
       transcode: addFFmpegItem,
       virusScan: addVirusScanItem,
-      sendFile: addSendFile,
+      sendFile: addSendFileItem,
     };
-  }, [addFFmpegItem, addMediainfoItem, addVirusScan, addSendFile])
+  }, [addMediainfoItem, addFFmpegItem, addVirusScanItem, addSendFileItem])
   const startStandbyTask = React.useCallback((task, job) => {
       const { taskType } = task;
       const addQueue = addMethods[taskType];
@@ -101,11 +118,11 @@ const JobItem = (props) => {
     },
     [addMethods, updateJobStatusState]
   );
-
   const startTask = React.useCallback((job) => {
     // prevous task should not be in standby state
     console.log('*** tasks in job state:', job)
       const task = getNextStandbyTask(job);
+      if ( task === undefined ) return;
       if (task.autoStart || (job.manualStarted && job.checked)){
         console.log('~~~~ startStandbyTask', task)
         startStandbyTask(task, job);
@@ -120,6 +137,10 @@ const JobItem = (props) => {
       startTask(job);
     }
   }, [job, startTask])
+
+  const retryTask = React.useCallback(() => {
+    retryFailedTask();
+  }, [retryFailedTask])
 
   return (
     <Container status={status}>
@@ -150,6 +171,11 @@ const JobItem = (props) => {
       </MediumBox>
       <SmallBox width="10%">
         <LightTextBox text={pid} />
+      </SmallBox>
+      <SmallBox width="10%">
+        <CustomIconButton disabled={!retryEnabled} onClick={retryTask}>
+          <ReplayIcon fontSize="small" />
+        </CustomIconButton>
       </SmallBox>
       {/* <Box width="50%" marginRight="20px">
         <Stepper />

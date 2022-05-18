@@ -9,6 +9,7 @@ const sendFile = () => {
   let eventEmitter;
   let controller;
   const run = ({ inFile, hostname, port, path }) => {
+    console.log(`sendFile start:`, inFile, hostname, port, path);
     eventEmitter = new EventEmitter();
     controller = new AbortController();
     const { signal } = controller;
@@ -33,6 +34,7 @@ const sendFile = () => {
       })
     });
     const handleError = error => {
+      console.error(error)
       eventEmitter.emit('error', error);
     }
     req.on('error', handleError);
@@ -50,6 +52,7 @@ const sendFile = () => {
       });
     })
   .catch(error => {
+    console.error(error);
     eventEmitter.emit('error', error)
   })
 

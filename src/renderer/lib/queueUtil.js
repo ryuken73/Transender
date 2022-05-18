@@ -17,11 +17,14 @@ const virusScanBinary = 'virusScan.exe';
 const virusScan = virusScanProc(virusScanBinary);
 const virusScanQueue = getQueue('virusScan', bullConstants);
 
+const sendFile = sendFileProc();
+const sendFileQueue = getQueue('sendFile', bullConstants);
+
 // const getMediainfoQueue = () => mediainfoQueue;
 const addMediainfoQueue = (task, job) => {
   return mediainfoQueue.add({
     ...task,
-    inputFile: job.sourceFile.fullName,
+    inFile: job.sourceFile.fullName,
     },
     task.taskId
   );
@@ -40,7 +43,13 @@ const addVirusScanQueue = (task) => {
     task.taskId
   );
 };
-
+const addSendFileQueue = (task) => {
+  return sendFileQueue.add({
+    ...task,
+    },
+    task.taskId
+  );
+};
 module.exports = {
   mediaInfo,
   mediainfoQueue,
@@ -50,4 +59,7 @@ module.exports = {
   virusScan,
   virusScanQueue,
   addVirusScanQueue,
+  sendFile,
+  sendFileQueue,
+  addSendFileQueue,
 };

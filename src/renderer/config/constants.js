@@ -8,6 +8,9 @@ const dev =  {
   SOCKET_SERVER_URL: 'http://localhost:9009',
   EVENT_NEW_MESSAGES: 'post:newMessages',
   MEDIAINFO_BIN: '',
+  SEND_HOSTNAME: 'localhost',
+  SEND_PORT: 7000,
+  SEND_URI_PATH: '/sendFile',
   FFMPEG_TARGET_DIR: 'd:/temp/transender',
   FFMPEG_OPTIONS: {
     MXF: [

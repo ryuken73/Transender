@@ -13,6 +13,7 @@ import useJobListState from 'renderer/hooks/useJobListState';
 import useMediainfoQueue from 'renderer/hooks/useMediainfoQueue';
 import useFFmpegQueue from 'renderer/hooks/useFFmpegQueue';
 import useVirusScanQueue from 'renderer/hooks/useVirusScanQueue';
+import useSendFileQueue from 'renderer/hooks/useSendFileQueue';
 import bullConstants from 'renderer/config/bull-constants';
 
 // const { JOB_STATUS, TASK_STATUS, TASK_DEFAULT, Q_WORKER_EVENTS } = bullConstants;
@@ -34,6 +35,7 @@ const MainTab = () => {
   const { startMediainfoQueue } = useMediainfoQueue();
   const { startFFmpegQueue } = useFFmpegQueue();
   const { startVirusScanQueue } = useVirusScanQueue();
+  const { startSendFileQueue } = useSendFileQueue();
   React.useEffect(() => {
     console.log('%%%%% called useJobListState');
     let queue;
@@ -41,6 +43,7 @@ const MainTab = () => {
       startMediainfoQueue();
       startFFmpegQueue();
       startVirusScanQueue();
+      startSendFileQueue();
     } catch (err) {
       console.error(err);
     }
