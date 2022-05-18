@@ -27,6 +27,7 @@ const Container = styled(Box)`
   && {
     display: flex;
     flex-direction: row;
+    justify-content: space-between;
     align-items: center;
     min-height: 40px;
     width: 100%;
@@ -39,13 +40,15 @@ const Container = styled(Box)`
 `;
 const TinyBox = styled(Box)`
   min-width: 40px;
+  max-width: 40px;
 `
 const SmallBox = styled(Box)`
   min-width: 70px;
+  max-width: 70px;
 `
 const BigBox = styled(Box)`
+  width: 100%;
   min-width: 400px;
-  max-width: 400px;
 `
 const LightTextBox = styled(TextBox)`
   text-align: center;
@@ -113,7 +116,7 @@ const JobItem = (props) => {
       <TinyBox width="3%">
         <LightTextBox text={rownum} />
       </TinyBox>
-      <BigBox flex="2">
+      <BigBox>
         <LightTextBox textAlign="left" text={fileName} />
       </BigBox>
       <SmallBox width="10%">
@@ -128,9 +131,9 @@ const JobItem = (props) => {
       <SmallBox width="10%">
         <LightTextBox text={pid} />
       </SmallBox>
-      <Box width="50%" marginRight="20px">
+      {/* <Box width="50%" marginRight="20px">
         <Stepper />
-      </Box>
+      </Box> */}
     </Container>
   )
 };

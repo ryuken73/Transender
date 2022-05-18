@@ -11,6 +11,7 @@ const Container = styled(Box)`
   && {
     display: flex;
     flex-direction: row;
+    justify-content: space-between;
     align-items: center;
     min-height: 40px;
     width: 100%;
@@ -19,13 +20,15 @@ const Container = styled(Box)`
 `;
 const TinyBox = styled(Box)`
   min-width: 40px;
+  max-width: 40px;
 `
 const SmallBox = styled(Box)`
   min-width: 70px;
+  max-width: 70px;
 `
 const BigBox = styled(Box)`
+  width: 100%
   min-width: 400px;
-  max-width: 400px;
 `
 const CustomTextBox = styled(TextBox)`
   text-align: center ;
@@ -55,7 +58,7 @@ const JobItem = () => {
       <SmallBox width="10%">
         <CustomTextBox text="PID" />
       </SmallBox>
-      <Box width="50%" marginRight="20px" />
+      {/* <Box width="50%" marginRight="20px" /> */}
     </Container>
   )
 };
