@@ -117,7 +117,7 @@ export default function useFFmpegQueue(jobId) {
         // eslint-disable-next-line prettier/prettier
         const completedTask = getCurrentTaskUpdated({status: Q_ITEM_STATUS.COMPLETED})
         const nextInFile = outFile;
-        const updatedTask = getNextTaskUpdated({ inFile: nextInFile });
+        const updatedTask = getNextTaskUpdated({ inputFile: nextInFile });
         console.log(updatedTask)
         updateJobTask([completedTask, updatedTask]);
         updateJobStatusState(JOB_STATUS.READY);

@@ -9,6 +9,7 @@ import StatusIcons from 'renderer/Components/Pages/MainTab/StatusIcons';
 import useJobItemState from 'renderer/hooks/useJobItemState';
 import useMediainfoQueue from 'renderer/hooks/useMediainfoQueue';
 import useFFmpegQueue from 'renderer/hooks/useFFmpegQueue';
+import useVirusScanQueue from 'renderer/hooks/useVirusScanQueue';
 import { getNextStandbyTask } from 'renderer/lib/jobUtil';
 import bullConstants from 'renderer/config/bull-constants';
 import colors from 'renderer/config/colors';
@@ -78,6 +79,7 @@ const JobItem = (props) => {
   const { updateJobCheckState, updateJobStatusState } = useJobItemState(jobId);
   const { addMediainfoItem } = useMediainfoQueue(jobId);
   const { addFFmpegItem } = useFFmpegQueue(jobId);
+  const { addVirusScanItem } = useVirusScanQueue(jobId);
   const { fileName = 'aaa.mp4' } = sourceFile;
   console.log('re-render JobItem', job)
   const addVirusScan = React.useCallback(() => {},[]);
@@ -86,7 +88,7 @@ const JobItem = (props) => {
     return {
       mediainfo: addMediainfoItem,
       transcode: addFFmpegItem,
-      virusScan: addVirusScan,
+      virusScan: addVirusScanItem,
       sendFile: addSendFile,
     };
   }, [addFFmpegItem, addMediainfoItem, addVirusScan, addSendFile])

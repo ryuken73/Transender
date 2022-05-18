@@ -73,7 +73,7 @@ CONSTANTS.TASK_DEFAULT = {
     outFile: '',
   },
   [CONSTANTS.TASK_TYPES.VIRUS_SCAN]: {
-    input: ['outFile'],
+    inputFile: '',
     autoStart: true,
   },
   [CONSTANTS.TASK_TYPES.SEND_FILE]: {

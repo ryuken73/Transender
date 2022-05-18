@@ -2,6 +2,8 @@ import { getQueue } from 'renderer/lib/queueClass';
 import { getAbsolutePath } from 'renderer/lib/electronUtil';
 import mediaInfoProc from 'renderer/lib/mediaInfoProc';
 import ffmpegProc from 'renderer/lib/ffmpegProc';
+import virusScanProc from 'renderer/lib/virusScanProc';
+import sendFileProc from 'renderer/lib/sendFileProc';
 import bullConstants from 'renderer/config/bull-constants';
 
 const mediainfoBinary = getAbsolutePath('bin/Mediainfo.exe', true);
@@ -10,6 +12,10 @@ const mediainfoQueue = getQueue('mediaInfo', bullConstants);
 
 const ffmpegBinary = getAbsolutePath('bin/ffmpeg2018.exe', true);
 const ffmpegQueue = getQueue('ffmpeg', bullConstants);
+
+const virusScanBinary = 'virusScan.exe';
+const virusScan = virusScanProc(virusScanBinary);
+const virusScanQueue = getQueue('virusScan', bullConstants);
 
 // const getMediainfoQueue = () => mediainfoQueue;
 const addMediainfoQueue = (task, job) => {
@@ -27,6 +33,13 @@ const addFFmpegQueue = (task) => {
     task.taskId
   );
 };
+const addVirusScanQueue = (task) => {
+  return virusScanQueue.add({
+    ...task,
+    },
+    task.taskId
+  );
+};
 
 module.exports = {
   mediaInfo,
@@ -34,4 +47,7 @@ module.exports = {
   addMediainfoQueue,
   ffmpegQueue,
   addFFmpegQueue,
+  virusScan,
+  virusScanQueue,
+  addVirusScanQueue,
 };
