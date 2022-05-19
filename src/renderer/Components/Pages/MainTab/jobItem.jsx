@@ -12,10 +12,10 @@ import ReplayIcon from '@mui/icons-material/Replay';
 import ClearIcon from '@mui/icons-material/Clear';
 import CancelIcon from '@mui/icons-material/Cancel';
 import useJobItemState from 'renderer/hooks/useJobItemState';
-import useMediainfoQueue from 'renderer/hooks/useMediainfoQueue';
-import useFFmpegQueue from 'renderer/hooks/useFFmpegQueue';
-import useVirusScanQueue from 'renderer/hooks/useVirusScanQueue';
-import useSendFileQueue from 'renderer/hooks/useSendFileQueue';
+import useMediainfoAdd from 'renderer/hooks/useMediainfoAdd';
+import useFFmpegAdd from 'renderer/hooks/useFFmpegAdd';
+import useVirusScanAdd from 'renderer/hooks/useVirusScanAdd';
+import useSendFileAdd from 'renderer/hooks/useSendFileAdd';
 import { getNextStandbyTask } from 'renderer/lib/jobUtil';
 import bullConstants from 'renderer/config/bull-constants';
 import colors from 'renderer/config/colors';
@@ -96,11 +96,11 @@ const JobItem = (props) => {
     updateJobCheckState,
     updateJobStatusState,
     retryFailedTask,
-  } = useJobItemState(jobId);
-  const { addMediainfoItem } = useMediainfoQueue(jobId);
-  const { addFFmpegItem } = useFFmpegQueue(jobId);
-  const { addVirusScanItem } = useVirusScanQueue(jobId);
-  const { addSendFileItem } = useSendFileQueue(jobId);
+  } = useJobItemState(job);
+  const { addMediainfoItem } = useMediainfoAdd(job);
+  const { addFFmpegItem } = useFFmpegAdd(job);
+  const { addVirusScanItem } = useVirusScanAdd(job);
+  const { addSendFileItem } = useSendFileAdd(job);
   const { fileName = 'aaa.mp4' } = sourceFile;
   console.log('re-render JobItem', job);
   const addMethods = React.useMemo(() => {
@@ -112,6 +112,7 @@ const JobItem = (props) => {
     };
   }, [addMediainfoItem, addFFmpegItem, addVirusScanItem, addSendFileItem])
   const startStandbyTask = React.useCallback((task, job) => {
+      console.log('*** in startStandybTask');
       const { taskType } = task;
       const addQueue = addMethods[taskType];
       updateJobStatusState(JOB_STATUS.WAITING);
@@ -146,7 +147,10 @@ const JobItem = (props) => {
     currentActiveTaskType === TASK_TYPES.SEND_FILE && sendFileWorker.stop();
   }, [currentActiveTaskType, ffmpegWorker, sendFileWorker]);
 
-  const cancelDisabled = job.status !== JOB_STATUS.ACTIVE;
+  const cancelDisabled = React.useMemo(
+    () => job.status !== JOB_STATUS.ACTIVE,
+    [job.status]
+  );
 
   return (
     <Container status={status}>

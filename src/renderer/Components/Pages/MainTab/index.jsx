@@ -10,10 +10,10 @@ import ScrollbarVirtual from 'renderer/Components/Common/ScrollBarVirtual';
 import JobItem from 'renderer/Components/Pages/MainTab/JobItem';
 import { createJob } from 'renderer/lib/jobUtil';
 import useJobListState from 'renderer/hooks/useJobListState';
-import useMediainfoQueue from 'renderer/hooks/useMediainfoQueue';
-import useFFmpegQueue from 'renderer/hooks/useFFmpegQueue';
-import useVirusScanQueue from 'renderer/hooks/useVirusScanQueue';
-import useSendFileQueue from 'renderer/hooks/useSendFileQueue';
+import useMediainfoStart from 'renderer/hooks/useMediainfoStart';
+import useFFmpegStart from 'renderer/hooks/useFFmpegStart';
+import useVirusScanStart from 'renderer/hooks/useVirusScanStart';
+import useSendFileStart from 'renderer/hooks/useSendFileStart';
 import bullConstants from 'renderer/config/bull-constants';
 
 // const { JOB_STATUS, TASK_STATUS, TASK_DEFAULT, Q_WORKER_EVENTS } = bullConstants;
@@ -32,10 +32,11 @@ const Header = styled.div`
 
 const MainTab = () => {
   const { jobList, addJobsState } = useJobListState();
-  const { startMediainfoQueue } = useMediainfoQueue();
-  const { startFFmpegQueue, workers: ffmpegWorkers } = useFFmpegQueue();
-  const { startVirusScanQueue } = useVirusScanQueue();
-  const { startSendFileQueue, workers: sendFileWorkers } = useSendFileQueue();
+  const { startMediainfoQueue } = useMediainfoStart();
+  const { startFFmpegQueue, workers: ffmpegWorkers } = useFFmpegStart();
+  const { startVirusScanQueue } = useVirusScanStart();
+  const { startSendFileQueue, workers: sendFileWorkers } = useSendFileStart();
+  console.log('### re-render MainTab');
   // console.log('### ffmpegWorkers:', ffmpegWorkers);
   // console.log('### sendFileWorkers:', sendFileWorkers);
   React.useEffect(() => {

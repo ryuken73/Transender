@@ -13,7 +13,13 @@ import {
 export default function useJobListState() {
   const dispatch = useDispatch();
   const jobList = useSelector((state) => state.job.jobList);
-  const allChecked = jobList.length === 0 ? false : jobList.every((job) => job.checked === true);
+  const jobListRef = React.useRef([]);
+  jobListRef.current = jobList;
+  const allChecked = React.useMemo(() => {
+    return jobList.length === 0
+      ? false
+      : jobList.every((job) => job.checked === true);
+  }, [jobList]);
   const addJobsState = React.useCallback((jobs) => {
       if (Array.isArray(jobs)) {
         dispatch(addJobs({ jobs }));
@@ -30,14 +36,16 @@ export default function useJobListState() {
     [dispatch]
   );
   const removeJobAllCheckedState = React.useCallback(() => {
-    const checkedJobs = jobList.filter((job) => job.checked === true);
+    const checkedJobs = jobListRef.current.filter(
+      (job) => job.checked === true
+    );
     checkedJobs.forEach((job) => {
       dispatch(removeJob({ jobId: job.jobId }));
     });
-  }, [dispatch, jobList]);
+  }, [dispatch]);
   const setAllManualStartState = React.useCallback(() => {
     dispatch(updateJobs({ key: 'manualStarted', value: true }));
-  }, [])
+  }, [dispatch]);
 
   return {
     jobList,

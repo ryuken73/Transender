@@ -1,11 +1,11 @@
 /* eslint-disable import/named */
 import React from 'react';
-import { useSelector, useDispatch } from 'react-redux';
+import { useSelector } from 'react-redux';
 import { getTask, getNextTask, taskUpdater } from 'renderer/lib/jobUtil';
 import useJobItemState from 'renderer/hooks/useJobItemState';
 import constants from 'renderer/config/constants';
 import bullConstants from 'renderer/config/bull-constants';
-import { setAppLog } from 'renderer/appSlice';
+import useAppLogState from 'renderer/hooks/useAppLogState';
 import { addMediainfoQueue } from 'renderer/lib/queueUtil';
 
 const { file } = require('renderer/utils');
@@ -28,12 +28,10 @@ const makeFFmpegOutPath = (job) => {
   return targetFile;
 };
 
-export default function useMediainfoAdd(jobId) {
-  const dispatch = useDispatch();
-  const job = useSelector((state) =>
-    state.job.jobList.find((job) => job.jobId === jobId)
-  );
-  const { updateJobTask, updateJobStatusState } = useJobItemState(jobId);
+export default function useMediainfoAdd(job) {
+  const { jobId } = job;
+  const { updateJobTask, updateJobStatusState } = useJobItemState(job);
+  const { setAppLogState } = useAppLogState();
   const addMediainfoItem = React.useCallback(
     (task) => {
       const currentTask = getTask(job, task);
@@ -62,6 +60,7 @@ export default function useMediainfoAdd(jobId) {
           outFile,
         });
         console.log(updatedTask)
+        setAppLogState(`Analyze ${job.sourceFile.fullName} success.`)
         updateJobTask([completedTask, updatedTask]);
         updateJobStatusState(JOB_STATUS.READY);
       });
@@ -69,11 +68,12 @@ export default function useMediainfoAdd(jobId) {
         console.log('##### task failed!:', error);
         // eslint-disable-next-line prettier/prettier
         const failedTask = getCurrentTaskUpdated({status: Q_ITEM_STATUS.FAILED});
+        setAppLogState(`Analyze ${job.sourceFile.fullName} failed.`)
         updateJobTask([failedTask]);
         updateJobStatusState(JOB_STATUS.FAILED);
       });
     },
-    [job, updateJobStatusState, updateJobTask]
+    [job, setAppLogState, updateJobStatusState, updateJobTask]
   );
 
   return { addMediainfoItem, };

@@ -1,64 +1,17 @@
+/* eslint-disable @typescript-eslint/no-shadow */
 /* eslint-disable import/named */
 import React from 'react';
-import { useSelector, useDispatch } from 'react-redux';
+import { useSelector } from 'react-redux';
 import { getTask, getNextTask, taskUpdater } from 'renderer/lib/jobUtil';
 import useJobItemState from 'renderer/hooks/useJobItemState';
-import constants from 'renderer/config/constants';
 import bullConstants from 'renderer/config/bull-constants';
-import { setAppLog } from 'renderer/appSlice';
-import {
-  virusScan,
-  virusScanQueue,
-  addVirusScanQueue,
-} from 'renderer/lib/queueUtil';
+import { addVirusScanQueue } from 'renderer/lib/queueUtil';
 
-const { LOG_LEVEL } = constants;
 const { JOB_STATUS, Q_ITEM_STATUS, Q_WORKER_EVENTS } = bullConstants;
 
-export default function useVirusScanQueue(jobId) {
-  const dispatch = useDispatch();
-  const job = useSelector((state) =>
-    state.job.jobList.find((job) => job.jobId === jobId)
-  );
-  const { updateJobTask, updateJobStatusState } = useJobItemState(jobId);
-  const startVirusScanQueue = React.useCallback(() => {
-    try {
-      virusScanQueue.process(1, async (qItem, done) => {
-        try {
-          // console.log('!!!!!', qItem)
-          const qItemBody = qItem.itemBody;
-          console.log('qItemBody:', qItemBody);
-          await virusScan.run(qItemBody.inFile);
-          const result = virusScan.getResult();
-          console.log('###', result);
-          if (result.success) {
-            dispatch(
-              setAppLog({ message: `virus scan ${qItemBody.inFile} done.` })
-            );
-            done(null, {
-              inFile: qItemBody.inFile,
-            });
-          } else {
-            dispatch(
-              setAppLog({
-                level: LOG_LEVEL.ERROR,
-                message: `virus found [${qItemBody.inFile}]`,
-              })
-            )
-            done('unexpected error')
-          }
-        } catch(err){
-          console.log('errored:', err);
-          done(err)
-        }
-      })
-    } catch (err) {
-      throw new Error(err);
-      // console.log(err);
-    }
-    return virusScanQueue;
-  });
-
+export default function useVirusScanAdd(job) {
+  const { jobId } = job;
+  const { updateJobTask, updateJobStatusState } = useJobItemState(job);
   const addVirusScanItem = React.useCallback(
     (task) => {
       const currentTask = getTask(job, task);
@@ -95,7 +48,6 @@ export default function useVirusScanQueue(jobId) {
   );
 
   return {
-    startVirusScanQueue,
     addVirusScanItem,
   };
 }

@@ -4,7 +4,7 @@ import React from 'react';
 import { useSelector } from 'react-redux';
 import { getTask, getNextTask, taskUpdater } from 'renderer/lib/jobUtil';
 import useJobItemState from 'renderer/hooks/useJobItemState';
-import useAppState from 'renderer/hooks/useAppState';
+import useAppLogState from 'renderer/hooks/useAppLogState';
 import constants from 'renderer/config/constants';
 import bullConstants from 'renderer/config/bull-constants';
 import { addFFmpegQueue } from 'renderer/lib/queueUtil';
@@ -15,17 +15,15 @@ const path = require('path');
 const { LOG_LEVEL } = constants;
 const { JOB_STATUS, Q_ITEM_STATUS, Q_WORKER_EVENTS } = bullConstants;
 
-export default function useFFmpegAdd(jobId) {
-  const job = useSelector((state) =>
-    state.job.jobList.find((job) => job.jobId === jobId)
-  );
-  const { setAppLogState } = useAppState();
+export default function useFFmpegAdd(job) {
+  const { jobId } = job;
+  const { setAppLogState } = useAppLogState();
   const {
     updateJobTask,
     updateJobStatusState,
     updateJobPidState,
     updateJobProgressState,
-  } = useJobItemState(jobId);
+  } = useJobItemState(job);
   const addFFmpegItem = React.useCallback(
     (task) => {
       const { inFile, outFile } = task;
