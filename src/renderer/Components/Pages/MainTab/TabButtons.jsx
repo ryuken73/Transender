@@ -24,6 +24,7 @@ const ButtonContainer = styled(Box)`
 
 const TabButtons = () => {
   const { removeJobAllCheckedState, setAllManualStartState } = useJobListState();
+  console.log('re-render TabButtons');
   return (
     <ButtonContainer>
       <ButtonIcon

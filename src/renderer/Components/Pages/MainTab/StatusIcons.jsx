@@ -28,7 +28,7 @@ const CustomIconButton = styled(IconButton)`
       props.running ? 1 : props.failure || props.success ? 0.8 : 0.4};
   }
 `
-const WithDoneIconButton = (props) => {
+const WithDoneIconButton = React.memo((props) => {
   const { status, children } = props;
   const success = status === Q_ITEM_STATUS.COMPLETED;
   const failure = status === Q_ITEM_STATUS.FAILED;
@@ -50,16 +50,20 @@ const WithDoneIconButton = (props) => {
       )}
     </CustomIconButton>
   )
-}
-const StatusIcons = props => {
+});
+
+const StatusIcons = (props) => {
   const { tasks = [] } = props;
-  const taskStatus = tasks.reduce((acct, task) => {
-    const taskObj = {
-      ...acct,
-      [task.taskType]: task.status,
-    }
-    return taskObj;
-  }, {})
+  const taskStatus = React.useMemo(() => {
+    return tasks.reduce((acct, task) => {
+      const taskObj = {
+        ...acct,
+        [task.taskType]: task.status,
+      };
+      return taskObj;
+    }, {});
+  }, [tasks]);
+
   console.log('^^^',taskStatus)
   return (
     <Container>
