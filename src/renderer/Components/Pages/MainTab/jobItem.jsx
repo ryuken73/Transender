@@ -10,6 +10,7 @@ import StatusIcons from 'renderer/Components/Pages/MainTab/StatusIcons';
 import IconButton from '@mui/material/IconButton';
 import ReplayIcon from '@mui/icons-material/Replay';
 import ClearIcon from '@mui/icons-material/Clear';
+import DeleteIcon from '@mui/icons-material/Delete';
 import CancelIcon from '@mui/icons-material/Cancel';
 import useJobItemState from 'renderer/hooks/useJobItemState';
 import useMediainfoAdd from 'renderer/hooks/useMediainfoAdd';
@@ -73,7 +74,7 @@ const CustomIconButton = styled(IconButton)`
     color: ${(props) => props.disabled ? 'grey !important' : 'white !important'};
     padding: 5px;
     background: ${(props) =>
-      props.disabled ? 'transparent !important' : 'darkslategrey'};
+      props.disabled ? 'transparent !important' : 'transparent'};
   }
 `
 
@@ -94,6 +95,7 @@ const JobItem = (props) => {
     retryEnabled,
     currentActiveTaskType,
     updateJobCheckState,
+    removeJobState,
     updateJobStatusState,
     retryFailedTask,
   } = useJobItemState(job);
@@ -152,6 +154,8 @@ const JobItem = (props) => {
     [job.status]
   );
 
+  const deleteDisabled = job.status === JOB_STATUS.ACTIVE;
+
   return (
     <Container status={status}>
       <CheckBox checked={checked} setChecked={updateJobCheckState}/>
@@ -182,16 +186,21 @@ const JobItem = (props) => {
       <SmallBox width="10%">
         <LightTextBox text={pid} />
       </SmallBox>
-      <SmallBox width="10%">
+      <TinyBox width="10%">
         <CustomIconButton disabled={!retryEnabled} onClick={retryFailedTask}>
           <ReplayIcon fontSize="small" />
         </CustomIconButton>
-      </SmallBox>
-      <SmallBox width="10%">
+      </TinyBox>
+      <TinyBox width="10%">
         <CustomIconButton disabled={cancelDisabled} onClick={cancelTask}>
           <ClearIcon fontSize="small" />
         </CustomIconButton>
-      </SmallBox>
+      </TinyBox>
+      <TinyBox width="10%">
+        <CustomIconButton disabled={deleteDisabled} onClick={removeJobState}>
+          <DeleteIcon fontSize="small" />
+        </CustomIconButton>
+      </TinyBox>
       {/* <Box width="50%" marginRight="20px">
         <Stepper />
       </Box> */}

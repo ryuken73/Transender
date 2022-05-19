@@ -4,6 +4,7 @@ import React from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import {
   updateJob,
+  removeJob,
   updateJobProgress,
 } from 'renderer/Components/Pages/MainTab/jobSlice';
 import bullConstants from 'renderer/config/bull-constants';
@@ -25,6 +26,9 @@ export default function useJobItemState(job) {
     },
     [dispatch, jobId]
   );
+  const removeJobState = React.useCallback(() => {
+    dispatch(removeJob({ jobId }));
+  }, [dispatch, jobId]);
   const updateJobCheckState = React.useCallback(
     (checked) => {
       updateJobState('checked', checked);
@@ -81,6 +85,7 @@ export default function useJobItemState(job) {
     retryEnabled,
     currentActiveTaskType,
     updateJobState,
+    removeJobState,
     updateJobCheckState,
     updateJobStatusState,
     updateJobTask,

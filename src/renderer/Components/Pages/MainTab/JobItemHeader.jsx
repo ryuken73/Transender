@@ -71,12 +71,15 @@ const JobItem = () => {
       <SmallBox width="10%">
         <CustomTextBox text="PID" />
       </SmallBox>
-      <SmallBox width="10%">
+      <TinyBox width="10%">
         <CustomTextBox text="재시도" />
-      </SmallBox>
-      <SmallBox width="10%">
+      </TinyBox>
+      <TinyBox width="10%">
         <CustomTextBox text="중단" />
-      </SmallBox>
+      </TinyBox>
+      <TinyBox width="10%">
+        <CustomTextBox text="삭제" />
+      </TinyBox>
       {/* <Box width="50%" marginRight="20px" /> */}
     </Container>
   )
