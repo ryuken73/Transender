@@ -11,14 +11,12 @@ import { getActiveTask } from 'renderer/lib/jobUtil';
 
 const { JOB_STATUS, Q_ITEM_STATUS } = bullConstants;
 
-export default function useJobItemState(jobId) {
+export default function useJobItemState(job) {
   const dispatch = useDispatch();
-  const job = useSelector((state) =>
-    state.job.jobList.find((job) => job.jobId === jobId)
-  );
-  const retryEnabled = job
-    ? job.tasks.some((task) => task.status === Q_ITEM_STATUS.FAILED)
-    : false;
+  const { jobId } = job;
+  const retryEnabled = job.tasks.some((task) => {
+    return task.status === Q_ITEM_STATUS.FAILED;
+  });
   const currentActiveTaskType = getActiveTask(job);
   // console.log('##### job in useJobItemState changed!', job)
   const updateJobState = React.useCallback(
