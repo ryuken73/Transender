@@ -2,30 +2,20 @@
 /* eslint-disable import/named */
 import React from 'react';
 import { useSelector } from 'react-redux';
-import {
-  getTask,
-  getNextTask,
-  taskUpdater,
-  clearWorker,
-} from 'renderer/lib/jobUtil';
+import { getTask, getNextTask, taskUpdater } from 'renderer/lib/jobUtil';
 import useJobItemState from 'renderer/hooks/useJobItemState';
 import useAppState from 'renderer/hooks/useAppState';
 import constants from 'renderer/config/constants';
 import bullConstants from 'renderer/config/bull-constants';
-import { ffmpegQueue, addFFmpegQueue } from 'renderer/lib/queueUtil';
-import ffmpegProc from 'renderer/lib/ffmpegProc';
+import { addFFmpegQueue } from 'renderer/lib/queueUtil';
 import { number } from 'renderer/utils';
-import { getAbsolutePath } from 'renderer/lib/electronUtil';
 
 const path = require('path');
-const ffmpegBinary = getAbsolutePath('bin/ffmpeg2018.exe', true);
 
 const { LOG_LEVEL } = constants;
-const { JOB_STATUS, Q_ITEM_STATUS, TASK_TYPES, Q_WORKER_EVENTS } = bullConstants;
+const { JOB_STATUS, Q_ITEM_STATUS, Q_WORKER_EVENTS } = bullConstants;
 
-export default function useFFmpegQueue(jobId) {
-  const [workers, setWorkers] = React.useState({});
-  // console.log('### workers =>', workers);
+export default function useFFmpegAdd(jobId) {
   const job = useSelector((state) =>
     state.job.jobList.find((job) => job.jobId === jobId)
   );
@@ -36,62 +26,6 @@ export default function useFFmpegQueue(jobId) {
     updateJobPidState,
     updateJobProgressState,
   } = useJobItemState(jobId);
-  const startFFmpegQueue = React.useCallback(() => {
-    try {
-      ffmpegQueue.process(2, async (qItem, done) => {
-        try {
-          // console.log('!!!!!', qItem)
-          const qItemBody = qItem.itemBody;
-          console.log('qItemBody:', qItemBody);
-          const { jobId, inFile, ffmpegOptions, outFile, totalFrames } = qItemBody;
-          const ffmpeg = ffmpegProc(ffmpegBinary);
-          const childProcess = ffmpeg.run({
-            inFile,
-            ffmpegOptions,
-            outFile,
-            totalFrames
-          });
-          childProcess.on('done', (code) => {
-            clearWorker(jobId, setWorkers);
-            if (code === 0) {
-              done(null, 'ffmpeg success');
-            } else {
-              done('ffmpeg failed');
-            }
-          });
-          childProcess.on('spawn', () => {
-            setWorkers((workers) => {
-              return {
-                ...workers,
-                [jobId]: ffmpeg,
-              }
-            });
-            qItem.emit('spawn', childProcess.pid);
-          })
-          childProcess.on('error', (error) => {
-            clearWorker(jobId, setWorkers);
-            done(error);
-          });
-          childProcess.on('progress', (progressObj) => {
-            qItem.emit('progress', progressObj);
-          });
-        } catch (err) {
-          clearWorker(jobId, setWorkers);
-          console.log('errored:', err);
-          done(err);
-        }
-      });
-    } catch (err) {
-      throw new Error(err);
-    }
-    return ffmpegQueue;
-  },[setWorkers]);
-  const makeFFmpegOptions = (video, audio) => {
-    return '-y -acodec copy -progress pipe:1';
-  };
-  const makeFFmpegOutPath = () => {
-    return 'd:/temp/aaa.mp4';
-  };
   const addFFmpegItem = React.useCallback(
     (task) => {
       const { inFile, outFile } = task;
@@ -157,8 +91,6 @@ export default function useFFmpegQueue(jobId) {
     ]
   );
   return {
-    workers,
-    startFFmpegQueue,
     addFFmpegItem,
   };
 }
