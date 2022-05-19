@@ -45,7 +45,7 @@ const AppContainer = styled(BasicBox)`
 `;
 const HeaderContainer = styled(BasicBox)`
   margin-bottom: -1px;
-  height: 30%;
+  height: 10%;
 `;
 const BodyContainer = styled.div`
   margin-left: -1px;
@@ -54,7 +54,7 @@ const BodyContainer = styled.div`
   box-sizing: border-box;
   border-collapse: collapse;
   width: 100%;
-  height: 70%;
+  height: 90%;
 `;
 const CenterPane = styled(BasicBox)`
   flex-direction: column;

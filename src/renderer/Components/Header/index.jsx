@@ -20,9 +20,9 @@ const Header = () => {
   }, []);
   return (
     <div>
-      {Object.keys(queues).map(key => (
+      {/* {Object.keys(queues).map(key => (
         <div>{queues[key].name}</div>
-      ))}
+      ))} */}
     </div>
   )
 };

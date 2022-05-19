@@ -9,6 +9,7 @@ import Stepper from 'renderer/Components/Common/Stepper';
 import StatusIcons from 'renderer/Components/Pages/MainTab/StatusIcons';
 import IconButton from '@mui/material/IconButton';
 import ReplayIcon from '@mui/icons-material/Replay';
+import ClearIcon from '@mui/icons-material/Clear';
 import CancelIcon from '@mui/icons-material/Cancel';
 import useJobItemState from 'renderer/hooks/useJobItemState';
 import useMediainfoQueue from 'renderer/hooks/useMediainfoQueue';
@@ -69,8 +70,7 @@ const LightTextBox = styled(TextBox)`
 `
 const CustomIconButton = styled(IconButton)`
   && {
-    color: ${(props) =>
-      props.disabled ? 'grey !important' : 'white'};
+    color: ${(props) => props.disabled ? 'grey !important' : 'white !important'};
     padding: 5px;
     background: ${(props) =>
       props.disabled ? 'transparent !important' : 'darkslategrey'};
@@ -146,6 +146,8 @@ const JobItem = (props) => {
     currentActiveTaskType === TASK_TYPES.SEND_FILE && sendFileWorker.stop();
   }, [currentActiveTaskType, ffmpegWorker, sendFileWorker]);
 
+  const cancelDisabled = job.status !== JOB_STATUS.ACTIVE;
+
   return (
     <Container status={status}>
       <CheckBox checked={checked} setChecked={updateJobCheckState}/>
@@ -182,8 +184,8 @@ const JobItem = (props) => {
         </CustomIconButton>
       </SmallBox>
       <SmallBox width="10%">
-        <CustomIconButton onClick={cancelTask}>
-          <CancelIcon fontSize="small" />
+        <CustomIconButton disabled={cancelDisabled} onClick={cancelTask}>
+          <ClearIcon fontSize="small" />
         </CustomIconButton>
       </SmallBox>
       {/* <Box width="50%" marginRight="20px">

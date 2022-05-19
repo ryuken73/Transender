@@ -74,6 +74,9 @@ const JobItem = () => {
       <SmallBox width="10%">
         <CustomTextBox text="재시도" />
       </SmallBox>
+      <SmallBox width="10%">
+        <CustomTextBox text="중단" />
+      </SmallBox>
       {/* <Box width="50%" marginRight="20px" /> */}
     </Container>
   )
