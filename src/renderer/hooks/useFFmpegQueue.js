@@ -114,8 +114,8 @@ export default function useFFmpegQueue(jobId) {
         updateJobProgressState({
           outFileSize: number.niceBytes(total_size),
           speed,
-          outTime: number.niceBytes(total_size),
-          percent: number.nicePercent(frame, task.totalFrames)
+          outTime: out_time,
+          percent: number.nicePercent(frame, task.totalFrames),
         });
       });
       worker.on('spawn', (pid) => {
