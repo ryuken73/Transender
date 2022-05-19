@@ -9,6 +9,9 @@ const main = () => {
     path: '/sendFile/k.mp4',
   });
   sendFile.on('progress', (progress) => console.log(progress));
+  sendFile.on('error', error => {
+    console.log('error on cli:', error)
+  })
   process.stdin.on('data', (data) => {
     console.log(data.sent);
     sendFileProc.stop();

@@ -58,3 +58,21 @@ export const getNextTask = (job, task) => {
   }
   return job.tasks[index + 1];
 };
+
+export const getActiveTask = job => {
+  if (job) {
+    const activeTask = job.tasks.find(
+      (task) => task.status === Q_ITEM_STATUS.ACTIVE
+    );
+    if (activeTask) return activeTask.taskType;
+  }
+  return null;
+};
+
+export const clearWorker = (jobId, setWorkers) => {
+  setWorkers((workers) => {
+    const cloneWorkers = { ...workers };
+    delete cloneWorkers[jobId];
+    return cloneWorkers;
+  });
+};

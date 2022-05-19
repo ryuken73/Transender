@@ -35,8 +35,9 @@ const MainTab = () => {
   const { startMediainfoQueue } = useMediainfoQueue();
   const { startFFmpegQueue, workers: ffmpegWorkers } = useFFmpegQueue();
   const { startVirusScanQueue } = useVirusScanQueue();
-  const { startSendFileQueue } = useSendFileQueue();
-  console.log('### workers:', ffmpegWorkers);
+  const { startSendFileQueue, workers: sendFileWorkers } = useSendFileQueue();
+  // console.log('### ffmpegWorkers:', ffmpegWorkers);
+  // console.log('### sendFileWorkers:', sendFileWorkers);
   React.useEffect(() => {
     console.log('%%%%% called useJobListState');
     let queue;
@@ -89,6 +90,7 @@ const MainTab = () => {
             key={job.jobId}
             rownum={index + 1}
             ffmpegWorker={ffmpegWorkers[job.jobId]}
+            sendFileWorker={sendFileWorkers[job.jobId]}
           />
         ))}
       </DnD>

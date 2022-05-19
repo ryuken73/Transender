@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-expressions */
 /* eslint-disable react/prop-types */
 import React from 'react';
 import styled from 'styled-components';
@@ -77,7 +78,7 @@ const CustomIconButton = styled(IconButton)`
 `
 
 const JobItem = (props) => {
-  const { job, rownum, ffmpegWorker } = props;
+  const { job, rownum, ffmpegWorker, sendFileWorker } = props;
   const {
     jobId,
     checked,
@@ -101,7 +102,7 @@ const JobItem = (props) => {
   const { addVirusScanItem } = useVirusScanQueue(jobId);
   const { addSendFileItem } = useSendFileQueue(jobId);
   const { fileName = 'aaa.mp4' } = sourceFile;
-  console.log('re-render JobItem', job, ffmpegWorker);
+  console.log('re-render JobItem', job);
   const addMethods = React.useMemo(() => {
     return {
       mediainfo: addMediainfoItem,
@@ -132,15 +133,13 @@ const JobItem = (props) => {
     [startStandbyTask]
   );
   React.useEffect(() => {
-    console.log('^^^ job changed: ',job.jobId, job.status);
+    // console.log('^^^ job changed: ',job.jobId, job.status);
     if (job.status === JOB_STATUS.STANDBY || job.status === JOB_STATUS.READY){
       console.log('&&&&& start start new task:', job.status);
       startTask(job);
     }
   }, [job, startTask])
 
-  // const cancelTask = () => {};
-  const sendFileWorker = () => {}
   const cancelTask = React.useCallback(() => {
     console.log('#### cancelTask', currentActiveTaskType, ffmpegWorker, sendFileWorker);
     currentActiveTaskType === TASK_TYPES.TRANSCODE && ffmpegWorker.stop();

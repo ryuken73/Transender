@@ -5,9 +5,10 @@ const http = require('http');
 const fs = require('fs');
 const { file } = require('../utils');
 
-const sendFile = () => {
+const sendFileProc = () => {
   let eventEmitter;
   let controller;
+  let rStream;
   const run = ({ inFile, hostname, port, path }) => {
     console.log(`sendFile start:`, inFile, hostname, port, path);
     eventEmitter = new EventEmitter();
@@ -24,7 +25,7 @@ const sendFile = () => {
       },
       signal,
     };
-    const rStream = fs.createReadStream(inFile, { highWaterMark: 1024 * 1024 });
+    rStream = fs.createReadStream(inFile, { highWaterMark: 1024 * 1024 });
     const req = http.request(options, res => {
       res.on('data', chunk => {
         console.log(chunk.toString());
@@ -34,7 +35,12 @@ const sendFile = () => {
       })
     });
     const handleError = error => {
-      console.error(error)
+      console.error('http.request error handler', error);
+      if(error.code === 'ABORT_ERR'){
+        console.log('user aborted');
+        rStream.close()
+        rStream.destroy()
+      }
       eventEmitter.emit('error', error);
     }
     req.on('error', handleError);
@@ -51,19 +57,20 @@ const sendFile = () => {
         })
       });
     })
-  .catch(error => {
-    console.error(error);
-    eventEmitter.emit('error', error)
-  })
+    .catch(error => {
+      console.error('rStrem read and request write error catch block:',error);
+      eventEmitter.emit('error', error)
+    })
 
     return eventEmitter;
   };
 
   const stop = () => {
     console.log('request aborted!!')
+    rStream.unpipe();
     controller.abort();
   };
   return { run, stop, };
 };
 
-module.exports = sendFile;
+module.exports = sendFileProc;
