@@ -36,11 +36,20 @@ export const jobSlice = createSlice({
       const { payload } = action;
       const { key, value } = payload;
       state.jobList.forEach(job => job[key] = value);
-    }
+    },
+    updateJobProgress: (state, action) => {
+      const { payload } = action;
+      const { jobId, progress } = payload;
+      const index = state.jobList.findIndex(job => job.jobId === jobId);
+      state.jobList[index] = {
+        ...state.jobList[index],
+        ...progress
+      }
+    },
   },
 })
 
-export const { addJob, addJobs, removeJob, updateJob, updateJobs } = jobSlice.actions;
+export const { addJob, addJobs, removeJob, updateJob, updateJobs, updateJobProgress } = jobSlice.actions;
 
 
 

@@ -2,7 +2,12 @@
 /* eslint-disable import/named */
 import React from 'react';
 import { useSelector } from 'react-redux';
-import { getTask, getNextTask, taskUpdater } from 'renderer/lib/jobUtil';
+import {
+  getTask,
+  getNextTask,
+  taskUpdater,
+  clearWorker,
+} from 'renderer/lib/jobUtil';
 import useJobItemState from 'renderer/hooks/useJobItemState';
 import useAppState from 'renderer/hooks/useAppState';
 import constants from 'renderer/config/constants';
@@ -11,7 +16,6 @@ import { ffmpegQueue, addFFmpegQueue } from 'renderer/lib/queueUtil';
 import ffmpegProc from 'renderer/lib/ffmpegProc';
 import { number } from 'renderer/utils';
 import { getAbsolutePath } from 'renderer/lib/electronUtil';
-import { getActiveTask } from 'renderer/lib/jobUtil';
 
 const path = require('path');
 const ffmpegBinary = getAbsolutePath('bin/ffmpeg2018.exe', true);
@@ -19,17 +23,9 @@ const ffmpegBinary = getAbsolutePath('bin/ffmpeg2018.exe', true);
 const { LOG_LEVEL } = constants;
 const { JOB_STATUS, Q_ITEM_STATUS, TASK_TYPES, Q_WORKER_EVENTS } = bullConstants;
 
-const clearWorker = (jobId, setWorkers) => {
-  setWorkers((workers) => {
-    const cloneWorkers = { ...workers };
-    delete cloneWorkers[jobId];
-    return cloneWorkers;
-  });
-};
-
 export default function useFFmpegQueue(jobId) {
   const [workers, setWorkers] = React.useState({});
-  console.log('### workers =>', workers);
+  // console.log('### workers =>', workers);
   const job = useSelector((state) =>
     state.job.jobList.find((job) => job.jobId === jobId)
   );
@@ -37,11 +33,8 @@ export default function useFFmpegQueue(jobId) {
   const {
     updateJobTask,
     updateJobStatusState,
-    updateJobFileSizeState,
-    updateJobPercentState,
-    updateJobOutTimeState,
-    updateJobSpeedState,
     updateJobPidState,
+    updateJobProgressState,
   } = useJobItemState(jobId);
   const startFFmpegQueue = React.useCallback(() => {
     try {
@@ -62,17 +55,15 @@ export default function useFFmpegQueue(jobId) {
             clearWorker(jobId, setWorkers);
             if (code === 0) {
               done(null, 'ffmpeg success');
-              // qItem.emit(Q_WORKER_EVENTS.COMPLETED);
             } else {
               done('ffmpeg failed');
-              // qItem.emit(Q_WORKER_EVENTS.FAILED);
             }
           });
           childProcess.on('spawn', () => {
             setWorkers((workers) => {
               return {
                 ...workers,
-                [qItemBody.jobId]: ffmpeg,
+                [jobId]: ffmpeg,
               }
             });
             qItem.emit('spawn', childProcess.pid);
@@ -80,7 +71,6 @@ export default function useFFmpegQueue(jobId) {
           childProcess.on('error', (error) => {
             clearWorker(jobId, setWorkers);
             done(error);
-            // qItem.emit(Q_WORKER_EVENTS.FAILED, error);
           });
           childProcess.on('progress', (progressObj) => {
             qItem.emit('progress', progressObj);
@@ -93,7 +83,6 @@ export default function useFFmpegQueue(jobId) {
       });
     } catch (err) {
       throw new Error(err);
-      // console.log(err);
     }
     return ffmpegQueue;
   },[setWorkers]);
@@ -122,10 +111,12 @@ export default function useFFmpegQueue(jobId) {
       });
       worker.on(Q_ITEM_STATUS.PROGRESS, (progressObj) => {
         const { frame, total_size, speed, out_time, drop_frames } = progressObj;
-        updateJobFileSizeState(number.niceBytes(total_size));
-        updateJobSpeedState(speed);
-        updateJobOutTimeState(out_time.slice(0, -3));
-        updateJobPercentState(number.nicePercent(frame, task.totalFrames));
+        updateJobProgressState({
+          outFileSize: number.niceBytes(total_size),
+          speed,
+          outTime: number.niceBytes(total_size),
+          percent: number.nicePercent(frame, task.totalFrames)
+        });
       });
       worker.on('spawn', (pid) => {
         // console.log('in pid, jobId=', job.jobId);
@@ -142,7 +133,9 @@ export default function useFFmpegQueue(jobId) {
         console.log(updatedTask)
         updateJobTask([completedTask, updatedTask]);
         updateJobStatusState(JOB_STATUS.READY);
-        updateJobPercentState('100%');
+        updateJobProgressState({
+          percent: '100%',
+        })
       });
       worker.on(Q_WORKER_EVENTS.FAILED, (error) => {
         console.log('##### task failed!:', error);
@@ -156,15 +149,13 @@ export default function useFFmpegQueue(jobId) {
     },
     [
       job,
-      updateJobFileSizeState,
-      updateJobPidState,
-      updateJobStatusState,
-      updateJobPercentState,
       updateJobTask,
-      setAppLogState
+      updateJobStatusState,
+      updateJobProgressState,
+      updateJobPidState,
+      setAppLogState,
     ]
   );
-
   return {
     workers,
     startFFmpegQueue,

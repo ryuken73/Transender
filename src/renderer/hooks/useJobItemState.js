@@ -2,7 +2,10 @@
 /* eslint-disable @typescript-eslint/no-shadow */
 import React from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { updateJob } from 'renderer/Components/Pages/MainTab/jobSlice';
+import {
+  updateJob,
+  updateJobProgress,
+} from 'renderer/Components/Pages/MainTab/jobSlice';
 import bullConstants from 'renderer/config/bull-constants';
 import { getActiveTask } from 'renderer/lib/jobUtil';
 
@@ -50,33 +53,12 @@ export default function useJobItemState(jobId) {
     },
     [updateJobState, job]
   );
-  const updateJobFileSizeState = React.useCallback(
-    (size) => {
-      updateJobState('outFileSize', size);
-    },
-    [updateJobState]
-  );
-  const updateJobPercentState = React.useCallback(
-    (percent) => {
-      updateJobState('percent', percent);
-    },
-    [updateJobState]
-  );
+  const updateJobProgressState = React.useCallback((progressObj) => {
+    dispatch(updateJobProgress({ jobId, progress: progressObj}));
+  });
   const updateJobPidState = React.useCallback(
     (pid) => {
       updateJobState('pid', pid);
-    },
-    [updateJobState]
-  );
-  const updateJobSpeedState = React.useCallback(
-    (speed) => {
-      updateJobState('speed', speed);
-    },
-    [updateJobState]
-  );
-  const updateJobOutTimeState = React.useCallback(
-    (outTime) => {
-      updateJobState('outTime', outTime);
     },
     [updateJobState]
   );
@@ -94,7 +76,8 @@ export default function useJobItemState(jobId) {
     });
     updateJobState('tasks', tasksCloned);
     updateJobStatusState(JOB_STATUS.READY);
-  }, [job, updateJobState]);
+  }, [job, updateJobState, updateJobStatusState]);
+
   return {
     job,
     retryEnabled,
@@ -103,11 +86,8 @@ export default function useJobItemState(jobId) {
     updateJobCheckState,
     updateJobStatusState,
     updateJobTask,
-    updateJobFileSizeState,
-    updateJobPercentState,
-    updateJobOutTimeState,
     updateJobPidState,
-    updateJobSpeedState,
+    updateJobProgressState,
     retryFailedTask,
   };
 }
