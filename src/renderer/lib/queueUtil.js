@@ -1,9 +1,9 @@
 import { getQueue } from 'renderer/lib/queueClass';
 import { getAbsolutePath } from 'renderer/lib/electronUtil';
 import mediaInfoProc from 'renderer/lib/mediaInfoProc';
-import ffmpegProc from 'renderer/lib/ffmpegProc';
+// import ffmpegProc from 'renderer/lib/ffmpegProc';
 import virusScanProc from 'renderer/lib/virusScanProc';
-import sendFileProc from 'renderer/lib/sendFileProc';
+// import sendFileProc from 'renderer/lib/sendFileProc';
 import bullConstants from 'renderer/config/bull-constants';
 
 const mediainfoBinary = getAbsolutePath('bin/Mediainfo.exe', true);
@@ -17,7 +17,7 @@ const virusScanBinary = 'virusScan.exe';
 const virusScan = virusScanProc(virusScanBinary);
 const virusScanQueue = getQueue('virusScan', bullConstants);
 
-const sendFile = sendFileProc();
+// const sendFile = sendFileProc();
 const sendFileQueue = getQueue('sendFile', bullConstants);
 
 // const getMediainfoQueue = () => mediainfoQueue;
@@ -59,7 +59,7 @@ module.exports = {
   virusScan,
   virusScanQueue,
   addVirusScanQueue,
-  sendFile,
+  // sendFile,
   sendFileQueue,
   addSendFileQueue,
 };

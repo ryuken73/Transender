@@ -7,8 +7,9 @@ import constants from 'renderer/config/constants';
 import bullConstants from 'renderer/config/bull-constants';
 import { setAppLog } from 'renderer/appSlice';
 import { number } from 'renderer/utils';
+import sendFileProc from 'renderer/lib/sendFileProc';
 import {
-  sendFile,
+  // sendFile,
   sendFileQueue,
   addSendFileQueue,
 } from 'renderer/lib/queueUtil';
@@ -32,13 +33,14 @@ export default function useSendFileQueue(jobId) {
   const { updateJobTask, updateJobStatusState, updateJobPercentState } = useJobItemState(jobId);
   const startSendFileQueue = React.useCallback(() => {
     try {
-      sendFileQueue.process(1, async (qItem, done) => {
+      sendFileQueue.process(3, async (qItem, done) => {
         try {
           // console.log('!!!!!', qItem)
           const qItemBody = qItem.itemBody;
           console.log('qItemBody:', qItemBody);
           const outFile = mkOutFile(qItemBody.inFile);
           console.log('^^ outFile:', outFile)
+          const sendFile = sendFileProc();
           const worker = sendFile.run({
             inFile: qItemBody.inFile,
             hostname: SEND_HOSTNAME,
