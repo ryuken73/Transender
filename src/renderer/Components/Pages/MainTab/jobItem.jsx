@@ -18,7 +18,7 @@ import { getNextStandbyTask } from 'renderer/lib/jobUtil';
 import bullConstants from 'renderer/config/bull-constants';
 import colors from 'renderer/config/colors';
 
-const { JOB_STATUS }  = bullConstants;
+const { JOB_STATUS, TASK_TYPES }  = bullConstants;
 
 const changeItemOpacity = props => {
   return props.status === 'active'
@@ -77,7 +77,7 @@ const CustomIconButton = styled(IconButton)`
 `
 
 const JobItem = (props) => {
-  const { job, rownum } = props;
+  const { job, rownum, ffmpegWorker } = props;
   const {
     jobId,
     checked,
@@ -91,6 +91,7 @@ const JobItem = (props) => {
   } = job;
   const {
     retryEnabled,
+    currentActiveTaskType,
     updateJobCheckState,
     updateJobStatusState,
     retryFailedTask,
@@ -100,7 +101,7 @@ const JobItem = (props) => {
   const { addVirusScanItem } = useVirusScanQueue(jobId);
   const { addSendFileItem } = useSendFileQueue(jobId);
   const { fileName = 'aaa.mp4' } = sourceFile;
-  console.log('re-render JobItem', job)
+  console.log('re-render JobItem', job, ffmpegWorker);
   const addMethods = React.useMemo(() => {
     return {
       mediainfo: addMediainfoItem,
@@ -138,9 +139,13 @@ const JobItem = (props) => {
     }
   }, [job, startTask])
 
-  const retryTask = React.useCallback(() => {
-    retryFailedTask();
-  }, [retryFailedTask])
+  // const cancelTask = () => {};
+  const sendFileWorker = () => {}
+  const cancelTask = React.useCallback(() => {
+    console.log('#### cancelTask', currentActiveTaskType, ffmpegWorker, sendFileWorker);
+    currentActiveTaskType === TASK_TYPES.TRANSCODE && ffmpegWorker.stop();
+    currentActiveTaskType === TASK_TYPES.SEND_FILE && sendFileWorker.stop();
+  }, [currentActiveTaskType, ffmpegWorker, sendFileWorker]);
 
   return (
     <Container status={status}>
@@ -173,8 +178,13 @@ const JobItem = (props) => {
         <LightTextBox text={pid} />
       </SmallBox>
       <SmallBox width="10%">
-        <CustomIconButton disabled={!retryEnabled} onClick={retryTask}>
+        <CustomIconButton disabled={!retryEnabled} onClick={retryFailedTask}>
           <ReplayIcon fontSize="small" />
+        </CustomIconButton>
+      </SmallBox>
+      <SmallBox width="10%">
+        <CustomIconButton onClick={cancelTask}>
+          <CancelIcon fontSize="small" />
         </CustomIconButton>
       </SmallBox>
       {/* <Box width="50%" marginRight="20px">

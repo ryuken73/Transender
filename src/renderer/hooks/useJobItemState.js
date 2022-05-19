@@ -4,6 +4,7 @@ import React from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { updateJob } from 'renderer/Components/Pages/MainTab/jobSlice';
 import bullConstants from 'renderer/config/bull-constants';
+import { getActiveTask } from 'renderer/lib/jobUtil';
 
 const { JOB_STATUS, Q_ITEM_STATUS } = bullConstants;
 
@@ -15,6 +16,7 @@ export default function useJobItemState(jobId) {
   const retryEnabled = job
     ? job.tasks.some((task) => task.status === Q_ITEM_STATUS.FAILED)
     : false;
+  const currentActiveTaskType = getActiveTask(job);
   // console.log('##### job in useJobItemState changed!', job)
   const updateJobState = React.useCallback(
     (key, value) => {
@@ -96,6 +98,7 @@ export default function useJobItemState(jobId) {
   return {
     job,
     retryEnabled,
+    currentActiveTaskType,
     updateJobState,
     updateJobCheckState,
     updateJobStatusState,

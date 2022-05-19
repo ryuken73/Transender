@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-shadow */
 /* eslint-disable import/named */
 import React from 'react';
 import { useSelector } from 'react-redux';
@@ -10,14 +11,25 @@ import { ffmpegQueue, addFFmpegQueue } from 'renderer/lib/queueUtil';
 import ffmpegProc from 'renderer/lib/ffmpegProc';
 import { number } from 'renderer/utils';
 import { getAbsolutePath } from 'renderer/lib/electronUtil';
+import { getActiveTask } from 'renderer/lib/jobUtil';
 
 const path = require('path');
 const ffmpegBinary = getAbsolutePath('bin/ffmpeg2018.exe', true);
 
 const { LOG_LEVEL } = constants;
-const { JOB_STATUS, Q_ITEM_STATUS, Q_WORKER_EVENTS } = bullConstants;
+const { JOB_STATUS, Q_ITEM_STATUS, TASK_TYPES, Q_WORKER_EVENTS } = bullConstants;
+
+const clearWorker = (jobId, setWorkers) => {
+  setWorkers((workers) => {
+    const cloneWorkers = { ...workers };
+    delete cloneWorkers[jobId];
+    return cloneWorkers;
+  });
+};
 
 export default function useFFmpegQueue(jobId) {
+  const [workers, setWorkers] = React.useState({});
+  console.log('### workers =>', workers);
   const job = useSelector((state) =>
     state.job.jobList.find((job) => job.jobId === jobId)
   );
@@ -38,7 +50,7 @@ export default function useFFmpegQueue(jobId) {
           // console.log('!!!!!', qItem)
           const qItemBody = qItem.itemBody;
           console.log('qItemBody:', qItemBody);
-          const { inFile, ffmpegOptions, outFile, totalFrames } = qItemBody;
+          const { jobId, inFile, ffmpegOptions, outFile, totalFrames } = qItemBody;
           const ffmpeg = ffmpegProc(ffmpegBinary);
           const childProcess = ffmpeg.run({
             inFile,
@@ -47,6 +59,7 @@ export default function useFFmpegQueue(jobId) {
             totalFrames
           });
           childProcess.on('done', (code) => {
+            clearWorker(jobId, setWorkers);
             if (code === 0) {
               done(null, 'ffmpeg success');
               // qItem.emit(Q_WORKER_EVENTS.COMPLETED);
@@ -56,9 +69,16 @@ export default function useFFmpegQueue(jobId) {
             }
           });
           childProcess.on('spawn', () => {
+            setWorkers((workers) => {
+              return {
+                ...workers,
+                [qItemBody.jobId]: ffmpeg,
+              }
+            });
             qItem.emit('spawn', childProcess.pid);
           })
           childProcess.on('error', (error) => {
+            clearWorker(jobId, setWorkers);
             done(error);
             // qItem.emit(Q_WORKER_EVENTS.FAILED, error);
           });
@@ -66,6 +86,7 @@ export default function useFFmpegQueue(jobId) {
             qItem.emit('progress', progressObj);
           });
         } catch (err) {
+          clearWorker(jobId, setWorkers);
           console.log('errored:', err);
           done(err);
         }
@@ -75,7 +96,7 @@ export default function useFFmpegQueue(jobId) {
       // console.log(err);
     }
     return ffmpegQueue;
-  });
+  },[setWorkers]);
   const makeFFmpegOptions = (video, audio) => {
     return '-y -acodec copy -progress pipe:1';
   };
@@ -145,6 +166,7 @@ export default function useFFmpegQueue(jobId) {
   );
 
   return {
+    workers,
     startFFmpegQueue,
     addFFmpegItem,
   };

@@ -33,9 +33,10 @@ const Header = styled.div`
 const MainTab = () => {
   const { jobList, addJobsState } = useJobListState();
   const { startMediainfoQueue } = useMediainfoQueue();
-  const { startFFmpegQueue } = useFFmpegQueue();
+  const { startFFmpegQueue, workers: ffmpegWorkers } = useFFmpegQueue();
   const { startVirusScanQueue } = useVirusScanQueue();
   const { startSendFileQueue } = useSendFileQueue();
+  console.log('### workers:', ffmpegWorkers);
   React.useEffect(() => {
     console.log('%%%%% called useJobListState');
     let queue;
@@ -83,7 +84,12 @@ const MainTab = () => {
           ItemElement={JobItem}
          /> */}
         {jobList.map((job, index) => (
-          <JobItem job={job} key={job.jobId} rownum={index+1} />
+          <JobItem
+            job={job}
+            key={job.jobId}
+            rownum={index + 1}
+            ffmpegWorker={ffmpegWorkers[job.jobId]}
+          />
         ))}
       </DnD>
     </Container>
