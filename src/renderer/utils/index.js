@@ -35,6 +35,10 @@ const number = {
   },
   nicePercent(now, total) {
     return parseFloat((now/total)*100).toFixed(1) + '%';
+  },
+  niceSpeed(sent, elapsedMS) {
+    const [niceBytes, unit] = number.niceBytes(sent).split(' ');
+    return parseFloat(niceBytes/(elapsedMS/1000)).toFixed(1) + unit + '/s';
   }
 };
 

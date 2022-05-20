@@ -11,7 +11,9 @@ const { JOB_STATUS, Q_ITEM_STATUS, Q_WORKER_EVENTS } = bullConstants;
 
 export default function useSendFileAdd(job) {
   const { jobId } = job;
+  const startTimeRef = React.useRef(null);
   const { updateJobTask, updateJobStatusState, updateJobProgressState } = useJobItemState(job);
+  // console.log('&&&&&&&&&&&&&', startTime);
   const addSendFileItem = React.useCallback(
     (task) => {
       const currentTask = getTask(job, task);
@@ -24,6 +26,7 @@ export default function useSendFileAdd(job) {
         const activeTask = getCurrentTaskUpdated({status: Q_ITEM_STATUS.ACTIVE});
         updateJobTask([activeTask]);
         updateJobStatusState(JOB_STATUS.ACTIVE);
+        startTimeRef.current = Date.now();
       });
       worker.on(Q_WORKER_EVENTS.COMPLETED, (result) => {
         const { inFile } = result;
@@ -41,8 +44,11 @@ export default function useSendFileAdd(job) {
       });
       worker.on(Q_ITEM_STATUS.PROGRESS, (progressObj) => {
         const { totalSize, sent } = progressObj;
+        const elapsed = Date.now() - startTimeRef.current;
+        console.log('&&&&', startTimeRef.current, elapsed)
         updateJobProgressState({
           percent: number.nicePercent(sent, totalSize),
+          speed: number.niceSpeed(sent, elapsed),
         })
       });
       worker.on(Q_WORKER_EVENTS.FAILED, (error) => {
@@ -53,7 +59,13 @@ export default function useSendFileAdd(job) {
         updateJobStatusState(JOB_STATUS.FAILED);
       });
     },
-    [job, updateJobProgressState, updateJobStatusState, updateJobTask]
+    [
+      job,
+      startTimeRef,
+      updateJobProgressState,
+      updateJobStatusState,
+      updateJobTask,
+    ]
   );
 
   return {

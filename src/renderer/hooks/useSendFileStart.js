@@ -5,10 +5,12 @@ import { clearWorker } from 'renderer/lib/jobUtil';
 import constants from 'renderer/config/constants';
 import { sendFileQueue } from 'renderer/lib/queueUtil';
 import sendFileProc from 'renderer/lib/sendFileProc';
+import bullConstants from 'renderer/config/bull-constants';
 
 const path = require('path');
 
 const { SEND_HOSTNAME, SEND_PORT, SEND_URI_PATH } = constants;
+const { Q_ITEM_STATUS } = bullConstants;
 
 const mkOutFile = (inFile) => {
   const inBasename = path.basename(inFile);
