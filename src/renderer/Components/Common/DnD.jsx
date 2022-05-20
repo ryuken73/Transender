@@ -38,10 +38,12 @@ const Container = styled.div`
   height: 100%;
 `;
 const HolderContainer = styled.div`
-  display: flex;
-  height: 100%;
-  justify-content: center;
-  align-items: center;
+  display: ${(props) => props.show ? 'block':'none'};
+  position: absolute;
+  left: 0;
+  right: 0;
+  margin-left: auto;
+  margin-right: auto;
 `
 
 const DnD = (props) => {
@@ -69,9 +71,9 @@ const DnD = (props) => {
   );
 
   const PlaceHolder = (props) => {
-    const {message} = props;
+    const { show, message } = props;
     return (
-      <HolderContainer>
+      <HolderContainer show={show}>
         <Box>{message}</Box>
       </HolderContainer>
     )
@@ -82,8 +84,9 @@ const DnD = (props) => {
   return (
     <Container showPlaceholder={showPlaceholder} {...rootPropsMemo}>
       <input {...inputPropsMemo} />
-      {props.showPlaceholder && <PlaceHolder message={message}></PlaceHolder>}
+      {/* {props.showPlaceholder && <PlaceHolder message={message}></PlaceHolder>} */}
       {props.children}
+      <PlaceHolder show={showPlaceholder} message={message} />
     </Container>
   );
 };
