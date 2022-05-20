@@ -45,7 +45,7 @@ export default function useSendFileAdd(job) {
       worker.on(Q_ITEM_STATUS.PROGRESS, (progressObj) => {
         const { totalSize, sent } = progressObj;
         const elapsed = Date.now() - startTimeRef.current;
-        console.log('&&&&', startTimeRef.current, elapsed)
+        // console.log('&&&&', startTimeRef.current, elapsed)
         updateJobProgressState({
           percent: number.nicePercent(sent, totalSize),
           speed: number.niceSpeed(sent, elapsed),

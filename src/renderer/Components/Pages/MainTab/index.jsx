@@ -37,7 +37,7 @@ const MainTab = () => {
   const { startFFmpegQueue, workers: ffmpegWorkers } = useFFmpegStart();
   const { startVirusScanQueue } = useVirusScanStart();
   const { startSendFileQueue, workers: sendFileWorkers } = useSendFileStart();
-  console.log('### re-render MainTab');
+  // console.log('### re-render MainTab');
   // console.log('### ffmpegWorkers:', ffmpegWorkers);
   // console.log('### sendFileWorkers:', sendFileWorkers);
   React.useEffect(() => {
