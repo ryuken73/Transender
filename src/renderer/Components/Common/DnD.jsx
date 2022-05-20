@@ -24,7 +24,7 @@ const Container = styled.div`
   flex-direction: column;
   justify-content: ${(props) => props.showPlaceholder && 'center'};
   align-items: center;
-  border-radius: 5px;
+  /* border-radius: 5px; */
   border: grey 1px ${(props) => (props.isDragAccept ? 'dashed' : 'none')};
   font-size: calc(10px + 1.3vmin);
   color: white;
@@ -37,6 +37,12 @@ const Container = styled.div`
   overflow-y: auto;
   height: 100%;
 `;
+const HolderContainer = styled.div`
+  display: flex;
+  height: 100%;
+  justify-content: center;
+  align-items: center;
+`
 
 const DnD = (props) => {
   const { onDrop, showPlaceholder = true, message = 'Drop Files or Folder' } = props;
@@ -62,12 +68,21 @@ const DnD = (props) => {
     [getRootProps, isDragAccept, isDragReject, isFocused]
   );
 
+  const PlaceHolder = (props) => {
+    const {message} = props;
+    return (
+      <HolderContainer>
+        <Box>{message}</Box>
+      </HolderContainer>
+    )
+  }
+
   const inputPropsMemo = React.useMemo(() => getInputProps(), [getInputProps]);
 
   return (
     <Container showPlaceholder={showPlaceholder} {...rootPropsMemo}>
       <input {...inputPropsMemo} />
-      {props.showPlaceholder && <Box sx={{ padding: '0px' }}>{message}</Box>}
+      {props.showPlaceholder && <PlaceHolder message={message}></PlaceHolder>}
       {props.children}
     </Container>
   );

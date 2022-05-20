@@ -6,6 +6,7 @@ import styled from 'styled-components';
 import DnD from 'renderer/Components/Common/DnD';
 import TabButtons from 'renderer/Components/Pages/MainTab/TabButtons';
 import JobItemHeader from 'renderer/Components/Pages/MainTab/JobItemHeader';
+import ScrollbarSmooth from 'renderer/Components/Common/ScrollBarSmooth';
 import ScrollbarVirtual from 'renderer/Components/Common/ScrollBarVirtual';
 import JobItem from 'renderer/Components/Pages/MainTab/JobItem';
 import { createJob } from 'renderer/lib/jobUtil';
@@ -78,23 +79,26 @@ const MainTab = () => {
     <Container>
       <TabButtons />
       <JobItemHeader />
-      <DnD onDrop={handleDrop} showPlaceholder={jobList.length === 0}>
         {/* <ScrollbarVirtual
           items={jobList}
           rowHeight={57}
           heightMinus="200px"
           ItemElement={JobItem}
          /> */}
-        {jobList.map((job, index) => (
-          <JobItem
-            job={job}
-            key={job.jobId}
-            rownum={index + 1}
-            ffmpegWorker={ffmpegWorkers[job.jobId]}
-            sendFileWorker={sendFileWorkers[job.jobId]}
-          />
-        ))}
+      <DnD onDrop={handleDrop} showPlaceholder={jobList.length === 0}>
+        <ScrollbarSmooth>
+          {jobList.map((job, index) => (
+            <JobItem
+              job={job}
+              key={job.jobId}
+              rownum={index + 1}
+              ffmpegWorker={ffmpegWorkers[job.jobId]}
+              sendFileWorker={sendFileWorkers[job.jobId]}
+            />
+          ))}
+        </ScrollbarSmooth>
       </DnD>
+
     </Container>
   );
 };
