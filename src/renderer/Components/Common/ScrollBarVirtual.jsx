@@ -25,11 +25,20 @@ function ScrollBarVirtual(props) {
   const { fullViewHeightMediaQuery } = useMediaQueryEasy();
 
   return (
-    <ScrollBarSmooth
-      getMoreItem={fetchNextPage}
-      height={`calc(${fullViewHeightMediaQuery} - ${heightMinus})`}
+    // <ScrollBarSmooth
+    //   getMoreItem={fetchNextPage}
+    //   height={`calc(${fullViewHeightMediaQuery} - ${heightMinus})`}
+    //   ref={parentRef}
+    //   refreshRefByTime={setScrollRefTime}
+    // >
+    <div
       ref={parentRef}
-      refreshRefByTime={setScrollRefTime}
+      className="List"
+      style={{
+        height: `100%`,
+        width: `100%`,
+        overflow: 'auto',
+      }}
     >
       <div
         style={{
@@ -45,6 +54,7 @@ function ScrollBarVirtual(props) {
               item={item}
               items={items}
               index={virtualRow.index}
+              key={virtualRow.index}
               size={virtualRow.size}
               start={virtualRow.start}
               ItemElement={ItemElement}
@@ -52,10 +62,10 @@ function ScrollBarVirtual(props) {
               // scrollToX={scrollToX}
               {...itemProps}
             />
-          );
+          )
         })}
       </div>
-    </ScrollBarSmooth>
+    </div>
   );
 }
 

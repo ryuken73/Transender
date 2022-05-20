@@ -5,6 +5,9 @@ import Scrollbar from 'react-smooth-scrollbar';
 const StyledScrollbar = styled(Scrollbar)`
   height: ${(props) => props.height};
   width: ${(props) => props.width};
+  .scroll-content {
+    margin-right: 10px;
+  };
   .scrollbar-track-y {
     .scrollbar-thumb-y {
       border-radius: 0px;
