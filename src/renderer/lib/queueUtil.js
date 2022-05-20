@@ -20,6 +20,7 @@ const virusScanQueue = getQueue('virusScan', bullConstants);
 // const sendFile = sendFileProc();
 const sendFileQueue = getQueue('sendFile', bullConstants);
 
+const queues = [ mediainfoQueue, ffmpegQueue, virusScanQueue, sendFileQueue];
 // const getMediainfoQueue = () => mediainfoQueue;
 const addMediainfoQueue = (task, job) => {
   return mediainfoQueue.add({
@@ -50,6 +51,23 @@ const addSendFileQueue = (task) => {
     task.taskId
   );
 };
+const moveQItemStatus = (task, fromStatus, toStatus) => {
+  queues.forEach((queue) => {
+    if (queue.hasQItem(task.taskId)) {
+      queue.moveItemStatus(task.taskId, fromStatus, toStatus);
+    }
+  });
+};
+const removeQItemFromQueue = (task) => {
+  console.log('remove qItem(task) = ', task);
+  console.log('current Queues', queues);
+  queues.forEach((queue) => {
+    if (queue.hasQItem(task.taskId)) {
+      console.log('remove qItem from :', queue);
+      queue.removeFromQueue(task.taskId);
+    }
+  });
+};
 module.exports = {
   mediaInfo,
   mediainfoQueue,
@@ -62,4 +80,6 @@ module.exports = {
   // sendFile,
   sendFileQueue,
   addSendFileQueue,
+  moveQItemStatus,
+  removeQItemFromQueue,
 };

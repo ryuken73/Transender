@@ -109,6 +109,21 @@ class Queue extends EventEmitter {
       .flat()
       .find((qItem) => qItem.itemId === itemId);
 
+  hasQItem = (itemId) =>
+    Object.values(this.qItemList)
+      .flat()
+      .some((qItem) => qItem.itemId === itemId);
+
+  moveItem = (itemId, fromStatus, toStatus) => {
+    const item = this.getQItem(itemId);
+    this._moveItemStatus(item, fromStatus, toStatus);
+  };
+
+  removeFromQueue = (itemId) => {
+    const item = this.getQItem(itemId);
+    this._removeItemStatusFrom(item, this.Q_ITEM_STATUS.WAITING);
+  };
+
   // getTasks = (status) => this.taskLists[status];
 
   getActive = () => this.qItemList[this.Q_ITEM_STATUS.ACTIVE];
@@ -171,5 +186,5 @@ const getQueue = createQueue;
 
 module.exports = {
   createQueue,
-  getQueue
+  getQueue,
 };

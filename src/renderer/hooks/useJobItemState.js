@@ -41,6 +41,12 @@ export default function useJobItemState(job) {
     },
     [updateJobState]
   );
+  const updateJobManualStarted = React.useCallback(
+    (manualStarted) => {
+      updateJobState('manualStarted', manualStarted);
+    },
+    [updateJobState]
+  );
   const updateJobTask = React.useCallback(
     (tasks) => {
       // console.log('^^^ in updateJobTask:', job);
@@ -88,6 +94,7 @@ export default function useJobItemState(job) {
     removeJobState,
     updateJobCheckState,
     updateJobStatusState,
+    updateJobManualStarted,
     updateJobTask,
     updateJobPidState,
     updateJobProgressState,
