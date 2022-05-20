@@ -11,6 +11,7 @@ import IconButton from '@mui/material/IconButton';
 import ReplayIcon from '@mui/icons-material/Replay';
 import ClearIcon from '@mui/icons-material/Clear';
 import DeleteIcon from '@mui/icons-material/Delete';
+import PauseIcon from '@mui/icons-material/Pause';
 import CancelIcon from '@mui/icons-material/Cancel';
 import useJobItemState from 'renderer/hooks/useJobItemState';
 import useMediainfoAdd from 'renderer/hooks/useMediainfoAdd';
@@ -20,6 +21,7 @@ import useSendFileAdd from 'renderer/hooks/useSendFileAdd';
 import { getNextStandbyTask } from 'renderer/lib/jobUtil';
 import bullConstants from 'renderer/config/bull-constants';
 import colors from 'renderer/config/colors';
+import { Pause } from '@mui/icons-material';
 
 const { JOB_STATUS, TASK_TYPES }  = bullConstants;
 
@@ -41,6 +43,10 @@ const Container = styled(Box)`
     justify-content: space-between;
     align-items: center;
     min-height: 40px;
+  }
+`
+const TextContainer = styled(Container)`
+  && {
     width: 100%;
     opacity: ${changeItemOpacity};
     background: ${(props) => (props.checked ? colors.checked : 'transparent')};
@@ -49,6 +55,9 @@ const Container = styled(Box)`
     }
   }
 `;
+const IconContainer = styled(Container)`
+  margin-left: 20px;
+`
 const TinyBox = styled(Box)`
   min-width: 40px;
   max-width: 40px;
@@ -75,6 +84,7 @@ const CustomIconButton = styled(IconButton)`
     padding: 5px;
     background: ${(props) =>
       props.disabled ? 'transparent !important' : 'transparent'};
+    opacity: 0.6;
   }
 `
 
@@ -154,53 +164,65 @@ const JobItem = (props) => {
     [job.status]
   );
 
+  const backToStandby = () => {};
+
   const deleteDisabled = job.status === JOB_STATUS.ACTIVE;
+  const pauseDisabled = job.status !== JOB_STATUS.WAITING;
 
   return (
-    <Container status={status}>
-      <CheckBox checked={checked} setChecked={updateJobCheckState}/>
-      <TinyBox width="3%">
-        <LightTextBox text={rownum} />
-      </TinyBox>
-      <MediumBox>
-        <StatusIcons tasks={job.tasks} />
-      </MediumBox>
-      <BigBox>
-        <LightTextBox textAlign="left" text={fileName} />
-      </BigBox>
-      <SmallBox width="10%">
-        <LightTextBox text={outFileSize} />
-      </SmallBox>
-      <SmallBox width="10%">
-        <LightTextBox text={status} />
-      </SmallBox>
-      <SmallBox width="10%">
-        <LightTextBox text={percent} />
-      </SmallBox>
-      <SmallBox width="10%">
-        <LightTextBox text={speed} />
-      </SmallBox>
-      <MediumBox>
-        <LightTextBox text={outTime} />
-      </MediumBox>
-      <SmallBox width="10%">
-        <LightTextBox text={pid} />
-      </SmallBox>
-      <TinyBox width="10%">
-        <CustomIconButton disabled={!retryEnabled} onClick={retryFailedTask}>
-          <ReplayIcon fontSize="small" />
-        </CustomIconButton>
-      </TinyBox>
-      <TinyBox width="10%">
-        <CustomIconButton disabled={cancelDisabled} onClick={cancelTask}>
-          <ClearIcon fontSize="small" />
-        </CustomIconButton>
-      </TinyBox>
-      <TinyBox width="10%">
-        <CustomIconButton disabled={deleteDisabled} onClick={removeJobState}>
-          <DeleteIcon fontSize="small" />
-        </CustomIconButton>
-      </TinyBox>
+    <Container>
+      <TextContainer status={status}>
+        <CheckBox checked={checked} setChecked={updateJobCheckState}/>
+        <TinyBox>
+          <LightTextBox text={rownum} />
+        </TinyBox>
+        <MediumBox>
+          <StatusIcons tasks={job.tasks} />
+        </MediumBox>
+        <BigBox>
+          <LightTextBox textAlign="left" text={fileName} />
+        </BigBox>
+        <SmallBox>
+          <LightTextBox text={outFileSize} />
+        </SmallBox>
+        <SmallBox>
+          <LightTextBox text={status} />
+        </SmallBox>
+        <SmallBox>
+          <LightTextBox text={percent} />
+        </SmallBox>
+        <SmallBox>
+          <LightTextBox text={speed} />
+        </SmallBox>
+        <MediumBox>
+          <LightTextBox text={outTime} />
+        </MediumBox>
+        <SmallBox>
+          <LightTextBox text={pid} />
+        </SmallBox>
+      </TextContainer>
+      <IconContainer>
+        <TinyBox>
+          <CustomIconButton disabled={pauseDisabled} onClick={backToStandby}>
+            <PauseIcon fontSize="small" />
+          </CustomIconButton>
+        </TinyBox>
+        <TinyBox>
+          <CustomIconButton disabled={cancelDisabled} onClick={cancelTask}>
+            <ClearIcon fontSize="small" />
+          </CustomIconButton>
+        </TinyBox>
+        <TinyBox>
+          <CustomIconButton disabled={!retryEnabled} onClick={retryFailedTask}>
+            <ReplayIcon fontSize="small" />
+          </CustomIconButton>
+        </TinyBox>
+        <TinyBox>
+          <CustomIconButton disabled={deleteDisabled} onClick={removeJobState}>
+            <DeleteIcon fontSize="small" />
+          </CustomIconButton>
+        </TinyBox>
+      </IconContainer>
       {/* <Box width="50%" marginRight="20px">
         <Stepper />
       </Box> */}
