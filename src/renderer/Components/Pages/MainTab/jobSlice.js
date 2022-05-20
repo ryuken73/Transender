@@ -1,3 +1,4 @@
+/* eslint-disable no-return-assign */
 /* eslint-disable import/named */
 /* eslint-disable prettier/prettier */
 import { createSlice } from '@reduxjs/toolkit';
@@ -32,10 +33,17 @@ export const jobSlice = createSlice({
       const job = state.jobList.find(job => job.jobId === jobId);
       if(job) job[key] = value;
     },
-    updateJobs: (state, action) => {
+    updateAllJobs: (state, action) => {
       const { payload } = action;
       const { key, value } = payload;
       state.jobList.forEach(job => job[key] = value);
+    },
+    updateCheckedJobs: (state, action) => {
+      const { payload } = action;
+      const { key, value } = payload;
+      state.jobList.forEach(job => {
+        if(job.checked) {job[key] = value};
+      });
     },
     updateJobProgress: (state, action) => {
       const { payload } = action;
@@ -49,7 +57,7 @@ export const jobSlice = createSlice({
   },
 })
 
-export const { addJob, addJobs, removeJob, updateJob, updateJobs, updateJobProgress } = jobSlice.actions;
+export const { addJob, addJobs, removeJob, updateJob, updateAllJobs, updateCheckedJobs, updateJobProgress } = jobSlice.actions;
 
 
 

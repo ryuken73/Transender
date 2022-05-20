@@ -23,8 +23,12 @@ const ButtonContainer = styled(Box)`
 `;
 
 const TabButtons = () => {
-  const { removeJobAllCheckedState, setAllManualStartState } = useJobListState();
-  console.log('re-render TabButtons');
+  const {
+    removeJobAllCheckedState,
+    setCheckedManualStartState,
+    safeRemoveJobAllCheckedState,
+  } = useJobListState();
+  // console.log('re-render TabButtons');
   return (
     <ButtonContainer>
       <ButtonIcon
@@ -32,14 +36,14 @@ const TabButtons = () => {
         iconComponent={<PlayCircleIcon />}
         border="1px solid rgba(255, 255, 255, .5)"
         hoverBorder="1px solid rgba(255, 255, 255, 0.8)"
-        onClick={setAllManualStartState}
+        onClick={setCheckedManualStartState}
       />
       <ButtonIcon
         text="삭제"
         iconComponent={<DeleteIcon />}
         border="1px solid rgba(255, 255, 255, .5)"
         hoverBorder="1px solid rgba(255, 255, 255, 0.8)"
-        onClick={removeJobAllCheckedState}
+        onClick={safeRemoveJobAllCheckedState}
       />
     </ButtonContainer>
 

@@ -1,17 +1,25 @@
 /* eslint-disable import/named */
 import React from 'react';
 import { useSelector, useDispatch } from 'react-redux';
+import bullConstants from 'renderer/config/bull-constants';
+import constants from 'renderer/config/constants';
+import useAppState from 'renderer/hooks/useAppState';
 import {
   addJob,
   addJobs,
   removeJob,
   updateJob,
-  updateJobs,
+  updateAllJobs,
+  updateCheckedJobs,
   // startMediainfoQueue,
 } from 'renderer/Components/Pages/MainTab/jobSlice';
 
+const { LOG_LEVEL } = constants;
+const { JOB_STATUS } = bullConstants;
+
 export default function useJobListState() {
   const dispatch = useDispatch();
+  const { setAppLogState } = useAppState();
   const jobList = useSelector((state) => state.job.jobList);
   const jobListRef = React.useRef([]);
   jobListRef.current = jobList;
@@ -20,7 +28,8 @@ export default function useJobListState() {
       ? false
       : jobList.every((job) => job.checked === true);
   }, [jobList]);
-  const addJobsState = React.useCallback((jobs) => {
+  const addJobsState = React.useCallback(
+    (jobs) => {
       if (Array.isArray(jobs)) {
         dispatch(addJobs({ jobs }));
       } else {
@@ -31,7 +40,7 @@ export default function useJobListState() {
   );
   const toggleAllCheckedState = React.useCallback(
     (checked) => {
-      dispatch(updateJobs({ key: 'checked', value: checked }));
+      dispatch(updateAllJobs({ key: 'checked', value: checked }));
     },
     [dispatch]
   );
@@ -43,8 +52,32 @@ export default function useJobListState() {
       dispatch(removeJob({ jobId: job.jobId }));
     });
   }, [dispatch]);
-  const setAllManualStartState = React.useCallback(() => {
-    dispatch(updateJobs({ key: 'manualStarted', value: true }));
+  const safeRemoveJobAllCheckedState = React.useCallback(() => {
+    let exception = 0;
+    const checkedJobsSafe = jobListRef.current.filter((job) => {
+      const isChecked = job.checked === true;
+      const isSafe =
+        job.status !== JOB_STATUS.ACTIVE && job.status !== JOB_STATUS.WAITING;
+      const canDelete = isChecked && isSafe;
+      console.log('%%%%', isChecked, isSafe, job);
+      if (!canDelete) {
+        exception += 1;
+      }
+      return canDelete;
+    });
+    console.log('%%%%', checkedJobsSafe);
+    checkedJobsSafe.forEach((job) => {
+      dispatch(removeJob({ jobId: job.jobId }));
+    });
+    if (exception !== 0){
+      setAppLogState(
+        `active or waiting job can't be removed.[${exception}]`,
+        LOG_LEVEL.ERROR
+      );
+    }
+  }, [dispatch, setAppLogState]);
+  const setCheckedManualStartState = React.useCallback(() => {
+    dispatch(updateCheckedJobs({ key: 'manualStarted', value: true }));
   }, [dispatch]);
 
   return {
@@ -53,6 +86,7 @@ export default function useJobListState() {
     addJobsState,
     toggleAllCheckedState,
     removeJobAllCheckedState,
-    setAllManualStartState,
+    safeRemoveJobAllCheckedState,
+    setCheckedManualStartState,
   };
 }
