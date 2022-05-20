@@ -14,11 +14,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import PauseIcon from '@mui/icons-material/Pause';
 import CancelIcon from '@mui/icons-material/Cancel';
 import useJobItemState from 'renderer/hooks/useJobItemState';
-import useMediainfoAdd from 'renderer/hooks/useMediainfoAdd';
-import useFFmpegAdd from 'renderer/hooks/useFFmpegAdd';
-import useVirusScanAdd from 'renderer/hooks/useVirusScanAdd';
-import useSendFileAdd from 'renderer/hooks/useSendFileAdd';
-import { getNextStandbyTask } from 'renderer/lib/jobUtil';
+import useTaskInJob from 'renderer/hooks/useTaskInJob';
 import bullConstants from 'renderer/config/bull-constants';
 import colors from 'renderer/config/colors';
 import { Pause } from '@mui/icons-material';
@@ -103,68 +99,37 @@ const JobItem = (props) => {
   } = job;
   const {
     retryEnabled,
-    currentActiveTaskType,
+    // currentActiveTaskType,
     updateJobCheckState,
     removeJobState,
-    updateJobStatusState,
+    // updateJobStatusState,
     retryFailedTask,
   } = useJobItemState(job);
-  const { addMediainfoItem } = useMediainfoAdd(job);
-  const { addFFmpegItem } = useFFmpegAdd(job);
-  const { addVirusScanItem } = useVirusScanAdd(job);
-  const { addSendFileItem } = useSendFileAdd(job);
+  const { startTask, cancelTask, backToReady } = useTaskInJob(job);
+
   const { fileName = 'aaa.mp4' } = sourceFile;
-  console.log('re-render JobItem', job);
-  const addMethods = React.useMemo(() => {
-    return {
-      mediainfo: addMediainfoItem,
-      transcode: addFFmpegItem,
-      virusScan: addVirusScanItem,
-      sendFile: addSendFileItem,
-    };
-  }, [addMediainfoItem, addFFmpegItem, addVirusScanItem, addSendFileItem])
-  const startStandbyTask = React.useCallback((task, job) => {
-      console.log('*** in startStandybTask');
-      const { taskType } = task;
-      const addQueue = addMethods[taskType];
-      updateJobStatusState(JOB_STATUS.WAITING);
-      console.log('~~~~ add new task', task)
-      addQueue(task, job);
-    },
-    [addMethods, updateJobStatusState]
-  );
-  const startTask = React.useCallback((job) => {
-    // prevous task should not be in standby state
-    console.log('*** tasks in job state:', job)
-      const task = getNextStandbyTask(job);
-      if ( task === undefined ) return;
-      if (task.autoStart || (job.manualStarted && job.checked)){
-        console.log('~~~~ startStandbyTask', task)
-        startStandbyTask(task, job);
-      }
-    },
-    [startStandbyTask]
-  );
+  // console.log('re-render JobItem', job);
+
   React.useEffect(() => {
     // console.log('^^^ job changed: ',job.jobId, job.status);
     if (job.status === JOB_STATUS.STANDBY || job.status === JOB_STATUS.READY){
-      console.log('&&&&& start start new task:', job.status);
-      startTask(job);
+      console.log('&&&&& start new task:', job.status);
+      startTask();
     }
   }, [job, startTask])
 
-  const cancelTask = React.useCallback(() => {
-    console.log('#### cancelTask', currentActiveTaskType, ffmpegWorker, sendFileWorker);
-    currentActiveTaskType === TASK_TYPES.TRANSCODE && ffmpegWorker.stop();
-    currentActiveTaskType === TASK_TYPES.SEND_FILE && sendFileWorker.stop();
-  }, [currentActiveTaskType, ffmpegWorker, sendFileWorker]);
+  const cancelCurrentTask = React.useCallback(() => {
+    cancelTask({ ffmpegWorker, sendFileWorker });
+  }, [cancelTask, ffmpegWorker, sendFileWorker]);
 
   const cancelDisabled = React.useMemo(
     () => job.status !== JOB_STATUS.ACTIVE,
     [job.status]
   );
 
-  const backToStandby = () => {};
+  const cancelWaiting = React.useCallback(() => {
+    backToReady(job);
+  }, [job, backToReady]);
 
   const deleteDisabled = job.status === JOB_STATUS.ACTIVE || job.status === JOB_STATUS.WAITING;
   const pauseDisabled = job.status !== JOB_STATUS.WAITING;
@@ -203,12 +168,12 @@ const JobItem = (props) => {
       </TextContainer>
       <IconContainer>
         <TinyBox>
-          <CustomIconButton disabled={pauseDisabled} onClick={backToStandby}>
+          <CustomIconButton disabled={pauseDisabled} onClick={cancelWaiting}>
             <PauseIcon fontSize="small" />
           </CustomIconButton>
         </TinyBox>
         <TinyBox>
-          <CustomIconButton disabled={cancelDisabled} onClick={cancelTask}>
+          <CustomIconButton disabled={cancelDisabled} onClick={cancelCurrentTask}>
             <ClearIcon fontSize="small" />
           </CustomIconButton>
         </TinyBox>
