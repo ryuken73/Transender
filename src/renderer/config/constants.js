@@ -24,6 +24,7 @@ const dev =  {
 
 const prd = {
   ...dev,
+  SEND_HOSTNAME: '10.40.254.51',
 };
 
 export default process.env.NODE_ENV === 'development' ? dev:prd;
