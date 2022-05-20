@@ -46,7 +46,7 @@ export default function useFFmpegAdd(job) {
         updateJobProgressState({
           outFileSize: number.niceBytes(total_size),
           speed,
-          outTime: out_time,
+          outTime: out_time.slice(0,-3),
           percent: number.nicePercent(frame, task.totalFrames),
         });
       });
