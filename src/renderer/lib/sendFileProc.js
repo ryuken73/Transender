@@ -38,9 +38,9 @@ const sendFileProc = () => {
       console.error('http.request error handler', error);
       if(error.code === 'ABORT_ERR'){
         console.log('user aborted');
-        rStream.close()
-        rStream.destroy()
       }
+      rStream.unpipe();
+      rStream.destroy()
       eventEmitter.emit('error', error);
     }
     req.on('error', handleError);
@@ -59,6 +59,8 @@ const sendFileProc = () => {
     })
     .catch(error => {
       console.error('rStrem read and request write error catch block:',error);
+      rStream.unpipe();
+      rStream.destroy()
       eventEmitter.emit('error', error)
     })
 

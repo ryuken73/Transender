@@ -52,6 +52,17 @@ body {
   background-color: #282c34;
 }
 
+/* remove scrollbar but keeps scrollable */
+/* ::-webkit-scrollbar {
+    width: 0;
+    background: transparent;
+}
+*/
+/*
+::-webkit-scrollbar-thumb {
+    background: #FF0000;
+} */
+
 /*
 body {
   margin: 0;
