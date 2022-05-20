@@ -166,7 +166,7 @@ const JobItem = (props) => {
 
   const backToStandby = () => {};
 
-  const deleteDisabled = job.status === JOB_STATUS.ACTIVE;
+  const deleteDisabled = job.status === JOB_STATUS.ACTIVE || job.status === JOB_STATUS.WAITING;
   const pauseDisabled = job.status !== JOB_STATUS.WAITING;
 
   return (
