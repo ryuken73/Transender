@@ -21,6 +21,8 @@ class Queue extends EventEmitter {
     this.Q_EVENTS = Q_EVENTS;
   }
 
+  set concurrency(value){ this._concurrency = value}
+
   static instances = {};
 
   static getInstance(name) {
