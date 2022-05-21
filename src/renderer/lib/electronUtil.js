@@ -101,6 +101,22 @@ const initElectronLog = (options) => {
   };
   return log;
 };
+const createLogger = (tag) => {
+  return {
+    info: (...msg) => {
+      log.info(`[${tag}]${msg.join(' ')}`);
+    },
+    debug: (...msg) => {
+      log.debug(`[${tag}]${msg.join(' ')}`);
+    },
+    error: (...msg) => {
+      log.error(`[${tag}]${msg.join(' ')}`);
+    },
+    log: (...msg) => {
+      log.info(`[${tag}]${msg.join(' ')}`);
+    },
+  };
+};
 
 const Store = require('electron-store');
 const remote = require('electron');
@@ -156,4 +172,5 @@ module.exports = {
   getFromJsonFile,
   initElectronLog,
   createElectronStore,
+  createLogger,
 };

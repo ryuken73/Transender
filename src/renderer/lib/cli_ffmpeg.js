@@ -1,4 +1,5 @@
 const ffmpegBin = require('./ffmpegProc');
+const { initElectronLog, createLogger } = require('./electronUtil');
 
 // const main = (ffmpegBinary) => {
 //   const ffmpegProc = ffmpegBin(ffmpegBinary);
@@ -11,6 +12,8 @@ const ffmpegBin = require('./ffmpegProc');
 //   ffmpeg.on('progress', (progress) => console.log(progress));
 //   process.stdin.on('data', () => ffmpegProc.stop());
 // };
+
+const logger = createLogger('ffmpeg');
 
 const main = (ffmpegBinary) => {
   const options = [
@@ -28,11 +31,11 @@ const main = (ffmpegBinary) => {
     },
   ];
   const procs = options.map(option => {
-    const ffmpegProc = ffmpegBin(ffmpegBinary);
+    const ffmpegProc = ffmpegBin(ffmpegBinary,{},logger);
     const ffmpeg = ffmpegProc.run(option);
-    ffmpeg.on('progress', (progress) =>
-      console.log(`${ffmpeg.pid}:`, progress)
-    );
+    // ffmpeg.on('progress', (progress) =>
+    //   console.log(`${ffmpeg.pid}:`, progress)
+    // );
     return ffmpeg;
   })
   process.stdin.on('data', () => {

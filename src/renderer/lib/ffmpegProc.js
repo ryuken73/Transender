@@ -31,13 +31,14 @@ const hasFFmpegErrorString = (line) => {
 
 const ffmpeg = (
   binaryPath = `${process.cwd()}/../../bin/ffmpeg2018.exe`,
-  spawnOptions = {}
+  spawnOptions = {},
+  logger = console,
 ) => {
   let childProcess;
   let controller;
 
   const run = ({ inFile, ffmpegOptions, outFile, totalFrames }) => {
-    console.log(ffmpegOptions.split(' '))
+    logger.log(inFile, ffmpegOptions.split(' '), outFile, totalFrames);
     controller = new AbortController();
     const { signal } = controller;
     const spawnArgs = ['-i', inFile, ...ffmpegOptions.split(' '), outFile];
@@ -47,24 +48,24 @@ const ffmpeg = (
     childProcess.on('error', (error) => {
       console.error(error)
       if (error.code === 'ABORT_ERR'){
-        console.log('force stopped')
+        logger.log('force stopped')
         childProcess.emit('force-stopped');
         return;
       }
     });
     childProcess.on('exit', (code) => {
-      console.log('exit ffmpeg: code= ', code);
+      logger.log('exit ffmpeg: code= ', code);
       childProcess.emit('done', code);
     });
     childProcess.stdout.on('data', (data) => {
-      // console.log('stdout >>', data.toString());
+      logger.log(data.toString());
       const progressObj = getProgressObj(data.toString());
       if (progressObj !== null) {
         childProcess.emit('progress', progressObj);
       }
     });
     childProcess.stderr.on('data', (data) => {
-      // console.log('stderr >>', data.toString());
+      logger.log(data.toString());
       if(hasFFmpegErrorString(data.toString())){
         // console.error('there are some errors in stderr.', data.toString());
         // stop will emit childProcess 'error' event.
@@ -74,7 +75,7 @@ const ffmpeg = (
     return childProcess;
   };
   const stop = () => {
-    console.log('&&& manual stop called!');
+    logger.log('&&& manual stop called!');
     controller.abort();
   }
 

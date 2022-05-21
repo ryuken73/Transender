@@ -5,6 +5,7 @@ import { clearWorker } from 'renderer/lib/jobUtil';
 import { ffmpegQueue } from 'renderer/lib/queueUtil';
 import ffmpegProc from 'renderer/lib/ffmpegProc';
 import { getAbsolutePath } from 'renderer/lib/electronUtil';
+import { createLogger } from 'renderer/lib/electronUtil';
 
 const ffmpegBinary = getAbsolutePath('bin/ffmpeg2018.exe', true);
 
@@ -19,7 +20,8 @@ export default function useFFmpegStart() {
           const qItemBody = qItem.itemBody;
           console.log('qItemBody:', qItemBody);
           const { jobId, inFile, ffmpegOptions, outFile, totalFrames } = qItemBody;
-          const ffmpeg = ffmpegProc(ffmpegBinary);
+          const logger = createLogger(inFile);
+          const ffmpeg = ffmpegProc(ffmpegBinary, {}, logger);
           const childProcess = ffmpeg.run({
             inFile,
             ffmpegOptions,
