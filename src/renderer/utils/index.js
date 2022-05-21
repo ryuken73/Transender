@@ -154,7 +154,7 @@ const file = {
     }
     return fs.promises.copyFile(srcFile, dstFile);
   },
-  checkDirWritable({ dirname }) {
+  checkDirWritable(dirname) {
     return new Promise((resolve, reject) => {
       fs.access(dirname, fs.constants.W_OK, function (err) {
         if (err) {

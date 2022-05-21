@@ -101,7 +101,7 @@ const initElectronLog = (options = {}) => {
   };
   return log;
 };
-const createLogger = (tag) => {
+const createLogger = (tag='None') => {
   return {
     info: (...msg) => {
       log.info(`[${tag}]${msg.join(' ')}`);

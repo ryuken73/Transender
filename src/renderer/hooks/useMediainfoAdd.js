@@ -7,12 +7,17 @@ import constants from 'renderer/config/constants';
 import bullConstants from 'renderer/config/bull-constants';
 import useAppLogState from 'renderer/hooks/useAppLogState';
 import { addMediainfoQueue } from 'renderer/lib/queueUtil';
+import { createLogger } from 'renderer/lib/electronUtil';
+import { file } from 'renderer/utils';
 
 const { file } = require('renderer/utils');
+
 const { changeDir, changeExtension } = file;
 
-const { FFMPEG_OPTIONS } = constants;
+const { FFMPEG_OPTIONS, FFMPEG_TARGET_DIR } = constants;
 const { JOB_STATUS, Q_ITEM_STATUS, Q_WORKER_EVENTS } = bullConstants;
+
+const logger = createLogger('mediainfo');
 
 const makeFFmpegOptions = (video, audio) => {
   const toMxfOption = FFMPEG_OPTIONS.MXF.join(' ');
@@ -23,8 +28,22 @@ const makeFFmpegOutPath = (job) => {
   const origFile = job.sourceFile.fullName;
   const targetFile = changeDir(
     changeExtension(origFile, '.mxf'),
-    'd:/temp/transender'
+    FFMPEG_TARGET_DIR
   );
+  file
+    .checkDirWritable(FFMPEG_TARGET_DIR)
+    .then((result) =>
+      logger.info('working directory ', FFMPEG_OPTIONS, ' writable!')
+    )
+    .catch((error) => {
+      logger.error(
+        error,
+        'working directory ',
+        FFMPEG_OPTIONS,
+        'not exits!. create new one'
+      );
+      file.makeDirectory(FFMPEG_TARGET_DIR);
+    });
   return targetFile;
 };
 
@@ -34,6 +53,7 @@ export default function useMediainfoAdd(job) {
   const { setAppLogState } = useAppLogState();
   const addMediainfoItem = React.useCallback(
     (task) => {
+      try {
       const currentTask = getTask(job, task);
       const nextTask = getNextTask(job, task);
       const getCurrentTaskUpdated = taskUpdater(currentTask);
@@ -59,8 +79,8 @@ export default function useMediainfoAdd(job) {
           totalFrames,
           outFile,
         });
-        console.log(updatedTask)
-        setAppLogState(`Analyze ${job.sourceFile.fullName} success.`)
+        console.log(updatedTask);
+        setAppLogState(`Analyze ${job.sourceFile.fullName} success.`);
         updateJobTask([completedTask, updatedTask]);
         updateJobStatusState(JOB_STATUS.READY);
       });
@@ -68,13 +88,17 @@ export default function useMediainfoAdd(job) {
         console.log('##### task failed!:', error);
         // eslint-disable-next-line prettier/prettier
         const failedTask = getCurrentTaskUpdated({status: Q_ITEM_STATUS.FAILED});
-        setAppLogState(`Analyze ${job.sourceFile.fullName} failed.`)
+        setAppLogState(`Analyze ${job.sourceFile.fullName} failed.`);
         updateJobTask([failedTask]);
         updateJobStatusState(JOB_STATUS.FAILED);
       });
+    } catch (error){
+      logger.error(error);
+    }
+
     },
     [job, setAppLogState, updateJobStatusState, updateJobTask]
   );
 
-  return { addMediainfoItem, };
+  return { addMediainfoItem };
 }
