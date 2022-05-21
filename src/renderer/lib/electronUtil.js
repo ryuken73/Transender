@@ -72,13 +72,13 @@ const getFromJsonFile = (options) => {
   return json;
 };
 
-const initElectronLog = (options) => {
+const initElectronLog = (options = {}) => {
   const {
     consoleFormat = '[{y}-{m}-{d} {h}:{i}:{s}.{ms}] [{level}] {text}',
     fileMaxSize = 10485760,
-    fileLogLevel = 'info',
+    fileLogLevel = 'debug',
     consoleLogLevel = 'info',
-    fileName = 'HLSIngest.log',
+    fileName = 'JIN-Transender.log',
   } = options;
   log.transports.console.format = consoleFormat;
   log.transports.file.maxSize = fileMaxSize;
