@@ -1,5 +1,6 @@
 {
-  "name": "jin-transcoder",
+  "name": "jin-transender",
+  "productName": "jin-transender",
   "version": "0.0.1",
   "description": "transcoder, virus scan and send media",
   "scripts": {
