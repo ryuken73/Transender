@@ -1,5 +1,6 @@
 /* eslint-disable react-hooks/rules-of-hooks */
 import React from 'react';
+import BasicCard from 'renderer/Components/Common/BasicCard';
 import { createQueue } from 'renderer/lib/queueClass';
 import constants from 'renderer/config/bull-constants';
 
@@ -20,9 +21,7 @@ const Header = () => {
   }, []);
   return (
     <div>
-      {/* {Object.keys(queues).map(key => (
-        <div>{queues[key].name}</div>
-      ))} */}
+      <BasicCard></BasicCard>
     </div>
   )
 };

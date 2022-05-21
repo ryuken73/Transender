@@ -1,7 +1,10 @@
 import { createSlice } from '@reduxjs/toolkit';
 import CONSTANTS from 'renderer/config/constants';
 import { date } from 'renderer/utils';
+import { initElectronLog } from 'renderer/lib/electronUtil';
 
+// initialize application log (log file name, format etc..)
+initElectronLog()
 const { LOG_LEVEL } = CONSTANTS;
 const initialState = {
   modalOpen: false,

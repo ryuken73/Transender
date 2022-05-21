@@ -12,14 +12,10 @@ import Config from 'renderer/Components/Pages/Config';
 import Loading from 'renderer/Components/Common/Loading';
 import MessageBox from 'renderer/Components/Common/MessageBox';
 import styled from 'styled-components';
-import { createQueue } from 'renderer/lib/queueClass';
 import constants from 'renderer/config/constants';
 import bullConstants from 'renderer/config/bull-constants';
 import colors from 'renderer/config/colors';
-import useAppState from 'renderer/hooks/useAppState';
-import useMessageBox from 'renderer/hooks/useMessageBox';
-import useSocketIO from 'renderer/hooks/useSocketIO';
-import useCheckConcept from './hooks/useCheckConcept';
+import {getAppInfo} from 'renderer/lib/getConfig';
 
 const { SOCKET_SERVER_URL } = constants;
 const { TASK_TYPES } = bullConstants;
@@ -45,7 +41,7 @@ const AppContainer = styled(BasicBox)`
 `;
 const HeaderContainer = styled(BasicBox)`
   margin-bottom: -1px;
-  height: 10%;
+  /* height: 10%; */
 `;
 const BodyContainer = styled.div`
   margin-left: -1px;
@@ -87,24 +83,16 @@ export default function App() {
   const { pathname } = location;
   console.log(params, location, pathname);
   React.useEffect(() => {
-    // initialize media info Queues
-    createQueue('mediainfo', bullConstants);
+    async function getInfo() {
+      return getAppInfo();
+    }
+    getInfo().then(version => console.log(version)).catch(err => console.error(err))
   }, []);
   // const { socket } = useSocketIO({
   //   hostAddress: SOCKET_SERVER_URL,
   //   setSocketConnected,
   // });
 
-  // const handleProgress = React.useCallback((props) => {
-  //   const { clientId, progress } = props;
-  //   console.log(`progress event: ${clientId}, ${progress}`);
-  // }, []);
-  // const toggleModal = React.useCallback(() => {
-  //   setModalOpenState(!modalOpen);
-  // }, [])
-  // const showMessage = React.useCallback(() => {
-  //   showMessageBox('info')
-  // }, [])
   return (
     <AppContainer>
       <HeaderContainer>
