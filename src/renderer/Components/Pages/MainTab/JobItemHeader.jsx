@@ -21,9 +21,6 @@ const TextContainer = styled(Container)`
     width: 100%;
     opacity: 1;
     background: ${(props) => (props.checked ? colors.checked : 'transparent')};
-    &:hover {
-      background: ${colors.hovered};
-    }
   }
 `;
 const IconContainer = styled(Container)`
