@@ -5,13 +5,13 @@ const dev =  {
     WARN: 'WARN',
     ERROR: 'ERROR',
   },
+  DEFAULT_CUSTOM_CONFIG_NAME: 'jin-transender',
   SOCKET_SERVER_URL: 'http://localhost:9009',
   EVENT_NEW_MESSAGES: 'post:newMessages',
   MEDIAINFO_BIN: '',
   SEND_HOSTNAME: 'localhost',
   SEND_PORT: 7000,
   SEND_URI_PATH: '/sendFile',
-  FFMPEG_TARGET_DIR: 'd:/temp/transender',
   FFMPEG_OPTIONS: {
     MXF: [
       '-r ntsc -c:v mpeg2video -profile:v 0 -level:v 2 -b:v 50000k -maxrate 50000k -minrate 50000k',

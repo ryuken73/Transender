@@ -3,6 +3,7 @@
 import { configureStore, getDefaultMiddleware } from '@reduxjs/toolkit';
 import { createLogger } from 'redux-logger';
 import appReducer from 'renderer/appSlice';
+import configReducer from 'renderer/Components/Header/configSlice';
 import jobReducer from 'renderer/Components/Pages/MainTab/jobSlice';
 import CONSTANTS from 'renderer/config/constants';
 
@@ -16,6 +17,7 @@ export const store = configureStore({
   reducer: {
     app: appReducer,
     job: jobReducer,
+    config: configReducer,
   },
   middleware: (getDefaultMiddleware) => getDefaultMiddleware().concat(logger),
   devTools: process.env.NODE_ENV !== 'production',

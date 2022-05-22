@@ -17,6 +17,8 @@ import MenuBuilder from './menu';
 import { resolveHtmlPath } from './util';
 import setupIPCHandlers from './appUtil';
 
+const Store = require('electron-store');
+
 setupIPCHandlers();
 export default class AppUpdater {
   constructor() {
@@ -45,6 +47,9 @@ const isDevelopment =
 if (isDevelopment) {
   require('electron-debug')();
 }
+
+const storeName = isDevelopment ? 'jin-transender' : app.name;
+const store = new Store(storeName)
 
 const installExtensions = async () => {
   const installer = require('electron-devtools-installer');
@@ -89,6 +94,7 @@ const createWindow = async () => {
   mainWindow.loadURL(resolveHtmlPath('index.html'));
 
   mainWindow.on('ready-to-show', () => {
+    Store.initRenderer();
     if (!mainWindow) {
       throw new Error('"mainWindow" is not defined');
     }

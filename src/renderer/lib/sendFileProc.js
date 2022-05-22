@@ -25,7 +25,11 @@ const sendFileProc = () => {
       },
       signal,
     };
-    rStream = fs.createReadStream(inFile, { highWaterMark: 1024 * 1024 });
+    try {
+      rStream = fs.createReadStream(inFile, { highWaterMark: 1024 * 1024 });
+    } catch(error) {
+      throw Error(error);
+    }
     const req = http.request(options, res => {
       res.on('data', chunk => {
         console.log(chunk.toString());

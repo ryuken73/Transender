@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-shadow */
 /* eslint-disable import/named */
 import React from 'react';
 import { useSelector } from 'react-redux';
@@ -6,15 +7,14 @@ import useJobItemState from 'renderer/hooks/useJobItemState';
 import constants from 'renderer/config/constants';
 import bullConstants from 'renderer/config/bull-constants';
 import useAppLogState from 'renderer/hooks/useAppLogState';
+import useConfig from 'renderer/hooks/useConfig';
 import { addMediainfoQueue } from 'renderer/lib/queueUtil';
 import { createLogger } from 'renderer/lib/electronUtil';
-import { file } from 'renderer/utils';
 
 const { file } = require('renderer/utils');
-
 const { changeDir, changeExtension } = file;
 
-const { FFMPEG_OPTIONS, FFMPEG_TARGET_DIR } = constants;
+const { FFMPEG_OPTIONS } = constants;
 const { JOB_STATUS, Q_ITEM_STATUS, Q_WORKER_EVENTS } = bullConstants;
 
 const logger = createLogger('mediainfo');
@@ -24,14 +24,14 @@ const makeFFmpegOptions = (video, audio) => {
   // return '-y -acodec copy -progress pipe:1';
   return toMxfOption;
 };
-const makeFFmpegOutPath = (job) => {
+const makeFFmpegOutPath = (job, outPath) => {
   const origFile = job.sourceFile.fullName;
   const targetFile = changeDir(
     changeExtension(origFile, '.mxf'),
-    FFMPEG_TARGET_DIR
+    outPath
   );
   file
-    .checkDirWritable(FFMPEG_TARGET_DIR)
+    .checkDirWritable(outPath)
     .then((result) =>
       logger.info('working directory ', FFMPEG_OPTIONS, ' writable!')
     )
@@ -42,7 +42,7 @@ const makeFFmpegOutPath = (job) => {
         FFMPEG_OPTIONS,
         'not exits!. create new one'
       );
-      file.makeDirectory(FFMPEG_TARGET_DIR);
+      file.makeDirectory(outPath);
     });
   return targetFile;
 };
@@ -50,10 +50,11 @@ const makeFFmpegOutPath = (job) => {
 export default function useMediainfoAdd(job) {
   const { jobId } = job;
   const { updateJobTask, updateJobStatusState } = useJobItemState(job);
+  const { config } = useConfig();
+  const { FFMPEG_TARGET_DIR: outPath } = config;
   const { setAppLogState } = useAppLogState();
   const addMediainfoItem = React.useCallback(
     (task) => {
-      try {
       const currentTask = getTask(job, task);
       const nextTask = getNextTask(job, task);
       const getCurrentTaskUpdated = taskUpdater(currentTask);
@@ -72,7 +73,7 @@ export default function useMediainfoAdd(job) {
         console.log('&&&&', video('FrameCount'));
         const ffmpegOptions = makeFFmpegOptions(video, audio);
         const totalFrames = video('FrameCount')[0];
-        const outFile = makeFFmpegOutPath(job);
+        const outFile = makeFFmpegOutPath(job, outPath);
         const updatedTask = getNextTaskUpdated({
           inFile: job.sourceFile.fullName,
           ffmpegOptions,
@@ -92,10 +93,6 @@ export default function useMediainfoAdd(job) {
         updateJobTask([failedTask]);
         updateJobStatusState(JOB_STATUS.FAILED);
       });
-    } catch (error){
-      logger.error(error);
-    }
-
     },
     [job, setAppLogState, updateJobStatusState, updateJobTask]
   );
