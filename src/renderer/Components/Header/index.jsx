@@ -12,6 +12,7 @@ import useInitConfig from 'renderer/hooks/useInitConfig';
 import useConfig from 'renderer/hooks/useConfig';
 import ButtonIcon from 'renderer/Components/Common/ButtonIcon';
 import FolderIcon from '@mui/icons-material/Folder';
+import PlusMinuxBox from '../Common/PlusMinuxBox';
 
 const { ipcRenderer } = require('electron');
 const Store = require('electron-store');
@@ -38,6 +39,7 @@ const InfoBox = styled.div`
 `
 const CustomTextBox = styled(TextBox)`
   font-size: 12px;
+  margin: 5px;
 `
 
 const Header = () => {
@@ -72,7 +74,8 @@ const Header = () => {
   return (
     <Container>
       <QStatusBox>
-        <CustomTextBox text="동시작업수">mediainfo</CustomTextBox>
+        <CustomTextBox text="동시 작업수">mediainfo</CustomTextBox>
+        <PlusMinuxBox></PlusMinuxBox>
       </QStatusBox>
       <InfoBox>
         <Box marginRight="5px">
